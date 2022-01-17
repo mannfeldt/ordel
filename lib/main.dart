@@ -1,6 +1,10 @@
 import 'dart:math';
 
+import 'package:flip_card/flip_card.dart';
+import 'package:flip_card/flip_card_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:ordel/utils.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,6 +28,11 @@ void main() {
 //   den ska då spela och sen väljer den tillbaka ett ord osv. bäst av 5 kanske. man får poäng beronde på hur få gissningar man behövde.
 //   det kan bli lika? eller tiebreak är tiden? man har max 1 minut per omgång och den med mest tid kvar vinner om det blev lika.
 //   Det kan vara auto matchmaking (ranked) eller casual (invite friend).
+
+class WordRowController {
+  Future<void> Function()? flip;
+  Future<void> Function()? shake;
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -49,9 +58,47 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-enum KeyState { unknow, included, correct, wrong }
-
 class _MyHomePageState extends State<MyHomePage> {
+  final List<FlipCardController> _flipControllers = [
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController(),
+    FlipCardController()
+  ];
+
+  List<FlipCardController> get activeFlipControllers =>
+      getFlipControllers(activeRow);
+
+  List<FlipCardController> getFlipControllers(int row) {
+    return _flipControllers.sublist(row * 5, (row + 1) * 5);
+  }
+
   String _answer = "";
   String _currentGuess = "";
   List<String> _guesses = [
@@ -80,9 +127,17 @@ class _MyHomePageState extends State<MyHomePage> {
     "JUVEL",
   ];
 
+//TODO om det här inte fungerar får vi skapa upp mer statiska 5x6 flipcontrollers direkt och räkna ut vilka som ska flippas varje gång.
   @override
   void initState() {
     startGame();
+    // _wordControllers.add(WordRowController());
+    // _wordControllers.add(WordRowController());
+    // _wordControllers.add(WordRowController());
+    // _wordControllers.add(WordRowController());
+    // _wordControllers.add(WordRowController());
+    // _wordControllers.add(WordRowController());
+
     super.initState();
   }
 
@@ -98,6 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
         "",
         "",
       ];
+      _flipControllers.forEach((c) => c.toggleCard());
     });
   }
 
@@ -128,7 +184,16 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> gameOver() async {
-    await Future.delayed(const Duration(seconds: 1));
+    await Fluttertoast.showToast(
+        msg: "Game Over",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black87,
+        textColor: Colors.white,
+        fontSize: 16.0);
+    await Future.delayed(const Duration(seconds: 2));
+
     startGame();
   }
 
@@ -137,14 +202,51 @@ class _MyHomePageState extends State<MyHomePage> {
       _guesses[activeRow] = _currentGuess;
       _currentGuess = "";
     });
+    await Fluttertoast.showToast(
+        msg: "You Won!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0);
     await Future.delayed(const Duration(seconds: 2));
     startGame();
   }
 
+  Future<void> flipGuess() async {
+    for (FlipCardController c in activeFlipControllers) {
+      c.toggleCard();
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+  }
+
+  Future<void> shakeRow() async {
+    for (FlipCardController c in activeFlipControllers) {
+      c.hint(
+          duration: Duration(milliseconds: 100),
+          total: Duration(milliseconds: 400));
+    }
+    await Future.delayed(Duration(milliseconds: 400));
+    for (FlipCardController c in activeFlipControllers) {
+      c.hint(
+          duration: Duration(milliseconds: 1),
+          total: Duration(milliseconds: 4));
+    }
+  }
+
   Future<void> _enterGuess() async {
-    //kanske lägg till någon skakanimation att det inte går
-    if (_currentGuess.length != 5) return;
-    if (!isValidWord(_currentGuess)) return;
+    if (_currentGuess.length != 5) {
+      shakeRow();
+      return;
+    }
+
+    if (!isValidWord(_currentGuess)) {
+      shakeRow();
+      return;
+    }
+
+    flipGuess();
 
     if (_currentGuess == _answer) {
       await onGameWon();
@@ -156,18 +258,16 @@ class _MyHomePageState extends State<MyHomePage> {
         _currentGuess = "";
       });
     }
-
-    //TODO reveal av resultatet ska ske med https://pub.dev/packages/flip_card
-    //Det baksidan är samma widget fast då med rätt färgsättning.
-    //så framsidan ska visas om korete är inaktivt/activt men när den är något annat så flippar vi till baksidan som då har färgerna
-    //framsidan är alltid black87 ?
   }
 
   Widget _buildWordGrid() {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         for (int i = 0; i < 6; i++)
           WordRow(
+            controllers: _flipControllers.sublist(i * 5, (i + 1) * 5),
             guess: _guesses[i].isNotEmpty
                 ? _guesses[i]
                 : activeRow == i
@@ -184,35 +284,16 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  KeyState getKeyState(String key) {
-    KeyState state = KeyState.unknow;
-    for (String guess in _guesses) {
-      for (int i = 0; i < guess.length; i++) {
-        if (guess[i] == key) {
-          if (key == _answer[i]) return KeyState.correct;
-          if (_answer.contains(key)) {
-            state = KeyState.included;
-          } else if (state == KeyState.unknow) {
-            state = KeyState.wrong;
-          }
-        }
-      }
-    }
-    return state;
-  }
-
   Widget _buildKeyBoardButton(String key) {
     return LetterButton(
       letter: key,
-      state: getKeyState(key),
+      state: getKeyState(key, answer: _answer, guesses: _guesses),
       onTap: _addGuess,
     );
   }
 
   Widget _buildKeyboard() {
-    //TODO knapparna här ska vara snygga och kuna ha färger beroende på answer + guesses.
-    //TODO knapp kan ha state (unknown, included, correct, wrong)
-    //även disabled om den inte är med i answer
+    //TODO även disabled om den inte är med i answer?
     return Column(
       children: [
         Row(
@@ -278,6 +359,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildWordGrid(),
+            const SizedBox(height: 60),
             _buildKeyboard(),
           ],
         ),
@@ -333,42 +415,48 @@ class LetterButton extends StatelessWidget {
   }
 }
 
-enum RowState { inactive, active, done }
-enum LetterBoxState { inactive, active, focused, wrong, included, correct }
-
-class WordRow extends StatelessWidget {
+class WordRow extends StatefulWidget {
   final String answer;
   final String guess;
   final RowState state;
+  final List<FlipCardController> controllers;
+
   const WordRow({
     Key? key,
     this.state = RowState.inactive,
     this.guess = "",
     this.answer = "",
+    required this.controllers,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    int activeLetterIndex = guess.length;
+  State<WordRow> createState() => _WordRowState();
+}
 
-    LetterBoxState getLetterBoxState(int i) {
-      if (state == RowState.inactive) return LetterBoxState.inactive;
-      if (state == RowState.active) {
-        return activeLetterIndex == i
-            ? LetterBoxState.focused
-            : LetterBoxState.active;
-      }
-      if (guess[i] == answer[i]) return LetterBoxState.correct;
-      if (answer.contains(guess[i])) return LetterBoxState.included;
-      return LetterBoxState.wrong;
-    }
+class _WordRowState extends State<WordRow> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    int activeLetterIndex = widget.guess.length;
 
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         for (int i = 0; i < 5; i++)
           LetterBox(
-            state: getLetterBoxState(i),
-            letter: activeLetterIndex > i ? guess[i] : "",
+            flipController: widget.controllers[i],
+            state: getLetterBoxState(
+              i,
+              rowState: widget.state,
+              activeIndex: activeLetterIndex,
+              answer: widget.answer,
+              guess: widget.guess,
+            ),
+            letter: activeLetterIndex > i ? widget.guess[i] : "",
           ),
       ],
     );
@@ -378,11 +466,13 @@ class WordRow extends StatelessWidget {
 class LetterBox extends StatelessWidget {
   final LetterBoxState state;
   final String letter;
+  final FlipCardController? flipController;
 
   const LetterBox({
     Key? key,
     this.state = LetterBoxState.inactive,
     this.letter = "",
+    this.flipController,
   }) : super(key: key);
 
   @override
@@ -409,34 +499,60 @@ class LetterBox extends StatelessWidget {
         break;
       default:
     }
-    return Row(
-      children: [
-        Container(
-          width: 30,
-          height: 30,
-          decoration: BoxDecoration(
-            color: boxColor,
-            borderRadius: const BorderRadius.all(Radius.circular(4)),
-          ),
-          padding: const EdgeInsets.all(4.0),
-          margin: const EdgeInsets.all(4.0),
-          child: state == LetterBoxState.focused
-              ? const Align(
-                  child: BlinkingUnderline(),
-                  alignment: Alignment.bottomCenter,
-                )
-              : Center(
-                  child: Text(
-                    letter,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+
+    //TODO Gör det responsivt
+    Widget hidden = Container(
+      width: 50,
+      height: 50,
+      decoration: const BoxDecoration(
+        color: Colors.black87,
+        borderRadius: const BorderRadius.all(Radius.circular(4)),
+      ),
+      padding: const EdgeInsets.all(4.0),
+      margin: const EdgeInsets.all(4.0),
+      child: state == LetterBoxState.focused
+          ? const Align(
+              child: BlinkingUnderline(),
+              alignment: Alignment.bottomCenter,
+            )
+          : Center(
+              child: Text(
+                letter,
+                style: const TextStyle(
+                  fontSize: 22,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
+            ),
+    );
+    Widget revealed = Container(
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        color: boxColor,
+        borderRadius: const BorderRadius.all(Radius.circular(4)),
+      ),
+      padding: const EdgeInsets.all(4.0),
+      margin: const EdgeInsets.all(4.0),
+      child: Center(
+        child: Text(
+          letter,
+          style: const TextStyle(
+            fontSize: 22,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ],
+      ),
+    );
+
+    return FlipCard(
+      controller: flipController,
+      flipOnTouch: true,
+      direction: FlipDirection.HORIZONTAL,
+      front: hidden,
+      back: revealed,
     );
   }
 }
