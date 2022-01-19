@@ -1,3 +1,5 @@
+import 'package:ordel/models/game_round_result_model.dart';
+
 enum KeyState { unknow, included, correct, wrong }
 enum RowState { inactive, active, done }
 enum LetterBoxState { inactive, active, focused, wrong, included, correct }
@@ -27,8 +29,6 @@ LetterBoxState getLetterBoxState(
   required String answer,
   required String guess,
 }) {
-  //TODO lägg till tetfall på hur jag vill ha det med alla olika kombinationer
-  //TODO inkl buggen jag upptäckte
   if (rowState == RowState.inactive) return LetterBoxState.inactive;
   if (rowState == RowState.active) {
     return activeIndex == i ? LetterBoxState.focused : LetterBoxState.active;
@@ -45,4 +45,13 @@ LetterBoxState getLetterBoxState(
     if (matches > 0) return LetterBoxState.included;
   }
   return LetterBoxState.wrong;
+}
+
+int getWinStreak(List<GameRoundResult> history) {
+  int wins = 0;
+  for (GameRoundResult result in history.reversed) {
+    if (!result.isWin) return wins;
+    wins++;
+  }
+  return wins;
 }
