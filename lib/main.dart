@@ -1,19 +1,39 @@
+import 'dart:async';
+
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutterfire_ui/auth.dart';
+import 'package:ordel/game_provider.dart';
 import 'package:ordel/home.dart';
+import 'package:ordel/providers.dart';
+import 'package:provider/provider.dart';
+import 'package:provider/single_child_widget.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  FlutterError.onError = (FlutterErrorDetails details) {
+    if (kReleaseMode) {
+      Zone.current.handleUncaughtError(details.exception, details.stack!);
+    } else {
+      FlutterError.dumpErrorToConsole(details);
+    }
+  };
 
-  await Firebase.initializeApp();
-
-  runApp(const MyApp());
+  // await FirebaseCrashlytics.instance;
+  // ignore: prefer_void_to_null
+  unawaited(runZoned<Future<Null>>(() async {
+    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    final providers = await bootstrap();
+//TODO kolla mot pelabs depricated?
+    runApp(MyApp(providers: providers));
+  }, onError: (error, stackTrace) async {
+    await FirebaseCrashlytics.instance.recordError(error, stackTrace);
+  }));
 }
 // problem att starta. få mer error logg? run med någon flagga för mer error loggs??
 //en rad kan ha 3 states. inactive, active, used,
@@ -40,7 +60,9 @@ Future<void> main() async {
 // lägg till streaks. skapa en gameResult model som innehåller all möjlig info.. hur många gissningar det tog åtminstone.
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final List<SingleChildWidget> providers;
+
+  const MyApp({Key? key, required this.providers}) : super(key: key);
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -72,41 +94,47 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     const providerConfigs = [EmailProviderConfiguration()];
 
-    return MaterialApp(
-      initialRoute:
-          FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/home',
-      routes: {
-        '/sign-in': (context) {
-          return SignInScreen(
-            providerConfigs: providerConfigs,
-            footerBuilder: (context, action) => TextButton(
-              onPressed: () async {
-                await FirebaseAuth.instance.signInAnonymously();
-                Navigator.pushReplacementNamed(context, '/home');
-              },
-              child: Text("Anonym"),
-            ),
-            actions: [
-              AuthStateChangeAction<SignedIn>((context, state) {
-                Navigator.pushReplacementNamed(context, '/home');
-              }),
-            ],
-          );
-        },
-        '/profile': (context) {
-          return ProfileScreen(
-            providerConfigs: providerConfigs,
-            actions: [
-              SignedOutAction((context) {
-                Navigator.pushReplacementNamed(context, '/sign-in');
-              }),
-            ],
-          );
-        },
-        '/home': (context) {
-          return MyHomePage();
-        },
-      },
+    return MultiProvider(
+      providers: widget.providers,
+      child: Consumer2<FirebaseAnalyticsObserver, GameProvider>(
+        builder: (context, analyticsObserver, gameProvide, child) =>
+            MaterialApp(
+          initialRoute:
+              FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/home',
+          routes: {
+            '/sign-in': (context) {
+              return SignInScreen(
+                providerConfigs: providerConfigs,
+                footerBuilder: (context, action) => TextButton(
+                  onPressed: () async {
+                    await FirebaseAuth.instance.signInAnonymously();
+                    Navigator.pushReplacementNamed(context, '/home');
+                  },
+                  child: const Text("Anonym"),
+                ),
+                actions: [
+                  AuthStateChangeAction<SignedIn>((context, state) {
+                    Navigator.pushReplacementNamed(context, '/home');
+                  }),
+                ],
+              );
+            },
+            '/profile': (context) {
+              return ProfileScreen(
+                providerConfigs: providerConfigs,
+                actions: [
+                  SignedOutAction((context) {
+                    Navigator.pushReplacementNamed(context, '/sign-in');
+                  }),
+                ],
+              );
+            },
+            '/home': (context) {
+              return const MyHomePage();
+            },
+          },
+        ),
+      ),
     );
   }
 }

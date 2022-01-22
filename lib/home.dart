@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flip_card/flip_card_controller.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ordel/constants.dart';
@@ -103,10 +102,18 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  //TODO lägg till sparning av historik till firebase. först när man förlorar dock.
+todo här
+  //TODO lägg till sparning av historik till firebase. först när man förlorar dock. 
+  //TODO(skapa en bra datamodell) en entry ska innehålla allt inkl userid. doc och collections. blir det något annat än gameresults_model?
   //TODO när man klickar på stats sidan så hämtas all tidigare historik upp från alla användare
   //visa total stats kring vilken rank man har. bästa rundan osv.
   //jämför också med nuvarande runda om man är mitt i en med _historik
+  när detta är på plats finns det lite att spela för och då är vi redo för att releasea version till play store.
+  //TODO vidare: lägg till stöd för flera språk. Ett språk har en KeyboardConfig som definerar vilka bokstäver som är på vilken rad
+  //TODO inkl var enter och delete är? Språket styr också vilken remoteconfig paramter vi hämtar upp för answers.
+  //TODO vi sprar språk till roundHistory också.
+  //TODO också en referens till en sråkfil. en json/property fil likt vi använder i pelabs. translations.dart kopiera rakt av typ.
+  //Tror jag kör allt på engelska tillsvidare dock.
 
   //skapa en Provider och klient för detta. Flytta upp _currentHistorik och _allHistorik dit
   //när man är klar med en runda så läggs det till i provider.currentHistorik osv.
