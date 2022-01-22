@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ordel/models/game_round_result_model.dart';
+import 'package:ordel/models/wordle_game_model.dart';
 import 'package:ordel/utils.dart';
 
 void main() {
@@ -293,44 +293,44 @@ void main() {
     expect(getWinStreak([]), 0);
     expect(
       getWinStreak([
-        GameRoundResult(answer: "a", guesses: ["a"])
+        WordleGame(answer: "a", guesses: ["a"])
       ]),
       1,
     );
     expect(
       getWinStreak([
-        GameRoundResult(answer: "a", guesses: ["a"]),
-        GameRoundResult(answer: "a", guesses: ["b"])
+        WordleGame(answer: "a", guesses: ["a"]),
+        WordleGame(answer: "a", guesses: ["b"])
       ]),
       0,
     );
     expect(
       getWinStreak([
-        GameRoundResult(answer: "a", guesses: ["b"]),
-        GameRoundResult(answer: "a", guesses: ["a"])
+        WordleGame(answer: "a", guesses: ["b"]),
+        WordleGame(answer: "a", guesses: ["a"])
       ]),
       1,
     );
     expect(
       getWinStreak([
-        GameRoundResult(answer: "a", guesses: ["a"]),
-        GameRoundResult(answer: "a", guesses: ["a"])
+        WordleGame(answer: "a", guesses: ["a"]),
+        WordleGame(answer: "a", guesses: ["a"])
       ]),
       2,
     );
     expect(
       getWinStreak([
-        GameRoundResult(answer: "a", guesses: ["b"]),
-        GameRoundResult(answer: "a", guesses: ["a"]),
-        GameRoundResult(answer: "a", guesses: ["b"]),
+        WordleGame(answer: "a", guesses: ["b"]),
+        WordleGame(answer: "a", guesses: ["a"]),
+        WordleGame(answer: "a", guesses: ["b"]),
       ]),
       0,
     );
     expect(
       getWinStreak([
-        GameRoundResult(answer: "a", guesses: ["a"]),
-        GameRoundResult(answer: "a", guesses: ["a"]),
-        GameRoundResult(answer: "a", guesses: ["a"]),
+        WordleGame(answer: "a", guesses: ["a"]),
+        WordleGame(answer: "a", guesses: ["a"]),
+        WordleGame(answer: "a", guesses: ["a"]),
       ]),
       3,
     );

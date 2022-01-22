@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:ordel/local_storage.dart';
+import 'package:ordel/models/wordle_game_model.dart';
 
 class FirebaseClient {
   final FirebaseAnalyticsObserver _observer;
@@ -32,6 +33,8 @@ class FirebaseClient {
   // CloudFunctions _functions = CloudFunctions.instance;
   // PushNotificationService _notificationService;
   auth.User? _user;
+
+  auth.User? get user => _user;
   // String _fcmToken;
 
   // String get fcmToken => _fcmToken;
@@ -48,7 +51,28 @@ class FirebaseClient {
     // _notificationService = PushNotificationService();
     // _notificationService.initialize();
     // _fcmToken = await _notificationService.token;
-    _user = _auth.currentUser!;
+    _user = _auth.currentUser;
+  }
+
+  Future<List<WordleGame>> getGames() async {
+    if (isPossibleInfiniteLoop) throw "POSSIBLE INFINITE LOOP";
+    print("------------------firebase_client getGames---------------------");
+    CollectionReference gamesCollection = _firestore.collection('games');
+
+    QuerySnapshot snapshot = await gamesCollection.get();
+
+    List<WordleGame> games =
+        snapshot.docs.map((x) => WordleGame.fromJson(x.data())).toList();
+
+    return games;
+  }
+
+  Future<void> createGame(WordleGame game) async {
+    if (isPossibleInfiniteLoop) throw "POSSIBLE INFINITE LOOP";
+    print("------------------firebase_client createGame---------------------");
+    CollectionReference gamesCollection = _firestore.collection('games');
+
+    await gamesCollection.add(game.toJson());
   }
 
   // Future<List<UserPrediction>> getUserPredictions() async {

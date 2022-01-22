@@ -13,8 +13,6 @@ Future<List<SingleChildWidget>> bootstrap() async {
   final localStorage = LocalStorage();
   await analyticsObserver.analytics.setAnalyticsCollectionEnabled(kReleaseMode);
 
-  await Firebase.initializeApp();
-
   FirebaseApp inst = Firebase.app();
 
   FirebaseOptions options = inst.options;
@@ -30,25 +28,28 @@ Future<List<SingleChildWidget>> bootstrap() async {
   // Responsive.init(ScreenType.small);
   return [
     ...buildServiceProviders(firebaseClient, analyticsObserver, localStorage),
-    ...buildModelProviders(options.projectId)
+    ...buildModelProviders(firebaseClient, analyticsObserver, localStorage)
   ];
 }
 
-List<SingleChildWidget> buildModelProviders(String firebaseProjectId) {
+List<SingleChildWidget> buildModelProviders(FirebaseClient client,
+    FirebaseAnalyticsObserver observer, LocalStorage storage) {
   return [
     ChangeNotifierProxyProvider3<FirebaseClient, FirebaseAnalyticsObserver,
         LocalStorage, GameProvider>(
-      update: (context, client, analyticsObserver, localStorage, f1Provider) {
+      update: (context, client, analyticsObserver, localStorage, gameProvider) {
         var provider = GameProvider(
           client: client,
           localStorage: localStorage,
           observer: analyticsObserver,
         );
+        provider.loadGames();
         return provider;
       },
       create: (context) {
         //TODO jämför med pe_labs hur gör vi här. vad returneras?
-        return Provider.of<GameProvider>(context);
+        return GameProvider(
+            client: client, localStorage: storage, observer: observer);
       },
     ),
   ];

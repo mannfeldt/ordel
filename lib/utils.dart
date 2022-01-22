@@ -1,4 +1,4 @@
-import 'package:ordel/models/game_round_result_model.dart';
+import 'package:ordel/models/wordle_game_model.dart';
 
 enum KeyState { unknow, included, correct, wrong }
 enum RowState { inactive, active, done }
@@ -47,9 +47,9 @@ LetterBoxState getLetterBoxState(
   return LetterBoxState.wrong;
 }
 
-int getWinStreak(List<GameRoundResult> history) {
+int getWinStreak(List<WordleGame> history) {
   int wins = 0;
-  for (GameRoundResult result in history.reversed) {
+  for (WordleGame result in history.reversed) {
     if (!result.isWin) return wins;
     wins++;
   }

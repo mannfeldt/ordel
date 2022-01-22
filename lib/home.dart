@@ -5,10 +5,11 @@ import 'package:flip_card/flip_card_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ordel/constants.dart';
+import 'package:ordel/game_provider.dart';
 import 'package:ordel/letter_button.dart';
-import 'package:ordel/models/game_round_result_model.dart';
 import 'package:ordel/utils.dart';
 import 'package:ordel/word_grid.dart';
+import 'package:provider/provider.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -57,8 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 //TODO dessa rakt under ska lyftas till state manager provider/bloc etc.
   List<String> _wordList = [];
-  final List<GameRoundResult> _gameHistory = [];
-
+  bool _gameOverLoading = false;
   List<FlipCardController> get activeFlipControllers =>
       getFlipControllers(activeRow);
 
@@ -102,13 +102,10 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-todo här
-  //TODO lägg till sparning av historik till firebase. först när man förlorar dock. 
-  //TODO(skapa en bra datamodell) en entry ska innehålla allt inkl userid. doc och collections. blir det något annat än gameresults_model?
-  //TODO när man klickar på stats sidan så hämtas all tidigare historik upp från alla användare
+// todo här
+  //TODO skapa en dev databas-projekt så att vi inte smutsar ner statisik osv.. Kolla F1 exempel
   //visa total stats kring vilken rank man har. bästa rundan osv.
-  //jämför också med nuvarande runda om man är mitt i en med _historik
-  när detta är på plats finns det lite att spela för och då är vi redo för att releasea version till play store.
+  //! när detta är på plats finns det lite att spela för och då är vi redo för att releasea version till play store.
   //TODO vidare: lägg till stöd för flera språk. Ett språk har en KeyboardConfig som definerar vilka bokstäver som är på vilken rad
   //TODO inkl var enter och delete är? Språket styr också vilken remoteconfig paramter vi hämtar upp för answers.
   //TODO vi sprar språk till roundHistory också.
@@ -120,13 +117,13 @@ todo här
   //Kolla lite på Bloc Clean architecture etc. använd det?
 
   Future<void> endGame() async {
-    setState(() {
-      _gameHistory.add(GameRoundResult(
-        answer: _answer,
-        guesses: _guesses,
-        duration: _startTimeStamp.difference(DateTime.now()),
-      ));
-    });
+    List<String> guesses = _guesses;
+    guesses[activeRow] = _currentGuess;
+    Provider.of<GameProvider>(context, listen: false).createGame(
+      answer: _answer,
+      guesses: guesses,
+      duration: DateTime.now().difference(_startTimeStamp),
+    );
     await toggleAll();
   }
 
@@ -158,6 +155,7 @@ todo här
       c.toggleCard();
       await Future.delayed(const Duration(milliseconds: 100));
     }
+    await Future.delayed(const Duration(milliseconds: 300));
   }
 
   int get activeRow => _guesses.indexWhere((g) => g.isEmpty);
@@ -182,7 +180,7 @@ todo här
 
   Future<void> displayLoseToast() async {
     await Fluttertoast.showToast(
-        msg: "Game Over",
+        msg: "Game Over: $_answer",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,
@@ -204,10 +202,6 @@ todo här
 
   Future<void> newRound() async {
     await endGame();
-    setState(() {
-      _guesses[activeRow] = _currentGuess;
-      _currentGuess = "";
-    });
     startGame();
   }
 
@@ -257,8 +251,14 @@ todo här
   }
 
   Future<void> onGameOver() async {
+    setState(() {
+      _gameOverLoading = true;
+    });
     await displayLoseToast();
     await newRound();
+    setState(() {
+      _gameOverLoading = true;
+    });
   }
 
   Future<void> onGameWin() async {
@@ -291,11 +291,14 @@ todo här
                 ),
               ),
               WinStreakText(
-                getWinStreak(_gameHistory),
+                getWinStreak(
+                    Provider.of<GameProvider>(context, listen: false).myGames),
                 size: keySize,
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Provider.of<GameProvider>(context, listen: false).loadGames();
+                },
                 icon: const Icon(
                   Icons.bar_chart,
                   color: Colors.white,
@@ -417,13 +420,15 @@ todo här
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade900,
-      body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildWordGrid(),
-            _buildKeyboard(),
-          ],
+      body: Consumer<GameProvider>(
+        builder: (context, gameProvide, child) => SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildWordGrid(),
+              _buildKeyboard(),
+            ],
+          ),
         ),
       ),
     );
