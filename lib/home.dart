@@ -57,6 +57,9 @@ class _MyHomePageState extends State<MyHomePage> {
   ];
 
 //TODO dessa rakt under ska lyftas till state manager provider/bloc etc.
+
+//!TODO bugg: rader blir direkt grå färgen och sen flippas de till svart när de borde flippas till grå då de är inaktiva?
+//TODO de flippas alltså fel..
   List<String> _wordList = [];
   bool _gameOverLoading = false;
   List<FlipCardController> get activeFlipControllers =>
@@ -117,11 +120,9 @@ class _MyHomePageState extends State<MyHomePage> {
   //Kolla lite på Bloc Clean architecture etc. använd det?
 
   Future<void> endGame() async {
-    List<String> guesses = _guesses;
-    guesses[activeRow] = _currentGuess;
     Provider.of<GameProvider>(context, listen: false).createGame(
       answer: _answer,
-      guesses: guesses,
+      guesses: _guesses,
       duration: DateTime.now().difference(_startTimeStamp),
     );
     await toggleAll();
@@ -201,6 +202,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> newRound() async {
+    setState(() {
+      _guesses[activeRow] = _currentGuess;
+      _currentGuess = "";
+    });
     await endGame();
     startGame();
   }
@@ -251,14 +256,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> onGameOver() async {
-    setState(() {
-      _gameOverLoading = true;
-    });
     await displayLoseToast();
     await newRound();
-    setState(() {
-      _gameOverLoading = true;
-    });
   }
 
   Future<void> onGameWin() async {
