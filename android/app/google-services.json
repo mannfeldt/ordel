@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "466216120668",
+    "project_id": "ordel-prod",
+    "storage_bucket": "ordel-prod.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:466216120668:android:e3167a90a78b8dbf995199",
+        "android_client_info": {
+          "package_name": "mannfeldt.ordel"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "466216120668-h8iiq36oot5kgea0mbi2hpnpi4f98jmv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQx4xmq-X9Ir6zzkIs-95cZPaTpJA3t5c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "466216120668-h8iiq36oot5kgea0mbi2hpnpi4f98jmv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
