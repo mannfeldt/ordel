@@ -1,14 +1,21 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutterfire_ui/auth.dart';
+import 'package:ordel/home.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
   await Firebase.initializeApp();
 
   runApp(const MyApp());
 }
-
+// problem att starta. få mer error logg? run med någon flagga för mer error loggs??
 //en rad kan ha 3 states. inactive, active, used,
 //en ruta kan ha 3 states. empty, focused, filled,
 //
@@ -32,8 +39,34 @@ Future<void> main() async {
 // lägg till responsivitet.
 // lägg till streaks. skapa en gameResult model som innehåller all möjlig info.. hur många gissningar det tog åtminstone.
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    initRemoteConfig();
+
+    super.initState();
+  }
+
+  Future<void> initRemoteConfig() async {
+    RemoteConfig remoteConfig = RemoteConfig.instance;
+    await remoteConfig.setConfigSettings(
+      RemoteConfigSettings(
+        fetchTimeout: const Duration(seconds: 30),
+        minimumFetchInterval: kReleaseMode
+            ? const Duration(hours: 12)
+            : const Duration(seconds: 60),
+      ),
+    );
+    await remoteConfig.setDefaults({"answers": "BJÖRK,AKTIE"});
+    await remoteConfig.fetchAndActivate();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,14 +74,21 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       initialRoute:
-          FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/profile',
+          FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/home',
       routes: {
         '/sign-in': (context) {
           return SignInScreen(
             providerConfigs: providerConfigs,
+            footerBuilder: (context, action) => TextButton(
+              onPressed: () async {
+                await FirebaseAuth.instance.signInAnonymously();
+                Navigator.pushReplacementNamed(context, '/home');
+              },
+              child: Text("Anonym"),
+            ),
             actions: [
               AuthStateChangeAction<SignedIn>((context, state) {
-                Navigator.pushReplacementNamed(context, '/profile');
+                Navigator.pushReplacementNamed(context, '/home');
               }),
             ],
           );
@@ -62,6 +102,9 @@ class MyApp extends StatelessWidget {
               }),
             ],
           );
+        },
+        '/home': (context) {
+          return MyHomePage();
         },
       },
     );

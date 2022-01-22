@@ -12,9 +12,7 @@ import 'package:ordel/utils.dart';
 import 'package:ordel/word_grid.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -58,7 +56,9 @@ class _MyHomePageState extends State<MyHomePage> {
     FlipCardController()
   ];
 
+//TODO dessa rakt under ska lyftas till state manager provider/bloc etc.
   List<String> _wordList = [];
+  final List<GameRoundResult> _gameHistory = [];
 
   List<FlipCardController> get activeFlipControllers =>
       getFlipControllers(activeRow);
@@ -68,7 +68,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   final sleepEndDuration = const Duration(seconds: 2);
-  final List<GameRoundResult> _gameHistory = [];
   late DateTime _startTimeStamp;
   String _answer = "";
   String _currentGuess = "";
@@ -83,6 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    remoteConfig = RemoteConfig.instance;
     startGame();
     MediaQueryData mq =
         MediaQueryData.fromWindow(WidgetsBinding.instance!.window);
@@ -103,22 +103,14 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  void initRemoteConfig() async {
-    remoteConfig = RemoteConfig.instance;
-    remoteConfig.setConfigSettings(
-      RemoteConfigSettings(
-        fetchTimeout: const Duration(seconds: 30),
-        minimumFetchInterval: kReleaseMode
-            ? const Duration(hours: 12)
-            : const Duration(seconds: 60),
-      ),
-    );
-    remoteConfig.setDefaults({
-      "answers": ["BJÖRK", "AKTIE"]
-    });
-    await remoteConfig.fetchAndActivate();
-    // maxPlayers = remoteConfig.getInt("max_players");
-  }
+  //TODO lägg till sparning av historik till firebase. först när man förlorar dock.
+  //TODO när man klickar på stats sidan så hämtas all tidigare historik upp från alla användare
+  //visa total stats kring vilken rank man har. bästa rundan osv.
+  //jämför också med nuvarande runda om man är mitt i en med _historik
+
+  //skapa en Provider och klient för detta. Flytta upp _currentHistorik och _allHistorik dit
+  //när man är klar med en runda så läggs det till i provider.currentHistorik osv.
+  //Kolla lite på Bloc Clean architecture etc. använd det?
 
   Future<void> endGame() async {
     setState(() {
