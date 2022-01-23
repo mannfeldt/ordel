@@ -28,12 +28,16 @@ Future<List<SingleChildWidget>> bootstrap() async {
   // Responsive.init(ScreenType.small);
   return [
     ...buildServiceProviders(firebaseClient, analyticsObserver, localStorage),
-    ...buildModelProviders(firebaseClient, analyticsObserver, localStorage)
+    ...buildModelProviders(
+        firebaseClient, analyticsObserver, localStorage, options.projectId)
   ];
 }
 
-List<SingleChildWidget> buildModelProviders(FirebaseClient client,
-    FirebaseAnalyticsObserver observer, LocalStorage storage) {
+List<SingleChildWidget> buildModelProviders(
+    FirebaseClient client,
+    FirebaseAnalyticsObserver observer,
+    LocalStorage storage,
+    String projectId) {
   return [
     ChangeNotifierProxyProvider3<FirebaseClient, FirebaseAnalyticsObserver,
         LocalStorage, GameProvider>(
@@ -43,7 +47,7 @@ List<SingleChildWidget> buildModelProviders(FirebaseClient client,
           localStorage: localStorage,
           observer: analyticsObserver,
         );
-        provider.loadGames();
+        provider.initSession(projectId);
         return provider;
       },
       create: (context) {

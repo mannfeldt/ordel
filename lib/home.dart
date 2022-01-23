@@ -56,12 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
     FlipCardController()
   ];
 
-//TODO dessa rakt under ska lyftas till state manager provider/bloc etc.
-
-//!TODO bugg: rader blir direkt grå färgen och sen flippas de till svart när de borde flippas till grå då de är inaktiva?
-//TODO de flippas alltså fel..
   List<String> _wordList = [];
-  bool _gameOverLoading = false;
   List<FlipCardController> get activeFlipControllers =>
       getFlipControllers(activeRow);
 
@@ -104,9 +99,8 @@ class _MyHomePageState extends State<MyHomePage> {
     letterBoxSize = min(letterBoxSize, maxLetterBoxSize);
     super.initState();
   }
-
+//flutter build apk --target-platform android-arm,android-arm64,android-x64
 // todo här
-  //TODO skapa en dev databas-projekt så att vi inte smutsar ner statisik osv.. Kolla F1 exempel
   //visa total stats kring vilken rank man har. bästa rundan osv.
   //! när detta är på plats finns det lite att spela för och då är vi redo för att releasea version till play store.
   //TODO vidare: lägg till stöd för flera språk. Ett språk har en KeyboardConfig som definerar vilka bokstäver som är på vilken rad
@@ -138,7 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
           .where((w) => w.length == 5)
           .toList();
       _answer = _wordList[Random().nextInt(_wordList.length - 1)];
-
+      print(_answer);
       _guesses = [
         "",
         "",
@@ -152,14 +146,20 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> toggleAll() async {
-    for (var c in _flipControllers) {
-      c.toggleCard();
-      await Future.delayed(const Duration(milliseconds: 100));
+    int filledRows = activeRow;
+    if (filledRows < 2) {
+      await Future.delayed(const Duration(milliseconds: 1200));
+    }
+    for (int i = 0; i < filledRows; i++) {
+      await flipRow(i);
     }
     await Future.delayed(const Duration(milliseconds: 300));
   }
 
-  int get activeRow => _guesses.indexWhere((g) => g.isEmpty);
+  int get activeRow {
+    int row = _guesses.indexWhere((g) => g.isEmpty);
+    return row == -1 ? _guesses.length : row;
+  }
 
   void _addGuess(String letter) {
     if (_currentGuess.length == 5) return;
@@ -182,12 +182,12 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> displayLoseToast() async {
     await Fluttertoast.showToast(
         msg: "Game Over: $_answer",
-        toastLength: Toast.LENGTH_SHORT,
+        toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,
         backgroundColor: Colors.black87,
         textColor: Colors.white,
-        fontSize: 14 + (keySize / 4));
+        fontSize: 15 + (keySize / 4));
   }
 
   Future<void> displayWinToast() async {
@@ -198,7 +198,7 @@ class _MyHomePageState extends State<MyHomePage> {
         timeInSecForIosWeb: 1,
         backgroundColor: Colors.green,
         textColor: Colors.white,
-        fontSize: 14 + (keySize / 4));
+        fontSize: 15 + (keySize / 4));
   }
 
   Future<void> newRound() async {
@@ -210,12 +210,21 @@ class _MyHomePageState extends State<MyHomePage> {
     startGame();
   }
 
-  Future<void> flipGuess() async {
-    for (FlipCardController c in activeFlipControllers) {
-      c.toggleCard();
+  Future<void> flipRow(int rowIndex) async {
+    int start = rowIndex * _answer.length;
+    int end = start + _answer.length;
+    for (int i = start; i < end; i++) {
+      _flipControllers[i].toggleCard();
       await Future.delayed(const Duration(milliseconds: 100));
     }
   }
+
+  // Future<void> flipGuess() async {
+  //   for (FlipCardController c in activeFlipControllers) {
+  //     c.toggleCard();
+  //     await Future.delayed(const Duration(milliseconds: 100));
+  //   }
+  // }
 
   Future<void> shakeRow() async {
     for (FlipCardController c in activeFlipControllers) {
@@ -243,11 +252,13 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     if (_currentGuess == _answer) {
+      flipRow(activeRow);
       await onGameWin();
     } else if (activeRow == _answer.length) {
+      flipRow(activeRow);
       await onGameOver();
     } else {
-      flipGuess();
+      flipRow(activeRow);
       setState(() {
         _guesses[activeRow] = _currentGuess;
         _currentGuess = "";

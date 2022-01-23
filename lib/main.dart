@@ -100,13 +100,13 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: widget.providers,
       child: Consumer2<FirebaseAnalyticsObserver, GameProvider>(
-        builder: (context, analyticsObserver, gameProvide, child) =>
+        builder: (context, analyticsObserver, gameProvider, child) =>
             MaterialApp(
           initialRoute:
               FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/home',
           routes: {
             '/sign-in': (context) {
-              return SignInScreen(
+              Widget signInScreen = SignInScreen(
                 providerConfigs: providerConfigs,
                 footerBuilder: (context, action) => TextButton(
                   onPressed: () async {
@@ -121,6 +121,14 @@ class _MyAppState extends State<MyApp> {
                   }),
                 ],
               );
+              if (gameProvider.isProd) {
+                return signInScreen;
+              }
+              return Banner(
+                message: "DEV",
+                location: BannerLocation.bottomEnd,
+                child: signInScreen,
+              );
             },
             '/profile': (context) {
               return ProfileScreen(
@@ -133,7 +141,14 @@ class _MyAppState extends State<MyApp> {
               );
             },
             '/home': (context) {
-              return const MyHomePage();
+              if (gameProvider.isProd) {
+                return const MyHomePage();
+              }
+              return const Banner(
+                message: "DEV",
+                location: BannerLocation.bottomEnd,
+                child: MyHomePage(),
+              );
             },
           },
         ),
