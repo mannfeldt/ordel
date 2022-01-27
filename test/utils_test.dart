@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ordel/models/wordle_game_model.dart';
 import 'package:ordel/utils.dart';
 
+import 'games_data.dart';
+
 void main() {
   group("getKeyState", () {
     test('unknow', () {
@@ -293,44 +295,44 @@ void main() {
     expect(getWinStreak([]), 0);
     expect(
       getWinStreak([
-        WordleGame(answer: "a", guesses: ["a"])
+        createGame(answer: "a", guesses: ["a"])
       ]),
       1,
     );
     expect(
       getWinStreak([
-        WordleGame(answer: "a", guesses: ["a"]),
-        WordleGame(answer: "a", guesses: ["b"])
+        createGame(answer: "a", guesses: ["a"]),
+        createGame(answer: "a", guesses: ["b"])
       ]),
       0,
     );
     expect(
       getWinStreak([
-        WordleGame(answer: "a", guesses: ["b"]),
-        WordleGame(answer: "a", guesses: ["a"])
+        createGame(answer: "a", guesses: ["b"]),
+        createGame(answer: "a", guesses: ["a"])
       ]),
       1,
     );
     expect(
       getWinStreak([
-        WordleGame(answer: "a", guesses: ["a"]),
-        WordleGame(answer: "a", guesses: ["a"])
+        createGame(answer: "a", guesses: ["a"]),
+        createGame(answer: "a", guesses: ["a"])
       ]),
       2,
     );
     expect(
       getWinStreak([
-        WordleGame(answer: "a", guesses: ["b"]),
-        WordleGame(answer: "a", guesses: ["a"]),
-        WordleGame(answer: "a", guesses: ["b"]),
+        createGame(answer: "a", guesses: ["b"]),
+        createGame(answer: "a", guesses: ["a"]),
+        createGame(answer: "a", guesses: ["b"]),
       ]),
       0,
     );
     expect(
       getWinStreak([
-        WordleGame(answer: "a", guesses: ["a"]),
-        WordleGame(answer: "a", guesses: ["a"]),
-        WordleGame(answer: "a", guesses: ["a"]),
+        createGame(answer: "a", guesses: ["a"]),
+        createGame(answer: "a", guesses: ["a"]),
+        createGame(answer: "a", guesses: ["a"]),
       ]),
       3,
     );

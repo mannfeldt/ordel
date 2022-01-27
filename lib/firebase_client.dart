@@ -4,10 +4,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:ordel/local_storage.dart';
+import 'package:ordel/models/user_model.dart';
 import 'package:ordel/models/wordle_game_model.dart';
 
 class FirebaseClient {
   final FirebaseAnalyticsObserver _observer;
+  late User _activeUser;
 
   List<DateTime> _callsTimeStamps = [];
 
@@ -32,9 +34,8 @@ class FirebaseClient {
   FirebaseClient(this._observer, this._localStorage);
   // CloudFunctions _functions = CloudFunctions.instance;
   // PushNotificationService _notificationService;
-  auth.User? _user;
 
-  auth.User? get user => _user;
+  User? get user => _activeUser;
   // String _fcmToken;
 
   // String get fcmToken => _fcmToken;
@@ -51,7 +52,7 @@ class FirebaseClient {
     // _notificationService = PushNotificationService();
     // _notificationService.initialize();
     // _fcmToken = await _notificationService.token;
-    _user = _auth.currentUser;
+    _activeUser = User(_auth.currentUser?.uid ?? "-1");
   }
 
   Future<List<WordleGame>> getGames() async {

@@ -10,6 +10,11 @@ class GameProvider with ChangeNotifier {
   final LocalStorage _localStorage;
   final FirebaseAnalyticsObserver _observer;
   String? _projectId;
+  bool _fetchingGames = false;
+  bool _initialized = false;
+
+  bool get fetchingGames => _fetchingGames;
+  bool get initialized => _initialized;
 
   bool get isProd => _projectId == null || _projectId == "ordel-prod";
 
@@ -30,8 +35,30 @@ class GameProvider with ChangeNotifier {
 //TODO tvådemsnionell lista då. lista med listor av WordleGame. kan ha en linjediagram över trend
 //TODO se hur man förbättrar sig.
 //TODO retunera bara de som är minst 2 vinster i rad.
-  List<WordleGame> get myStreaks =>
-      _games.where((g) => g.user == _client.user!.uid).toList();
+  List<List<WordleGame>> get myStreaks {
+    List<WordleGame> games = myGames;
+    List<List<WordleGame>> streaks = [];
+    int streakIndex = 0;
+    for (int i = 0; i < games.length; i++) {
+      WordleGame g = games[i];
+      if (g.isWin) {
+        if (streaks.length <= streakIndex) {
+          streaks.add([g]);
+        } else {
+          streaks[streakIndex].add(g);
+        }
+      } else {
+        streakIndex = streaks.length;
+      }
+    }
+    streaks.sort((a, b) {
+      if (a.length != b.length) return b.length - a.length;
+      return b.first.date.millisecondsSinceEpoch -
+          a.first.date.millisecondsSinceEpoch;
+    });
+    return streaks;
+  }
+
 //TODO statiskt över top ord man klarar. ord man klarar minst.
 
 //TODO räkna ut sin tank. eller en hel highscore kan det vara då.. men behöver skapa users collection då
@@ -55,7 +82,21 @@ class GameProvider with ChangeNotifier {
   }
 
   loadGames() async {
-    _games = await _client.getGames();
+    if (!_fetchingGames) {
+      try {
+        _games = await _client.getGames();
+
+        _fetchingGames = true;
+      } finally {
+        _initialized = true;
+        _fetchingGames = false;
+        notifyListeners();
+      }
+    }
+  }
+
+  resetGames() {
+    _games = [];
     notifyListeners();
   }
 

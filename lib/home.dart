@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flip_card/flip_card_controller.dart';
@@ -7,6 +8,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ordel/constants.dart';
 import 'package:ordel/game_provider.dart';
 import 'package:ordel/letter_button.dart';
+import 'package:ordel/loader.dart';
+import 'package:ordel/score_loading_controller.dart';
 import 'package:ordel/utils.dart';
 import 'package:ordel/word_grid.dart';
 import 'package:provider/provider.dart';
@@ -100,7 +103,6 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 //flutter build apk --target-platform android-arm,android-arm64,android-x64
-// todo här
   //visa total stats kring vilken rank man har. bästa rundan osv.
   //! när detta är på plats finns det lite att spela för och då är vi redo för att releasea version till play store.
   //TODO vidare: lägg till stöd för flera språk. Ett språk har en KeyboardConfig som definerar vilka bokstäver som är på vilken rad
@@ -307,7 +309,12 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               IconButton(
                 onPressed: () {
-                  Provider.of<GameProvider>(context, listen: false).loadGames();
+                  showGeneralDialog(
+                    context: context,
+                    pageBuilder: (context, animation, secondaryAnimation) {
+                      return ScoreDialog();
+                    },
+                  );
                 },
                 icon: const Icon(
                   Icons.bar_chart,
@@ -458,6 +465,37 @@ class WinStreakText extends StatelessWidget {
       style: TextStyle(
         fontSize: size,
         color: streak > 0 ? Colors.green : Colors.white,
+      ),
+    );
+  }
+}
+
+class ScoreDialog extends StatelessWidget {
+  const ScoreDialog({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<GameProvider>(
+      builder: (context, provider, child) => Loader(
+        controller: ScoreLoadingController(provider),
+        result: Material(
+          type: MaterialType.transparency,
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 18.0, sigmaY: 18.0),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  Text("total games played: ${provider.allGames.length}"),
+                  Text("my games played: ${provider.myGames.length}"),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text("close"),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
