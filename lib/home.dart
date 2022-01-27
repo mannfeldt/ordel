@@ -9,6 +9,7 @@ import 'package:ordel/constants.dart';
 import 'package:ordel/game_provider.dart';
 import 'package:ordel/letter_button.dart';
 import 'package:ordel/loader.dart';
+import 'package:ordel/models/wordle_game_model.dart';
 import 'package:ordel/score_loading_controller.dart';
 import 'package:ordel/utils.dart';
 import 'package:ordel/word_grid.dart';
@@ -485,8 +486,16 @@ class ScoreDialog extends StatelessWidget {
             child: SafeArea(
               child: Column(
                 children: [
-                  Text("total games played: ${provider.allGames.length}"),
-                  Text("my games played: ${provider.myGames.length}"),
+                  Text(
+                    "total games played: ${provider.allGames.length}",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  Text(
+                    "my games played: ${provider.myGames.length}",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  SizedBox(height: 10),
+                  MyStreak(provider.myStreaks),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
                     child: Text("close"),
@@ -498,5 +507,34 @@ class ScoreDialog extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class MyStreak extends StatelessWidget {
+  final List<List<WordleGame>> streaks;
+  const MyStreak(this.streaks, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: [
+      Text(
+        "Top streaks",
+        style: TextStyle(color: Colors.white),
+      ),
+      ...streaks
+          .map(
+            (streak) => ListTile(
+              title: Text(
+                "${streak.length}",
+                style: TextStyle(color: Colors.white),
+              ),
+              trailing: Text(
+                streak.last.date.toString(),
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          )
+          .toList(),
+    ]);
   }
 }
