@@ -89,7 +89,11 @@ class _MyAppState extends State<MyApp> {
             : const Duration(seconds: 60),
       ),
     );
-    await remoteConfig.setDefaults({"answers": "BJÖRK,AKTIE"});
+    await remoteConfig.setDefaults({
+      "answers_en": "BEACH,PILOT",
+      "answers_sv": "BJÖRK,AKTIE",
+      "supported_languages": "en:English,sv:Svenska",
+    });
     await remoteConfig.fetchAndActivate();
   }
 
@@ -111,12 +115,14 @@ class _MyAppState extends State<MyApp> {
                 footerBuilder: (context, action) => TextButton(
                   onPressed: () async {
                     await FirebaseAuth.instance.signInAnonymously();
+                    gameProvider.saveUser();
                     Navigator.pushReplacementNamed(context, '/home');
                   },
                   child: const Text("Anonym"),
                 ),
                 actions: [
                   AuthStateChangeAction<SignedIn>((context, state) {
+                    gameProvider.saveUser();
                     Navigator.pushReplacementNamed(context, '/home');
                   }),
                 ],
@@ -133,6 +139,20 @@ class _MyAppState extends State<MyApp> {
             '/profile': (context) {
               return ProfileScreen(
                 providerConfigs: providerConfigs,
+                children: [
+                  TextButton(
+                    onPressed: () async {
+                      await gameProvider.saveUser();
+                    },
+                    child: const Text("Save"),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      Navigator.pushReplacementNamed(context, '/home');
+                    },
+                    child: const Text("Back"),
+                  )
+                ],
                 actions: [
                   SignedOutAction((context) {
                     Navigator.pushReplacementNamed(context, '/sign-in');
@@ -142,12 +162,14 @@ class _MyAppState extends State<MyApp> {
             },
             '/home': (context) {
               if (gameProvider.isProd) {
-                return const MyHomePage();
+                return MyHomePage(
+                    userLanguage: Localizations.localeOf(context).languageCode);
               }
-              return const Banner(
+              return Banner(
                 message: "DEV",
                 location: BannerLocation.bottomEnd,
-                child: MyHomePage(),
+                child: MyHomePage(
+                    userLanguage: Localizations.localeOf(context).languageCode),
               );
             },
           },

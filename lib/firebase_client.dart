@@ -35,7 +35,7 @@ class FirebaseClient {
   // CloudFunctions _functions = CloudFunctions.instance;
   // PushNotificationService _notificationService;
 
-  User? get user => _activeUser;
+  User get user => _activeUser;
   // String _fcmToken;
 
   // String get fcmToken => _fcmToken;
@@ -52,7 +52,30 @@ class FirebaseClient {
     // _notificationService = PushNotificationService();
     // _notificationService.initialize();
     // _fcmToken = await _notificationService.token;
-    _activeUser = User(_auth.currentUser?.uid ?? "-1");
+    _activeUser = User(_auth.currentUser?.uid ?? "-1",
+        _auth.currentUser?.displayName ?? "unknown");
+  }
+
+  Future<void> saveUser() async {
+    if (isPossibleInfiniteLoop) throw "POSSIBLE INFINITE LOOP";
+    print("------------------firebase_client saveUser---------------------");
+    CollectionReference usersCollection = _firestore.collection('users');
+    _activeUser = User(_auth.currentUser?.uid ?? "-1",
+        _auth.currentUser?.displayName ?? "unknown");
+    await usersCollection.doc(_activeUser.uid).set(_activeUser.toJson());
+  }
+
+  Future<List<User>> getUsers() async {
+    if (isPossibleInfiniteLoop) throw "POSSIBLE INFINITE LOOP";
+    print("------------------firebase_client getUsers---------------------");
+    CollectionReference gamesCollection = _firestore.collection('users');
+
+    QuerySnapshot snapshot = await gamesCollection.get();
+
+    List<User> users =
+        snapshot.docs.map((x) => User.fromJson(x.data())).toList();
+
+    return users;
   }
 
   Future<List<WordleGame>> getGames() async {

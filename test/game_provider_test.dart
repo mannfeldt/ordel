@@ -33,7 +33,7 @@ void main() {
       createGame(user: "user2"),
     ];
     when(clientMock.getGames()).thenAnswer((_) async => games);
-    when(clientMock.user).thenReturn(User("user1"));
+    when(clientMock.user).thenReturn(User("user1", "name"));
     sut = GameProvider(
         client: clientMock, localStorage: localStorage, observer: observer);
 
@@ -61,12 +61,12 @@ void main() {
       createGame(user: "user1", win: true),
     ];
     when(clientMock.getGames()).thenAnswer((_) async => games);
-    when(clientMock.user).thenReturn(User("user1"));
+    when(clientMock.user).thenReturn(User("user1", "name"));
     sut = GameProvider(
         client: clientMock, localStorage: localStorage, observer: observer);
 
     await sut.loadGames();
-    expect(sut.myStreaks, [
+    expect(sut.getUserLeaderBoard("user1"), [
       [games[13], games[14], games[15]],
       [games[7], games[8], games[9]],
       [games[0], games[2]],
@@ -74,20 +74,46 @@ void main() {
       [games[11]]
     ]);
   });
-  test('myStreaks 2', () async {
+  test('getLeaderBoard', () async {
     final List<WordleGame> games = [
+      createGame(user: "user1", win: true),
+      createGame(user: "user2", win: true, date: DateTime(2020, 1, 5)),
+      createGame(user: "user1", win: true),
+      createGame(user: "user1"),
+      createGame(user: "user1"),
+      createGame(user: "user1", win: true, date: DateTime(2020, 1, 3)),
+      createGame(user: "user1"),
+      createGame(user: "user1", win: true, date: DateTime(2020, 1, 2)),
+      createGame(user: "user1", win: true),
+      createGame(user: "user1", win: true),
+      createGame(user: "user1"),
+      createGame(user: "user1", win: true, date: DateTime(2020, 1, 2)),
+      createGame(user: "user1"),
+      createGame(user: "user1", win: true, date: DateTime(2020, 1, 3)),
       createGame(user: "user2", win: true),
-      createGame(user: "user1"),
-      createGame(user: "user1"),
-      createGame(user: "user1"),
-      createGame(user: "user1"),
+      createGame(user: "user2", win: true),
+      createGame(user: "user1", win: true),
+      createGame(user: "user2", win: true),
+      createGame(user: "user1", win: true),
+      createGame(user: "user2"),
+      createGame(user: "user2", win: true, date: DateTime(2019, 1, 3)),
+      createGame(user: "user2", win: true),
     ];
     when(clientMock.getGames()).thenAnswer((_) async => games);
-    when(clientMock.user).thenReturn(User("user1"));
+    when(clientMock.user).thenReturn(User("user1", "name"));
     sut = GameProvider(
         client: clientMock, localStorage: localStorage, observer: observer);
 
     await sut.loadGames();
-    expect(sut.myStreaks, []);
+
+    expect(sut.getLeaderBoard(), [
+      [games[1], games[14], games[15], games[17]],
+      [games[13], games[16], games[18]],
+      [games[7], games[8], games[9]],
+      [games[0], games[2]],
+      [games[20], games[21]],
+      [games[5]],
+      [games[11]],
+    ]);
   });
 }

@@ -1,9 +1,12 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/cupertino.dart';
 
 import 'package:ordel/firebase_client.dart';
 import 'package:ordel/local_storage.dart';
 import 'package:ordel/models/wordle_game_model.dart';
+
+import 'models/user_model.dart';
 
 class GameProvider with ChangeNotifier {
   final FirebaseClient _client;
@@ -19,13 +22,18 @@ class GameProvider with ChangeNotifier {
   bool get isProd => _projectId == null || _projectId == "ordel-prod";
 
   List<WordleGame> _games = [];
+  List<List<WordleGame>> _leaderboard = [];
+  List<User> _users = [];
+
+  List<User> get users => _users;
 
   List<WordleGame> get allGames => _games;
+  List<List<WordleGame>> get leaderboard => _leaderboard;
 
   List<WordleGame> get myGames =>
-      _games.where((g) => g.user == _client.user!.uid).toList();
+      _games.where((g) => g.user == _client.user.uid).toList();
 
-  String get currentUserId => _client.user!.uid;
+  User get currentUser => _client.user;
 
 //TODO hämta upp de det bästa man gjort. visa upp det visuellt kanske.
 //TODO snyggt med scrollbar lista där man kan se en avkortad variant av gameGrid för varje runda.
@@ -59,6 +67,42 @@ class GameProvider with ChangeNotifier {
     return streaks;
   }
 
+  List<List<WordleGame>> getUserLeaderBoard(String userId) {
+    return _leaderboard.where((streak) => streak.first.user == userId).toList();
+  }
+
+//TODO denna här kan vara väldigt tung. kanske ska göra den initalt. ha en laddad leaderboard variabel som kan hämtas..
+  List<List<WordleGame>> getLeaderBoard() {
+    List<WordleGame> games = List.from(allGames);
+
+    games.sort((a, b) => a.user.compareTo(b.user));
+    List<List<WordleGame>> streaks = [];
+    int streakIndex = 0;
+    WordleGame? lastGame;
+    for (int i = 0; i < games.length; i++) {
+      WordleGame g = games[i];
+      if (lastGame != null && g.user != lastGame.user) {
+        streakIndex = streaks.length;
+      }
+      if (g.isWin) {
+        if (streaks.length <= streakIndex) {
+          streaks.add([g]);
+        } else {
+          streaks[streakIndex].add(g);
+        }
+      } else {
+        streakIndex = streaks.length;
+      }
+      lastGame = g;
+    }
+    streaks.sort((a, b) {
+      if (a.length != b.length) return b.length - a.length;
+      return b.first.date.millisecondsSinceEpoch -
+          a.first.date.millisecondsSinceEpoch;
+    });
+    return streaks;
+  }
+
 //TODO statiskt över top ord man klarar. ord man klarar minst.
 
 //TODO räkna ut sin tank. eller en hel highscore kan det vara då.. men behöver skapa users collection då
@@ -73,9 +117,15 @@ class GameProvider with ChangeNotifier {
         _localStorage = localStorage,
         _observer = observer;
 
+  logOut() async {
+    await auth.FirebaseAuth.instance.signOut();
+  }
+
   initSession(String projectId) async {
+    await _client.init();
     _localStorage.storeLastLoggedInVersion();
-    _games = await _client.getGames();
+
+    // _games = await _client.getGames();
     _projectId = projectId;
 
     notifyListeners();
@@ -84,8 +134,8 @@ class GameProvider with ChangeNotifier {
   loadGames() async {
     if (!_fetchingGames) {
       try {
-        _games = await _client.getGames();
-
+        await Future.wait([getGames(), getUsers()]);
+        _leaderboard = getLeaderBoard();
         _fetchingGames = true;
       } finally {
         _initialized = true;
@@ -95,9 +145,21 @@ class GameProvider with ChangeNotifier {
     }
   }
 
+  Future<void> getGames() async {
+    _games = await _client.getGames();
+  }
+
+  Future<void> getUsers() async {
+    _users = await _client.getUsers();
+  }
+
   resetGames() {
     _games = [];
     notifyListeners();
+  }
+
+  Future<void> saveUser() async {
+    await _client.saveUser();
   }
 
   Future<void> createGame(
@@ -109,9 +171,10 @@ class GameProvider with ChangeNotifier {
         guesses: guesses,
         duration: duration,
         language: "sv",
-        user: currentUserId,
+        user: currentUser.uid,
         date: DateTime.now());
     _games.add(game);
+    _leaderboard = getLeaderBoard();
     await _client.createGame(game);
     notifyListeners();
   }

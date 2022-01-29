@@ -35,7 +35,7 @@ class LetterButton extends StatelessWidget {
     }
     return Container(
       margin: const EdgeInsets.all(Constants.keyMargin),
-      height: size * 1.3,
+      height: size * 1.4,
       width: size,
       child: TextButton(
         style: TextButton.styleFrom(

@@ -3,12 +3,17 @@ import 'dart:ui';
 
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flip_card/flip_card_controller.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:ordel/constants.dart';
 import 'package:ordel/game_provider.dart';
 import 'package:ordel/letter_button.dart';
 import 'package:ordel/loader.dart';
+import 'package:ordel/models/language_model.dart';
+import 'package:ordel/models/user_model.dart';
 import 'package:ordel/models/wordle_game_model.dart';
 import 'package:ordel/score_loading_controller.dart';
 import 'package:ordel/utils.dart';
@@ -16,7 +21,8 @@ import 'package:ordel/word_grid.dart';
 import 'package:provider/provider.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+  final String userLanguage;
+  const MyHomePage({Key? key, required this.userLanguage}) : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -61,12 +67,19 @@ class _MyHomePageState extends State<MyHomePage> {
   ];
 
   List<String> _wordList = [];
+  List<Language> _supportedLanguages = [];
+  Language? _language;
   List<FlipCardController> get activeFlipControllers =>
       getFlipControllers(activeRow);
 
   List<FlipCardController> getFlipControllers(int row) {
     return _flipControllers.sublist(row * 5, (row + 1) * 5);
   }
+
+  FocusNode inputFocus = FocusNode();
+  final String basicAlfabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  List<String> _extraCharacters = [];
+  List<String> _excludedCharacters = [];
 
   final sleepEndDuration = const Duration(seconds: 2);
   late DateTime _startTimeStamp;
@@ -81,10 +94,53 @@ class _MyHomePageState extends State<MyHomePage> {
     "",
   ];
 
+  int get keyboardSize => basicAlfabet.length + _extraCharacters.length;
+
+  bool get isSwedish => _language?.code == "sv";
+
+  void initLanguages() {
+    setState(() {
+      _supportedLanguages = remoteConfig
+          .getString("supported_languages")
+          .split(",")
+          .toList()
+          .map((l) => Language(l.split(":").first, l.split(":").last))
+          .toList();
+      _language = _supportedLanguages.firstWhere(
+          (l) => l.code == (_language?.code ?? widget.userLanguage),
+          orElse: () => _supportedLanguages.first);
+
+      _wordList = remoteConfig
+          .getString("answers_${_language?.code}")
+          .split(",")
+          .where((w) => w.length == 5)
+          .toList();
+
+      final List<String> uniqueChars = [];
+      for (String word in _wordList) {
+        for (String letter in word.characters) {
+          if (!uniqueChars.contains(letter)) {
+            uniqueChars.add(letter);
+          }
+        }
+      }
+      _extraCharacters =
+          uniqueChars.where((c) => !basicAlfabet.contains(c)).toList();
+
+      _excludedCharacters = basicAlfabet.characters
+          .where((c) => uniqueChars.contains(c))
+          .toList();
+    });
+  }
+
   @override
   void initState() {
+    inputFocus.requestFocus();
     remoteConfig = RemoteConfig.instance;
+    initLanguages();
+
     startGame();
+
     MediaQueryData mq =
         MediaQueryData.fromWindow(WidgetsBinding.instance!.window);
     letterBoxSize = (mq.size.width -
@@ -93,7 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
         5;
 
     keySize = (mq.size.width -
-            (Constants.horizontalPadding) -
+            (Constants.horizontalPadding / 2) -
             (Constants.keyMargin * 22)) /
         11;
     double minKeyBoardHeight = keySize * 10;
@@ -103,6 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
     letterBoxSize = min(letterBoxSize, maxLetterBoxSize);
     super.initState();
   }
+
 //flutter build apk --target-platform android-arm,android-arm64,android-x64
   //visa total stats kring vilken rank man har. bästa rundan osv.
   //! när detta är på plats finns det lite att spela för och då är vi redo för att releasea version till play store.
@@ -129,12 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _currentGuess = "";
 
-      _wordList = remoteConfig
-          .getString("answers")
-          .split(",")
-          .where((w) => w.length == 5)
-          .toList();
-      _answer = _wordList[Random().nextInt(_wordList.length - 1)];
+      _answer = _wordList[Random().nextInt(_wordList.length)];
       print(_answer);
       _guesses = [
         "",
@@ -279,16 +331,28 @@ class _MyHomePageState extends State<MyHomePage> {
     await newRound();
   }
 
+  void _logOut() async {
+    Navigator.pushReplacementNamed(context, '/sign-in');
+    await Provider.of<GameProvider>(context).logOut();
+  }
+
   Widget _buildWordGrid() {
     return Column(
       children: [
         const SizedBox(height: Constants.horizontalPadding / 3),
-        Text(
-          "Ordel",
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.9),
-            fontSize: letterBoxSize / 2,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              kReleaseMode ? "Ordel" : _answer,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.9),
+                fontSize: letterBoxSize / 2,
+              ),
+            ),
+            if (!kReleaseMode)
+              TextButton(onPressed: _logOut, child: Text("logout")),
+          ],
         ),
         Padding(
           padding: const EdgeInsets.symmetric(
@@ -347,7 +411,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _buildKeyBoardButton(String key) {
     return LetterButton(
-      size: keySize,
+      size: keyboardSize > 27 ? keySize : keySize * 11 / 10,
       letter: key,
       state: getKeyState(key, answer: _answer, guesses: _guesses),
       onTap: _addGuess,
@@ -355,6 +419,38 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildKeyboard() {
+    double ks = keyboardSize > 27 ? keySize : keySize * 11 / 10;
+
+    Widget actionButtons = Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        SizedBox(
+          width: (ks * 1.5) + ((Constants.keyMargin * 2)),
+          height: ks * 1.3,
+          child: IconButton(
+            onPressed: _backSpace,
+            icon: const Icon(
+              Icons.backspace_outlined,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        SizedBox(
+          width: (ks * 0.92) + ((Constants.keyMargin * 2)),
+          height: ks * 1.3,
+          child: IconButton(
+            onPressed: () async {
+              await _enterGuess();
+            },
+            icon: const Icon(
+              Icons.send,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
+    );
+
     return Column(
       children: [
         Row(
@@ -370,7 +466,8 @@ class _MyHomePageState extends State<MyHomePage> {
             _buildKeyBoardButton("I"),
             _buildKeyBoardButton("O"),
             _buildKeyBoardButton("P"),
-            _buildKeyBoardButton("Å"),
+            if (_extraCharacters.length > 1)
+              _buildKeyBoardButton(_extraCharacters[1]),
           ],
         ),
         const SizedBox(height: Constants.keyMargin),
@@ -386,15 +483,16 @@ class _MyHomePageState extends State<MyHomePage> {
             _buildKeyBoardButton("J"),
             _buildKeyBoardButton("K"),
             _buildKeyBoardButton("L"),
-            _buildKeyBoardButton("Ö"),
-            _buildKeyBoardButton("Ä"),
+            if (_extraCharacters.isNotEmpty)
+              _buildKeyBoardButton(_extraCharacters[0]),
+            if (_extraCharacters.length > 2)
+              _buildKeyBoardButton(_extraCharacters[2]),
           ],
         ),
-        const SizedBox(height: Constants.keyMargin),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(width: keySize + (Constants.keyMargin * 2)),
+            if (_extraCharacters.length <= 3) SizedBox(width: ks),
             _buildKeyBoardButton("Z"),
             _buildKeyBoardButton("X"),
             _buildKeyBoardButton("C"),
@@ -402,35 +500,29 @@ class _MyHomePageState extends State<MyHomePage> {
             _buildKeyBoardButton("B"),
             _buildKeyBoardButton("N"),
             _buildKeyBoardButton("M"),
-            SizedBox(
-              width: (keySize * 1.5) + ((Constants.keyMargin * 2)),
-              height: keySize * 1.3,
-              //Höjden på dessa som stälelr till det? mer space vertikalt till sista raden.
-              child: IconButton(
-                onPressed: _backSpace,
-                icon: const Icon(
-                  Icons.backspace_outlined,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            SizedBox(
-              width: (keySize * 1.5) + ((Constants.keyMargin * 2)),
-              height: keySize * 1.3,
-              child: IconButton(
-                onPressed: () async {
-                  await _enterGuess();
-                },
-                icon: const Icon(
-                  Icons.send,
-                  color: Colors.white,
-                ),
-              ),
-            ),
+            if (_extraCharacters.length > 3)
+              _buildKeyBoardButton(_extraCharacters[3]),
+            if (_extraCharacters.length < 5) actionButtons,
+            if (_extraCharacters.length > 4)
+              ..._extraCharacters
+                  .sublist(4)
+                  .map((c) => _buildKeyBoardButton(c))
+                  .toList(),
           ],
         ),
-        SizedBox(height: keySize * 2),
+        if (_extraCharacters.length > 4) actionButtons,
+        SizedBox(height: keySize * (_extraCharacters.length > 4 ? 1 : 2)),
       ],
+    );
+  }
+
+  Widget _buildLanguageIcon(Language? lang) {
+    return Image.asset(
+      "assets/img/${lang?.code ?? "unknown"}.png",
+      errorBuilder: (context, error, stackTrace) => Text(
+        lang?.code ?? "unknown",
+        style: const TextStyle(color: Colors.white),
+      ),
     );
   }
 
@@ -438,14 +530,83 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade900,
-      body: Consumer<GameProvider>(
-        builder: (context, gameProvide, child) => SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildWordGrid(),
-              _buildKeyboard(),
-            ],
+      body: RawKeyboardListener(
+        autofocus: true,
+        focusNode: inputFocus,
+        onKey: (event) async {
+          if (event.runtimeType == RawKeyDownEvent) {
+            if (event.logicalKey == LogicalKeyboardKey.backspace) {
+              _backSpace();
+            } else if (event.logicalKey == LogicalKeyboardKey.enter) {
+              _enterGuess();
+            } else if (event.logicalKey != LogicalKeyboardKey.altLeft) {
+              _addGuess(event.character.toString().toUpperCase());
+            }
+          }
+        },
+        child: Consumer<GameProvider>(
+          builder: (context, gameProvide, child) => SafeArea(
+            child: Stack(
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildWordGrid(),
+                    _buildKeyboard(),
+                  ],
+                ),
+                Container(
+                  padding: EdgeInsets.only(left: 10),
+                  child: PopupMenuButton<Language>(
+                    icon: _buildLanguageIcon(_language),
+                    onSelected: (Language? newValue) {
+                      if (_language != newValue) {
+                        Fluttertoast.showToast(
+                            msg: "Next word will be ${newValue?.name}",
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.CENTER,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.black87,
+                            textColor: Colors.white,
+                            fontSize: 15 + (keySize / 4));
+                      }
+                      setState(() {
+                        _language = newValue!;
+                      });
+                      initLanguages();
+                    },
+                    itemBuilder: (BuildContext context) {
+                      return _supportedLanguages.map((Language choice) {
+                        return PopupMenuItem<Language>(
+                          value: choice,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(choice.name),
+                              Container(
+                                padding: const EdgeInsets.only(left: 10),
+                                width: letterBoxSize,
+                                child: _buildLanguageIcon(choice),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList();
+                    },
+                  ),
+                ),
+                Positioned(
+                  right: 10,
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/profile');
+                    },
+                    icon: const Icon(Icons.person_pin, color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -484,23 +645,34 @@ class ScoreDialog extends StatelessWidget {
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 18.0, sigmaY: 18.0),
             child: SafeArea(
-              child: Column(
-                children: [
-                  Text(
-                    "total games played: ${provider.allGames.length}",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  Text(
-                    "my games played: ${provider.myGames.length}",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  SizedBox(height: 10),
-                  MyStreak(provider.myStreaks),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text("close"),
-                  ),
-                ],
+              child: Container(
+                margin: EdgeInsets.all(30),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                  color: Colors.black87,
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      "total games played: ${provider.allGames.length}",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    Text(
+                      "my games played: ${provider.myGames.length}",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    const SizedBox(height: 10),
+                    GameStreakList(
+                        provider.getUserLeaderBoard(provider.currentUser.uid)),
+                    const SizedBox(height: 10),
+                    LeaderBoard(provider.leaderboard, provider.users,
+                        provider.currentUser.uid),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text("close"),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -510,15 +682,15 @@ class ScoreDialog extends StatelessWidget {
   }
 }
 
-class MyStreak extends StatelessWidget {
+class GameStreakList extends StatelessWidget {
   final List<List<WordleGame>> streaks;
-  const MyStreak(this.streaks, {Key? key}) : super(key: key);
+  const GameStreakList(this.streaks, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      Text(
-        "Top streaks",
+      const Text(
+        "My top streaks",
         style: TextStyle(color: Colors.white),
       ),
       ...streaks
@@ -526,15 +698,83 @@ class MyStreak extends StatelessWidget {
             (streak) => ListTile(
               title: Text(
                 "${streak.length}",
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
               ),
               trailing: Text(
-                streak.last.date.toString(),
-                style: TextStyle(color: Colors.white),
+                DateFormat(DateFormat.YEAR_MONTH_DAY).format(streak.last.date),
+                style: const TextStyle(color: Colors.white),
               ),
             ),
           )
           .toList(),
     ]);
+  }
+}
+
+class LeaderBoard extends StatelessWidget {
+  final List<List<WordleGame>> leaderboard;
+  final List<User> users;
+
+  final String activeUser;
+  const LeaderBoard(this.leaderboard, this.users, this.activeUser, {Key? key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    int activeUserTopRanking =
+        leaderboard.indexWhere((streak) => streak.first.user == activeUser);
+    List<WordleGame> activeUserTopGame = leaderboard[activeUserTopRanking];
+    final List<List<WordleGame>> cut =
+        leaderboard.sublist(0, min(10, leaderboard.length));
+
+    return ListView(
+      shrinkWrap: true,
+      children: [
+        const Text(
+          "Leaderboard",
+          style: TextStyle(color: Colors.white),
+        ),
+        ...cut
+            .map(
+              (streak) => ListTile(
+                selected: streak.first.user == activeUser,
+                title: Text(
+                  "${streak.length} ${users.firstWhere((u) => u.uid == streak.first.user, orElse: () => User("-1", "Unknown")).name}",
+                  style: TextStyle(
+                      color: streak.first.user == activeUser
+                          ? Colors.green
+                          : Colors.white),
+                ),
+                trailing: Text(
+                  DateFormat(DateFormat.YEAR_MONTH_DAY)
+                      .format(streak.last.date),
+                  style: TextStyle(
+                      color: streak.first.user == activeUser
+                          ? Colors.green
+                          : Colors.white),
+                ),
+              ),
+            )
+            .toList(),
+        if (activeUserTopRanking > 9)
+          Column(
+            children: [
+              const Divider(color: Colors.white),
+              ListTile(
+                tileColor: Colors.green,
+                leading: Text("..${activeUserTopRanking + 1}"),
+                title: Text(
+                  "${activeUserTopGame.length} ${activeUser}",
+                  style: const TextStyle(color: Colors.white),
+                ),
+                trailing: Text(
+                  activeUserTopGame.last.date.toString(),
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
   }
 }
