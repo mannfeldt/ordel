@@ -143,10 +143,10 @@ class DefaultEmptyWidget extends StatelessWidget {
 class DefaultErrorWidget extends StatelessWidget {
   final void Function() retry;
   final bool fullscreen;
-  String? message;
-  String? illustration;
+  final String? message;
+  final String? illustration;
 
-  DefaultErrorWidget({
+  const DefaultErrorWidget({
     Key? key,
     required this.retry,
     this.fullscreen = false,

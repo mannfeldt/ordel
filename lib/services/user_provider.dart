@@ -1,9 +1,9 @@
 // import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:ordel/firebase_client.dart';
-import 'package:ordel/local_storage.dart';
 import 'package:ordel/models/user_model.dart';
+import 'package:ordel/services/firebase_client.dart';
+import 'package:ordel/services/local_storage.dart';
 
 class UserProvider with ChangeNotifier {
   final FirebaseClient _client;

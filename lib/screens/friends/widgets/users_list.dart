@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ordel/loader.dart';
 import 'package:ordel/models/user_model.dart';
-import 'package:ordel/user_tile.dart';
+import 'package:ordel/widgets/loader.dart';
+import 'package:ordel/widgets/user_tile.dart';
 
 class UsersList extends StatefulWidget {
   final List<User> users;
@@ -9,7 +9,7 @@ class UsersList extends StatefulWidget {
   final Function addFriend;
   final String hintText;
 
-  UsersList(
+  const UsersList(
       {Key? key,
       required this.users,
       required this.friends,
@@ -22,7 +22,8 @@ class UsersList extends StatefulWidget {
 }
 
 class _UsersListState extends State<UsersList> {
-  TextEditingController _searchController = TextEditingController(text: "");
+  final TextEditingController _searchController =
+      TextEditingController(text: "");
   FocusNode focusNode = FocusNode();
 
   void _onCloseSearch() {
@@ -82,15 +83,15 @@ class _UsersListState extends State<UsersList> {
                 hintText: widget.hintText,
                 hintStyle: TextStyle(fontSize: 14, color: Colors.grey.shade500),
                 border: UnderlineInputBorder(
-                  borderSide: new BorderSide(color: Colors.grey.shade500),
+                  borderSide: BorderSide(color: Colors.grey.shade500),
                   borderRadius: BorderRadius.circular(15),
                 ),
                 enabledBorder: UnderlineInputBorder(
-                  borderSide: new BorderSide(color: Colors.grey.shade500),
+                  borderSide: BorderSide(color: Colors.grey.shade500),
                   borderRadius: BorderRadius.circular(15),
                 ),
                 focusedBorder: UnderlineInputBorder(
-                  borderSide: new BorderSide(color: Colors.blue),
+                  borderSide: BorderSide(color: Colors.blue),
                   borderRadius: BorderRadius.circular(15),
                 ),
               ),

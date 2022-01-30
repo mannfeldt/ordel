@@ -1,5 +1,5 @@
-import 'package:ordel/game_provider.dart';
-import 'package:ordel/loader.dart';
+import 'package:ordel/services/game_provider.dart';
+import 'package:ordel/widgets/loader.dart';
 
 class ScoreLoadingController implements LoadController {
   final GameProvider provider;

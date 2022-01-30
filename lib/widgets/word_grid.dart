@@ -2,8 +2,8 @@ import 'package:flip_card/flip_card.dart';
 import 'package:flip_card/flip_card_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:ordel/constants.dart';
-import 'package:ordel/utils.dart';
+import 'package:ordel/utils/constants.dart';
+import 'package:ordel/utils/utils.dart';
 
 class WordRow extends StatefulWidget {
   final String answer;

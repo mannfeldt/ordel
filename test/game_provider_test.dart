@@ -2,11 +2,11 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:ordel/firebase_client.dart';
-import 'package:ordel/game_provider.dart';
-import 'package:ordel/local_storage.dart';
 import 'package:ordel/models/user_model.dart';
 import 'package:ordel/models/game_round_model.dart';
+import 'package:ordel/services/firebase_client.dart';
+import 'package:ordel/services/game_provider.dart';
+import 'package:ordel/services/local_storage.dart';
 
 import 'game_provider_test.mocks.dart';
 import 'games_data.dart';

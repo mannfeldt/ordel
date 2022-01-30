@@ -1,7 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:ordel/colors_helper.dart';
 import 'package:ordel/models/user_model.dart';
+import 'package:ordel/utils/colors_helper.dart';
 
 class UserTile extends StatelessWidget {
   final User user;

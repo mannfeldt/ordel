@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:ordel/colors_helper.dart';
-import 'package:ordel/constants.dart';
+import 'package:ordel/utils/colors_helper.dart';
+import 'package:ordel/utils/constants.dart';
 
 class User {
   late String uid;

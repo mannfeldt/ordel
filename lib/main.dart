@@ -4,18 +4,15 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutterfire_ui/auth.dart';
-import 'package:ordel/game_provider.dart';
-import 'package:ordel/home.dart';
-import 'package:ordel/main_pages.dart';
+import 'package:ordel/services/providers.dart';
+import 'package:ordel/services/session_provider.dart';
 import 'package:ordel/navigation/app_router.dart';
-import 'package:ordel/providers.dart';
-import 'package:ordel/session_provider.dart';
-import 'package:ordel/user_provider.dart';
+import 'package:ordel/services/user_provider.dart';
+import 'package:ordel/widgets/main_pages.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -69,7 +66,7 @@ Future<void> main() async {
 class App extends StatefulWidget {
   final List<SingleChildWidget> providers;
 
-  const App(this.providers);
+  const App(this.providers, {Key? key}) : super(key: key);
 
   @override
   AppState createState() => AppState();
@@ -97,27 +94,9 @@ class AppRoot extends StatefulWidget {
 class _AppRootState extends State<AppRoot> {
   @override
   void initState() {
-    initRemoteConfig();
+    // initRemoteConfig();
 
     super.initState();
-  }
-
-  Future<void> initRemoteConfig() async {
-    RemoteConfig remoteConfig = RemoteConfig.instance;
-    await remoteConfig.setConfigSettings(
-      RemoteConfigSettings(
-        fetchTimeout: const Duration(seconds: 30),
-        minimumFetchInterval: kReleaseMode
-            ? const Duration(hours: 12)
-            : const Duration(seconds: 60),
-      ),
-    );
-    await remoteConfig.setDefaults({
-      "answers_en": "BEACH,PILOT",
-      "answers_sv": "BJÖRK,AKTIE",
-      "supported_languages": "en:English,sv:Svenska",
-    });
-    await remoteConfig.fetchAndActivate();
   }
 
   @override

@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ordel/models/game_round_model.dart';
-import 'package:ordel/utils.dart';
+import 'package:ordel/utils/utils.dart';
 
 import 'games_data.dart';
 

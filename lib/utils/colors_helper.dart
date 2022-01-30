@@ -21,8 +21,8 @@ class ColorHelpers {
     return int.parse(useString);
   }
 
-  static final double _kMinContrastModifierRange = 0.35;
-  static final double _kMaxContrastModifierRange = 0.65;
+  static const double _kMinContrastModifierRange = 0.35;
+  static const double _kMaxContrastModifierRange = 0.65;
 
   /// Returns black or white depending on whether the source color is darker
   /// or lighter. If darker, will return white. If lighter, will return
@@ -48,6 +48,6 @@ class ColorHelpers {
   }
 
   static String toHexString(Color color) {
-    return '${color.value.toRadixString(16)}';
+    return color.value.toRadixString(16);
   }
 }

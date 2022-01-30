@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:ordel/loader.dart';
 import 'package:ordel/models/user_model.dart';
-import 'package:ordel/user_tile.dart';
+import 'package:ordel/widgets/loader.dart';
+import 'package:ordel/widgets/user_tile.dart';
 
 class MyFriendsList extends StatefulWidget {
   final List<User> friends;
   final Function removeFriend;
 
-  MyFriendsList({Key? key, required this.friends, required this.removeFriend})
+  const MyFriendsList(
+      {Key? key, required this.friends, required this.removeFriend})
       : super(key: key);
 
   @override
@@ -15,7 +16,8 @@ class MyFriendsList extends StatefulWidget {
 }
 
 class _MyFriendsListState extends State<MyFriendsList> {
-  TextEditingController _searchController = TextEditingController(text: "");
+  final TextEditingController _searchController =
+      TextEditingController(text: "");
   FocusNode focusNode = FocusNode();
 
   void _onCloseSearch() {
@@ -83,15 +85,15 @@ class _MyFriendsListState extends State<MyFriendsList> {
                       hintStyle:
                           TextStyle(fontSize: 14, color: Colors.grey.shade500),
                       border: UnderlineInputBorder(
-                        borderSide: new BorderSide(color: Colors.grey.shade500),
+                        borderSide: BorderSide(color: Colors.grey.shade500),
                         borderRadius: BorderRadius.circular(15),
                       ),
                       enabledBorder: UnderlineInputBorder(
-                        borderSide: new BorderSide(color: Colors.grey.shade500),
+                        borderSide: BorderSide(color: Colors.grey.shade500),
                         borderRadius: BorderRadius.circular(15),
                       ),
                       focusedBorder: UnderlineInputBorder(
-                        borderSide: new BorderSide(color: Colors.blue),
+                        borderSide: BorderSide(color: Colors.blue),
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),

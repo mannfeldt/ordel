@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:ordel/friends/friends_screen.dart';
-import 'package:ordel/home.dart';
-import 'package:ordel/keys.dart';
+import 'package:ordel/screens/friends/friends_screen.dart';
+import 'package:ordel/screens/leaderboards/leaderboards_index.dart';
+import 'package:ordel/screens/singleplayer/singleplayer_index.dart';
+import 'package:ordel/services/session_provider.dart';
+import 'package:ordel/utils/keys.dart';
 import 'package:ordel/navigation/app_router.dart';
+import 'package:provider/provider.dart';
 
 class MainPages extends StatefulWidget {
   final int initialPageIndex;
@@ -67,7 +70,10 @@ class _MainPagesState extends State<MainPages> {
         children: [
           SinglePlayerScreen(
             key: const Key(MainKeys.SINGLEPLAYER_SCREEN),
-            userLanguage: Localizations.localeOf(context).languageCode,
+            sessionLanguageCode:
+                Provider.of<SessionProvider>(context, listen: false)
+                        .languageCode ??
+                    Localizations.localeOf(context).languageCode,
           ),
           FriendsScreen(
             key: const Key(MainKeys.MULTIPLAYER_SCREEN),
@@ -75,7 +81,7 @@ class _MainPagesState extends State<MainPages> {
           FriendsScreen(
             key: const Key(MainKeys.FRIEND_SCREEN),
           ),
-          FriendsScreen(
+          LeaderboardScreen(
             key: const Key(MainKeys.LEADERBOARD_SCREEN),
           ),
         ],
@@ -92,7 +98,7 @@ class _MainPagesState extends State<MainPages> {
           unselectedItemColor: Colors.grey,
           selectedFontSize: 12,
           type: BottomNavigationBarType.fixed,
-          items: [
+          items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
               title: Text(

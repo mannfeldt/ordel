@@ -3,8 +3,9 @@
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:ordel/main.dart';
-import 'package:ordel/main_pages.dart';
 import 'package:ordel/navigation/app_router.dart';
+import 'package:ordel/screens/leaderboards/leaderboards_index.dart';
+import 'package:ordel/widgets/main_pages.dart';
 
 class Routes {
   static void configureRoutes(FluroRouter router) {
@@ -30,7 +31,7 @@ class Routes {
     }));
     router.define(AppRouter.LEADERBOARD_TAB, handler: Handler(
         handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
-      return MainPages(initialPageIndex: 3);
+      return LeaderboardScreen();
     }));
   }
 }

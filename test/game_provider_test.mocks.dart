@@ -2,15 +2,16 @@
 // in ordel/test/game_provider_test.dart.
 // Do not manually edit this file.
 
-import 'dart:async' as _i6;
+import 'dart:async' as _i7;
 
 import 'package:firebase_analytics/firebase_analytics.dart' as _i2;
-import 'package:flutter/cupertino.dart' as _i4;
+import 'package:flutter/widgets.dart' as _i5;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:ordel/firebase_client.dart' as _i5;
-import 'package:ordel/local_storage.dart' as _i8;
-import 'package:ordel/models/game_round_model.dart' as _i7;
-import 'package:shared_preferences/shared_preferences.dart' as _i3;
+import 'package:ordel/models/game_round_model.dart' as _i8;
+import 'package:ordel/models/user_model.dart' as _i3;
+import 'package:ordel/services/firebase_client.dart' as _i6;
+import 'package:ordel/services/local_storage.dart' as _i9;
+import 'package:shared_preferences/shared_preferences.dart' as _i4;
 
 // ignore_for_file: avoid_redundant_argument_values
 // ignore_for_file: avoid_setters_without_getters
@@ -24,8 +25,10 @@ import 'package:shared_preferences/shared_preferences.dart' as _i3;
 class _FakeFirebaseAnalytics_0 extends _i1.Fake
     implements _i2.FirebaseAnalytics {}
 
-class _FakeSharedPreferences_1 extends _i1.Fake
-    implements _i3.SharedPreferences {}
+class _FakeUser_1 extends _i1.Fake implements _i3.User {}
+
+class _FakeSharedPreferences_2 extends _i1.Fake
+    implements _i4.SharedPreferences {}
 
 /// A class which mocks [FirebaseAnalyticsObserver].
 ///
@@ -43,43 +46,43 @@ class MockFirebaseAnalyticsObserver extends _i1.Mock
   @override
   _i2.ScreenNameExtractor get nameExtractor =>
       (super.noSuchMethod(Invocation.getter(#nameExtractor),
-              returnValue: (_i4.RouteSettings settings) => '')
+              returnValue: (_i5.RouteSettings settings) => '')
           as _i2.ScreenNameExtractor);
   @override
-  void didPush(_i4.Route<dynamic>? route, _i4.Route<dynamic>? previousRoute) =>
+  void didPush(_i5.Route<dynamic>? route, _i5.Route<dynamic>? previousRoute) =>
       super.noSuchMethod(Invocation.method(#didPush, [route, previousRoute]),
           returnValueForMissingStub: null);
   @override
   void didReplace(
-          {_i4.Route<dynamic>? newRoute, _i4.Route<dynamic>? oldRoute}) =>
+          {_i5.Route<dynamic>? newRoute, _i5.Route<dynamic>? oldRoute}) =>
       super.noSuchMethod(
           Invocation.method(
               #didReplace, [], {#newRoute: newRoute, #oldRoute: oldRoute}),
           returnValueForMissingStub: null);
   @override
-  void didPop(_i4.Route<dynamic>? route, _i4.Route<dynamic>? previousRoute) =>
+  void didPop(_i5.Route<dynamic>? route, _i5.Route<dynamic>? previousRoute) =>
       super.noSuchMethod(Invocation.method(#didPop, [route, previousRoute]),
           returnValueForMissingStub: null);
   @override
-  bool debugObservingRoute(_i4.PageRoute<dynamic>? route) =>
+  bool debugObservingRoute(_i5.PageRoute<dynamic>? route) =>
       (super.noSuchMethod(Invocation.method(#debugObservingRoute, [route]),
           returnValue: false) as bool);
   @override
-  void subscribe(_i4.RouteAware? routeAware, _i4.PageRoute<dynamic>? route) =>
+  void subscribe(_i5.RouteAware? routeAware, _i5.PageRoute<dynamic>? route) =>
       super.noSuchMethod(Invocation.method(#subscribe, [routeAware, route]),
           returnValueForMissingStub: null);
   @override
-  void unsubscribe(_i4.RouteAware? routeAware) =>
+  void unsubscribe(_i5.RouteAware? routeAware) =>
       super.noSuchMethod(Invocation.method(#unsubscribe, [routeAware]),
           returnValueForMissingStub: null);
   @override
   void didRemove(
-          _i4.Route<dynamic>? route, _i4.Route<dynamic>? previousRoute) =>
+          _i5.Route<dynamic>? route, _i5.Route<dynamic>? previousRoute) =>
       super.noSuchMethod(Invocation.method(#didRemove, [route, previousRoute]),
           returnValueForMissingStub: null);
   @override
   void didStartUserGesture(
-          _i4.Route<dynamic>? route, _i4.Route<dynamic>? previousRoute) =>
+          _i5.Route<dynamic>? route, _i5.Route<dynamic>? previousRoute) =>
       super.noSuchMethod(
           Invocation.method(#didStartUserGesture, [route, previousRoute]),
           returnValueForMissingStub: null);
@@ -92,7 +95,7 @@ class MockFirebaseAnalyticsObserver extends _i1.Mock
 /// A class which mocks [FirebaseClient].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFirebaseClient extends _i1.Mock implements _i5.FirebaseClient {
+class MockFirebaseClient extends _i1.Mock implements _i6.FirebaseClient {
   MockFirebaseClient() {
     _i1.throwOnMissingStub(this);
   }
@@ -102,64 +105,114 @@ class MockFirebaseClient extends _i1.Mock implements _i5.FirebaseClient {
       (super.noSuchMethod(Invocation.getter(#isPossibleInfiniteLoop),
           returnValue: false) as bool);
   @override
-  _i6.Future<void> init() => (super.noSuchMethod(Invocation.method(#init, []),
+  String get fcmToken =>
+      (super.noSuchMethod(Invocation.getter(#fcmToken), returnValue: '')
+          as String);
+  @override
+  _i7.Future<void> init() => (super.noSuchMethod(Invocation.method(#init, []),
       returnValue: Future<void>.value(),
-      returnValueForMissingStub: Future<void>.value()) as _i6.Future<void>);
+      returnValueForMissingStub: Future<void>.value()) as _i7.Future<void>);
   @override
-  _i6.Future<List<_i7.GameRound>> getGames() =>
+  _i7.Future<void> clear() => (super.noSuchMethod(Invocation.method(#clear, []),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value()) as _i7.Future<void>);
+  @override
+  _i7.Future<_i3.User> createUser() =>
+      (super.noSuchMethod(Invocation.method(#createUser, []),
+              returnValue: Future<_i3.User>.value(_FakeUser_1()))
+          as _i7.Future<_i3.User>);
+  @override
+  _i7.Future<void> updateUserProfile(_i3.User? user, bool? newName,
+          bool? newColor, bool? newNotification) =>
+      (super.noSuchMethod(
+          Invocation.method(
+              #updateUserProfile, [user, newName, newColor, newNotification]),
+          returnValue: Future<void>.value(),
+          returnValueForMissingStub: Future<void>.value()) as _i7.Future<void>);
+  @override
+  _i7.Future<List<_i3.User>> getFollowers() =>
+      (super.noSuchMethod(Invocation.method(#getFollowers, []),
+              returnValue: Future<List<_i3.User>>.value(<_i3.User>[]))
+          as _i7.Future<List<_i3.User>>);
+  @override
+  _i7.Future<_i3.User?> getUser() =>
+      (super.noSuchMethod(Invocation.method(#getUser, []),
+          returnValue: Future<_i3.User?>.value()) as _i7.Future<_i3.User?>);
+  @override
+  _i7.Future<void> addFriend(_i3.User? user, _i3.User? newFriend) =>
+      (super.noSuchMethod(Invocation.method(#addFriend, [user, newFriend]),
+          returnValue: Future<void>.value(),
+          returnValueForMissingStub: Future<void>.value()) as _i7.Future<void>);
+  @override
+  _i7.Future<void> removeFriend(_i3.User? user, String? uid) =>
+      (super.noSuchMethod(Invocation.method(#removeFriend, [user, uid]),
+          returnValue: Future<void>.value(),
+          returnValueForMissingStub: Future<void>.value()) as _i7.Future<void>);
+  @override
+  _i7.Future<List<_i3.User>> getUsers() =>
+      (super.noSuchMethod(Invocation.method(#getUsers, []),
+              returnValue: Future<List<_i3.User>>.value(<_i3.User>[]))
+          as _i7.Future<List<_i3.User>>);
+  @override
+  _i7.Future<List<_i8.GameRound>> getGames() =>
       (super.noSuchMethod(Invocation.method(#getGames, []),
-              returnValue: Future<List<_i7.GameRound>>.value(<_i7.GameRound>[]))
-          as _i6.Future<List<_i7.GameRound>>);
+              returnValue: Future<List<_i8.GameRound>>.value(<_i8.GameRound>[]))
+          as _i7.Future<List<_i8.GameRound>>);
   @override
-  _i6.Future<void> createGame(_i7.GameRound? game) =>
+  _i7.Future<void> createGame(_i8.GameRound? game) =>
       (super.noSuchMethod(Invocation.method(#createGame, [game]),
           returnValue: Future<void>.value(),
-          returnValueForMissingStub: Future<void>.value()) as _i6.Future<void>);
+          returnValueForMissingStub: Future<void>.value()) as _i7.Future<void>);
 }
 
 /// A class which mocks [LocalStorage].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLocalStorage extends _i1.Mock implements _i8.LocalStorage {
+class MockLocalStorage extends _i1.Mock implements _i9.LocalStorage {
   MockLocalStorage() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  String get LAST_LOGGED_IN_VERSION =>
-      (super.noSuchMethod(Invocation.getter(#LAST_LOGGED_IN_VERSION),
-          returnValue: '') as String);
-  @override
-  set LAST_LOGGED_IN_VERSION(String? _LAST_LOGGED_IN_VERSION) =>
-      super.noSuchMethod(
-          Invocation.setter(#LAST_LOGGED_IN_VERSION, _LAST_LOGGED_IN_VERSION),
-          returnValueForMissingStub: null);
-  @override
   bool get isPossibleInfiniteLoop =>
       (super.noSuchMethod(Invocation.getter(#isPossibleInfiniteLoop),
           returnValue: false) as bool);
   @override
-  _i6.Future<_i3.SharedPreferences> getPref() => (super.noSuchMethod(
+  _i7.Future<_i4.SharedPreferences> getPref() => (super.noSuchMethod(
           Invocation.method(#getPref, []),
           returnValue:
-              Future<_i3.SharedPreferences>.value(_FakeSharedPreferences_1()))
-      as _i6.Future<_i3.SharedPreferences>);
+              Future<_i4.SharedPreferences>.value(_FakeSharedPreferences_2()))
+      as _i7.Future<_i4.SharedPreferences>);
   @override
-  _i6.Future<void> storeLastLoggedInVersion() =>
+  _i7.Future<void> storeLastLoggedInVersion() =>
       (super.noSuchMethod(Invocation.method(#storeLastLoggedInVersion, []),
           returnValue: Future<void>.value(),
-          returnValueForMissingStub: Future<void>.value()) as _i6.Future<void>);
+          returnValueForMissingStub: Future<void>.value()) as _i7.Future<void>);
   @override
-  _i6.Future<String?> getLastLoggedInVersion() =>
+  _i7.Future<String?> getLastLoggedInVersion() =>
       (super.noSuchMethod(Invocation.method(#getLastLoggedInVersion, []),
-          returnValue: Future<String?>.value()) as _i6.Future<String?>);
+          returnValue: Future<String?>.value()) as _i7.Future<String?>);
   @override
-  _i6.Future<void> clearLastLoggedInVersion() =>
+  _i7.Future<void> clearLastLoggedInVersion() =>
       (super.noSuchMethod(Invocation.method(#clearLastLoggedInVersion, []),
           returnValue: Future<void>.value(),
-          returnValueForMissingStub: Future<void>.value()) as _i6.Future<void>);
+          returnValueForMissingStub: Future<void>.value()) as _i7.Future<void>);
   @override
-  _i6.Future<void> init() => (super.noSuchMethod(Invocation.method(#init, []),
+  _i7.Future<void> storeActiveUser(_i3.User? user) =>
+      (super.noSuchMethod(Invocation.method(#storeActiveUser, [user]),
+          returnValue: Future<void>.value(),
+          returnValueForMissingStub: Future<void>.value()) as _i7.Future<void>);
+  @override
+  _i7.Future<_i3.User?> getActiveUser() =>
+      (super.noSuchMethod(Invocation.method(#getActiveUser, []),
+          returnValue: Future<_i3.User?>.value()) as _i7.Future<_i3.User?>);
+  @override
+  _i7.Future<void> clearActiveUser() =>
+      (super.noSuchMethod(Invocation.method(#clearActiveUser, []),
+          returnValue: Future<void>.value(),
+          returnValueForMissingStub: Future<void>.value()) as _i7.Future<void>);
+  @override
+  _i7.Future<void> init() => (super.noSuchMethod(Invocation.method(#init, []),
       returnValue: Future<void>.value(),
-      returnValueForMissingStub: Future<void>.value()) as _i6.Future<void>);
+      returnValueForMissingStub: Future<void>.value()) as _i7.Future<void>);
 }

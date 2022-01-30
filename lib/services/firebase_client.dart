@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
-import 'package:ordel/local_storage.dart';
 import 'package:ordel/models/user_model.dart';
 import 'package:ordel/models/game_round_model.dart';
+import 'package:ordel/services/local_storage.dart';
 
 class FirebaseClient {
   final FirebaseAnalyticsObserver _observer;

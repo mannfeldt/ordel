@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ordel/constants.dart';
-import 'package:ordel/utils.dart';
+import 'package:ordel/utils/constants.dart';
+import 'package:ordel/utils/utils.dart';
 
 class LetterButton extends StatelessWidget {
   final String letter;

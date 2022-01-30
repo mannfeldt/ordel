@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:ordel/custom_snackbar.dart';
-import 'package:ordel/friends/widgets/my_friends_list.dart';
-import 'package:ordel/friends/widgets/users_list.dart';
 import 'package:ordel/models/user_model.dart';
-import 'package:ordel/user_provider.dart';
+import 'package:ordel/screens/friends/widgets/my_friends_list.dart';
+import 'package:ordel/screens/friends/widgets/users_list.dart';
+import 'package:ordel/services/user_provider.dart';
+import 'package:ordel/widgets/custom_snackbar.dart';
 
 class FriendList extends StatefulWidget {
   final UserProvider userProvider;

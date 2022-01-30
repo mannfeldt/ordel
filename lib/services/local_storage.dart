@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ordel/constants.dart';
+import 'package:ordel/utils/constants.dart';
 import 'package:ordel/models/user_model.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,8 +19,10 @@ class LocalStorage {
   List<DateTime> _callsTimeStamps = [];
 
   User? _activeUser;
+  String? _languageCode;
 
   User? get activeUser => _activeUser;
+  String? get languageCode => _languageCode;
 
   bool get isPossibleInfiniteLoop {
     _callsTimeStamps.add(DateTime.now());
@@ -84,6 +86,27 @@ class LocalStorage {
     _activeUser = null;
   }
 
+  Future<void> storeLanguage(String languageCode) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(LocalStorageKeys.LANGUAGE, languageCode);
+    _languageCode = languageCode;
+  }
+
+  Future<String?> getLanguage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? languagePref = prefs.getString(LocalStorageKeys.LANGUAGE);
+    if (languagePref == null) return null;
+    String? lang = prefs.getString(LocalStorageKeys.LANGUAGE);
+    _languageCode = lang;
+    return _languageCode;
+  }
+
+  Future<void> clearLanguage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove(LocalStorageKeys.LANGUAGE);
+    _languageCode = null;
+  }
+
   Future<void> init() async {
     String? lastLoggedInVersion = await getLastLoggedInVersion();
     final PackageInfo info = await PackageInfo.fromPlatform();
@@ -91,8 +114,10 @@ class LocalStorage {
       //app has updated
       clearActiveUser();
       clearLastLoggedInVersion();
+      clearLanguage();
     } else {
       _activeUser = await getActiveUser();
+      _languageCode = await getLanguage();
     }
   }
 }

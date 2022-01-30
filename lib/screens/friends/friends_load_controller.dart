@@ -1,5 +1,5 @@
-import 'package:ordel/loader.dart';
-import 'package:ordel/user_provider.dart';
+import 'package:ordel/services/user_provider.dart';
+import 'package:ordel/widgets/loader.dart';
 
 class FriendsLoadController implements LoadController {
   final UserProvider userProvider;

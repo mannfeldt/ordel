@@ -1,14 +1,16 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/foundation.dart';
-import 'package:ordel/firebase_client.dart';
-import 'package:ordel/game_provider.dart';
-import 'package:ordel/local_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:ordel/navigation/app_router.dart';
 import 'package:ordel/navigation/routes.dart';
-import 'package:ordel/session_provider.dart';
-import 'package:ordel/user_provider.dart';
+import 'package:ordel/services/firebase_client.dart';
+import 'package:ordel/services/game_provider.dart';
+import 'package:ordel/services/local_storage.dart';
+import 'package:ordel/services/session_provider.dart';
+import 'package:ordel/services/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -25,6 +27,22 @@ Future<List<SingleChildWidget>> bootstrap() async {
   final firebaseClient = FirebaseClient(analyticsObserver, localStorage);
   await firebaseClient.init();
   await localStorage.init();
+
+  RemoteConfig remoteConfig = RemoteConfig.instance;
+  await remoteConfig.setConfigSettings(
+    RemoteConfigSettings(
+      fetchTimeout: const Duration(seconds: 30),
+      minimumFetchInterval: kReleaseMode
+          ? const Duration(hours: 12)
+          : const Duration(seconds: 60),
+    ),
+  );
+  await remoteConfig.setDefaults({
+    "answers_en": "BEACH,PILOT",
+    "answers_sv": "BJÖRK,AKTIE",
+    "supported_languages": "en:English,sv:Svenska",
+  });
+  await remoteConfig.fetchAndActivate();
 
   final router = FluroRouter();
   Routes.configureRoutes(router);
@@ -52,7 +70,10 @@ List<SingleChildWidget> buildModelProviders(
           localStorage: localStorage,
           observer: analyticsObserver,
         );
-        provider.initSession(projectId);
+        provider.initSession(
+          projectId,
+          localStorage.languageCode,
+        );
         return provider;
       },
       create: (context) {
@@ -78,7 +99,6 @@ List<SingleChildWidget> buildModelProviders(
     ChangeNotifierProxyProvider3<FirebaseClient, FirebaseAnalyticsObserver,
         LocalStorage, UserProvider>(
       update: (context, client, analyticsObserver, localStorage, provider) {
-        //TODO detta krös på hotreload... måste sätta activeuser från _localstoarage?
         var provider = UserProvider(
           client: client,
           localStorage: localStorage,
