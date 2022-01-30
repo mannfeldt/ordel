@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:ordel/firebase_client.dart';
 import 'package:ordel/local_storage.dart';
-import 'package:ordel/models/wordle_game_model.dart';
+import 'package:ordel/models/game_round_model.dart';
 
 import 'models/user_model.dart';
 
@@ -21,19 +21,16 @@ class GameProvider with ChangeNotifier {
 
   bool get isProd => _projectId == null || _projectId == "ordel-prod";
 
-  List<WordleGame> _games = [];
-  List<List<WordleGame>> _leaderboard = [];
-  List<User> _users = [];
+  List<GameRound> _games = [];
+  List<List<GameRound>> _leaderboard = [];
 
-  List<User> get users => _users;
+  List<GameRound> get allGames => _games;
+  List<List<GameRound>> get leaderboard => _leaderboard;
 
-  List<WordleGame> get allGames => _games;
-  List<List<WordleGame>> get leaderboard => _leaderboard;
+  List<GameRound> get myGames =>
+      _games.where((g) => g.user == _client.user?.uid).toList();
 
-  List<WordleGame> get myGames =>
-      _games.where((g) => g.user == _client.user.uid).toList();
-
-  User get currentUser => _client.user;
+  User? get currentUser => _client.user;
 
 //TODO hämta upp de det bästa man gjort. visa upp det visuellt kanske.
 //TODO snyggt med scrollbar lista där man kan se en avkortad variant av gameGrid för varje runda.
@@ -43,12 +40,12 @@ class GameProvider with ChangeNotifier {
 //TODO tvådemsnionell lista då. lista med listor av WordleGame. kan ha en linjediagram över trend
 //TODO se hur man förbättrar sig.
 //TODO retunera bara de som är minst 2 vinster i rad.
-  List<List<WordleGame>> get myStreaks {
-    List<WordleGame> games = myGames;
-    List<List<WordleGame>> streaks = [];
+  List<List<GameRound>> get myStreaks {
+    List<GameRound> games = myGames;
+    List<List<GameRound>> streaks = [];
     int streakIndex = 0;
     for (int i = 0; i < games.length; i++) {
-      WordleGame g = games[i];
+      GameRound g = games[i];
       if (g.isWin) {
         if (streaks.length <= streakIndex) {
           streaks.add([g]);
@@ -67,20 +64,20 @@ class GameProvider with ChangeNotifier {
     return streaks;
   }
 
-  List<List<WordleGame>> getUserLeaderBoard(String userId) {
+  List<List<GameRound>> getUserLeaderBoard(String userId) {
     return _leaderboard.where((streak) => streak.first.user == userId).toList();
   }
 
 //TODO denna här kan vara väldigt tung. kanske ska göra den initalt. ha en laddad leaderboard variabel som kan hämtas..
-  List<List<WordleGame>> getLeaderBoard() {
-    List<WordleGame> games = List.from(allGames);
+  List<List<GameRound>> getLeaderBoard() {
+    List<GameRound> games = List.from(allGames);
 
     games.sort((a, b) => a.user.compareTo(b.user));
-    List<List<WordleGame>> streaks = [];
+    List<List<GameRound>> streaks = [];
     int streakIndex = 0;
-    WordleGame? lastGame;
+    GameRound? lastGame;
     for (int i = 0; i < games.length; i++) {
-      WordleGame g = games[i];
+      GameRound g = games[i];
       if (lastGame != null && g.user != lastGame.user) {
         streakIndex = streaks.length;
       }
@@ -134,7 +131,7 @@ class GameProvider with ChangeNotifier {
   loadGames() async {
     if (!_fetchingGames) {
       try {
-        await Future.wait([getGames(), getUsers()]);
+        await getGames();
         _leaderboard = getLeaderBoard();
         _fetchingGames = true;
       } finally {
@@ -149,30 +146,24 @@ class GameProvider with ChangeNotifier {
     _games = await _client.getGames();
   }
 
-  Future<void> getUsers() async {
-    _users = await _client.getUsers();
-  }
-
   resetGames() {
     _games = [];
     notifyListeners();
   }
 
-  Future<void> saveUser() async {
-    await _client.saveUser();
-  }
-
   Future<void> createGame(
       {required String answer,
       required Duration duration,
-      required List<String> guesses}) async {
-    WordleGame game = WordleGame(
-        answer: answer,
-        guesses: guesses,
-        duration: duration,
-        language: "sv",
-        user: currentUser.uid,
-        date: DateTime.now());
+      required List<String> guesses,
+      required String language}) async {
+    GameRound game = GameRound.fromGuesses(
+      answer: answer,
+      duration: duration,
+      language: language,
+      user: currentUser!.uid,
+      date: DateTime.now(),
+      guesses: guesses,
+    );
     _games.add(game);
     _leaderboard = getLeaderBoard();
     await _client.createGame(game);

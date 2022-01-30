@@ -1,6 +1,6 @@
-import 'package:ordel/models/wordle_game_model.dart';
+import 'package:ordel/models/game_round_model.dart';
 
-WordleGame createGame({
+GameRound createGame({
   String answer = "answer",
   List<String> guesses = const [],
   Duration? duration,
@@ -9,7 +9,7 @@ WordleGame createGame({
   DateTime? date,
   bool win = false,
 }) {
-  return WordleGame(
+  return GameRound.fromGuesses(
     answer: answer,
     guesses: guesses.isEmpty && win ? [answer] : guesses,
     duration: duration ?? const Duration(seconds: 30),

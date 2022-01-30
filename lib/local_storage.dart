@@ -1,6 +1,8 @@
-// ignore_for_file: non_constant_identifier_names
+import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ordel/constants.dart';
+import 'package:ordel/models/user_model.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,7 +17,10 @@ mixin T {}
 
 class LocalStorage {
   List<DateTime> _callsTimeStamps = [];
-  String LAST_LOGGED_IN_VERSION = "last_login_version";
+
+  User? _activeUser;
+
+  User? get activeUser => _activeUser;
 
   bool get isPossibleInfiniteLoop {
     _callsTimeStamps.add(DateTime.now());
@@ -35,17 +40,48 @@ class LocalStorage {
   Future<void> storeLastLoggedInVersion() async {
     SharedPreferences prefs = await getPref();
     final PackageInfo info = await PackageInfo.fromPlatform();
-    await prefs.setString(LAST_LOGGED_IN_VERSION, info.version);
+    await prefs.setString(
+        LocalStorageKeys.LAST_LOGGED_IN_VERSION, info.version);
   }
 
   Future<String?> getLastLoggedInVersion() async {
     SharedPreferences prefs = await getPref();
-    return prefs.getString(LAST_LOGGED_IN_VERSION);
+    return prefs.getString(LocalStorageKeys.LAST_LOGGED_IN_VERSION);
   }
 
   Future<void> clearLastLoggedInVersion() async {
     SharedPreferences prefs = await getPref();
-    await prefs.remove(LAST_LOGGED_IN_VERSION);
+    await prefs.remove(LocalStorageKeys.LAST_LOGGED_IN_VERSION);
+  }
+
+  Future<void> storeActiveUser(User user) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        LocalStorageKeys.ACTIVE_USER, json.encode(user.toJson()));
+    await prefs.setStringList(
+        LocalStorageKeys.ACTIVE_USER_FRIENDS, user.friendsUids);
+    _activeUser = user;
+  }
+
+  Future<User?> getActiveUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userPref = prefs.getString(LocalStorageKeys.ACTIVE_USER);
+    if (userPref == null) return null;
+    List<String>? friends =
+        prefs.getStringList(LocalStorageKeys.ACTIVE_USER_FRIENDS);
+    User user = User.fromJson(json.decode(userPref));
+    if (friends != null) {
+      user.friendsUids = friends;
+    }
+    _activeUser = user;
+    return _activeUser;
+  }
+
+  Future<void> clearActiveUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove(LocalStorageKeys.ACTIVE_USER);
+    await prefs.remove(LocalStorageKeys.ACTIVE_USER_FRIENDS);
+    _activeUser = null;
   }
 
   Future<void> init() async {
@@ -53,10 +89,10 @@ class LocalStorage {
     final PackageInfo info = await PackageInfo.fromPlatform();
     if (lastLoggedInVersion == null || lastLoggedInVersion != info.version) {
       //app has updated
-      // clearActiveUser();
+      clearActiveUser();
       clearLastLoggedInVersion();
     } else {
-      // _activeUser = await getActiveUser();
+      _activeUser = await getActiveUser();
     }
   }
 }

@@ -1,9 +1,14 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:fluro/fluro.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ordel/firebase_client.dart';
 import 'package:ordel/game_provider.dart';
 import 'package:ordel/local_storage.dart';
+import 'package:ordel/navigation/app_router.dart';
+import 'package:ordel/navigation/routes.dart';
+import 'package:ordel/session_provider.dart';
+import 'package:ordel/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -21,9 +26,9 @@ Future<List<SingleChildWidget>> bootstrap() async {
   await firebaseClient.init();
   await localStorage.init();
 
-  // final router = FluroRouter();
-  // Routes.configureRoutes(router);
-  // AppRouter.router = router;
+  final router = FluroRouter();
+  Routes.configureRoutes(router);
+  AppRouter.router = router;
 
   // Responsive.init(ScreenType.small);
   return [
@@ -40,9 +45,9 @@ List<SingleChildWidget> buildModelProviders(
     String projectId) {
   return [
     ChangeNotifierProxyProvider3<FirebaseClient, FirebaseAnalyticsObserver,
-        LocalStorage, GameProvider>(
+        LocalStorage, SessionProvider>(
       update: (context, client, analyticsObserver, localStorage, gameProvider) {
-        var provider = GameProvider(
+        var provider = SessionProvider(
           client: client,
           localStorage: localStorage,
           observer: analyticsObserver,
@@ -51,8 +56,40 @@ List<SingleChildWidget> buildModelProviders(
         return provider;
       },
       create: (context) {
-        //TODO jämför med pe_labs hur gör vi här. vad returneras?
+        return SessionProvider(
+            client: client, localStorage: storage, observer: observer);
+      },
+    ),
+    ChangeNotifierProxyProvider3<FirebaseClient, FirebaseAnalyticsObserver,
+        LocalStorage, GameProvider>(
+      update: (context, client, analyticsObserver, localStorage, provider) {
+        var provider = GameProvider(
+          client: client,
+          localStorage: localStorage,
+          observer: analyticsObserver,
+        );
+        return provider;
+      },
+      create: (context) {
         return GameProvider(
+            client: client, localStorage: storage, observer: observer);
+      },
+    ),
+    ChangeNotifierProxyProvider3<FirebaseClient, FirebaseAnalyticsObserver,
+        LocalStorage, UserProvider>(
+      update: (context, client, analyticsObserver, localStorage, provider) {
+        //TODO detta krös på hotreload... måste sätta activeuser från _localstoarage?
+        var provider = UserProvider(
+          client: client,
+          localStorage: localStorage,
+          observer: analyticsObserver,
+        );
+        provider.setActiveUser(localStorage.activeUser);
+
+        return provider;
+      },
+      create: (context) {
+        return UserProvider(
             client: client, localStorage: storage, observer: observer);
       },
     ),

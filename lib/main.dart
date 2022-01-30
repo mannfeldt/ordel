@@ -11,7 +11,11 @@ import 'package:flutter/services.dart';
 import 'package:flutterfire_ui/auth.dart';
 import 'package:ordel/game_provider.dart';
 import 'package:ordel/home.dart';
+import 'package:ordel/main_pages.dart';
+import 'package:ordel/navigation/app_router.dart';
 import 'package:ordel/providers.dart';
+import 'package:ordel/session_provider.dart';
+import 'package:ordel/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -33,7 +37,7 @@ Future<void> main() async {
     await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     final providers = await bootstrap();
 //TODO kolla mot pelabs depricated?
-    runApp(MyApp(providers: providers));
+    runApp(App(providers));
   }, onError: (error, stackTrace) async {
     await FirebaseCrashlytics.instance.recordError(error, stackTrace);
   }));
@@ -62,16 +66,35 @@ Future<void> main() async {
 // lägg till responsivitet.
 // lägg till streaks. skapa en gameResult model som innehåller all möjlig info.. hur många gissningar det tog åtminstone.
 
-class MyApp extends StatefulWidget {
+class App extends StatefulWidget {
   final List<SingleChildWidget> providers;
 
-  const MyApp({Key? key, required this.providers}) : super(key: key);
+  const App(this.providers);
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  AppState createState() => AppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class AppState extends State<App> {
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: widget.providers,
+      child: const AppRoot(),
+    );
+  }
+
+  // Widget _body() {}
+}
+
+class AppRoot extends StatefulWidget {
+  const AppRoot({Key? key}) : super(key: key);
+
+  @override
+  State<AppRoot> createState() => _AppRootState();
+}
+
+class _AppRootState extends State<AppRoot> {
   @override
   void initState() {
     initRemoteConfig();
@@ -101,79 +124,42 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     const providerConfigs = [EmailProviderConfiguration()];
 
-    return MultiProvider(
-      providers: widget.providers,
-      child: Consumer2<FirebaseAnalyticsObserver, GameProvider>(
-        builder: (context, analyticsObserver, gameProvider, child) =>
-            MaterialApp(
-          initialRoute:
-              FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/home',
-          routes: {
-            '/sign-in': (context) {
-              Widget signInScreen = SignInScreen(
+    return Consumer3<FirebaseAnalyticsObserver, UserProvider, SessionProvider>(
+      builder:
+          (context, analyticsObserver, userProvider, sessionProvider, child) =>
+              MaterialApp(
+        // initialRoute:
+        //     FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/home',
+        onGenerateRoute: AppRouter.router?.generator,
+        //TODO userProvider nollställs vid hotreload???
+        home: userProvider.isLoggedIn
+            ? sessionProvider.isProd
+                ? const MainPages()
+                : const Banner(
+                    message: "DEV",
+                    location: BannerLocation.bottomEnd,
+                    child: MainPages(),
+                  )
+            : SignInScreen(
                 providerConfigs: providerConfigs,
-                footerBuilder: (context, action) => TextButton(
-                  onPressed: () async {
-                    await FirebaseAuth.instance.signInAnonymously();
-                    gameProvider.saveUser();
-                    Navigator.pushReplacementNamed(context, '/home');
-                  },
-                  child: const Text("Anonym"),
+                footerBuilder: (context, action) => Column(
+                  children: [
+                    TextButton(
+                      onPressed: () async {
+                        await FirebaseAuth.instance.signInAnonymously();
+                        await userProvider.initUser();
+                      },
+                      child: const Text("Anonym"),
+                    ),
+                    if (!sessionProvider.isProd) const Text("DEV ENVIRONMENT")
+                  ],
                 ),
                 actions: [
                   AuthStateChangeAction<SignedIn>((context, state) {
-                    gameProvider.saveUser();
-                    Navigator.pushReplacementNamed(context, '/home');
+                    userProvider.initUser();
                   }),
                 ],
-              );
-              if (gameProvider.isProd) {
-                return signInScreen;
-              }
-              return Banner(
-                message: "DEV",
-                location: BannerLocation.bottomEnd,
-                child: signInScreen,
-              );
-            },
-            '/profile': (context) {
-              return ProfileScreen(
-                providerConfigs: providerConfigs,
-                children: [
-                  TextButton(
-                    onPressed: () async {
-                      await gameProvider.saveUser();
-                    },
-                    child: const Text("Save"),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      Navigator.pushReplacementNamed(context, '/home');
-                    },
-                    child: const Text("Back"),
-                  )
-                ],
-                actions: [
-                  SignedOutAction((context) {
-                    Navigator.pushReplacementNamed(context, '/sign-in');
-                  }),
-                ],
-              );
-            },
-            '/home': (context) {
-              if (gameProvider.isProd) {
-                return MyHomePage(
-                    userLanguage: Localizations.localeOf(context).languageCode);
-              }
-              return Banner(
-                message: "DEV",
-                location: BannerLocation.bottomEnd,
-                child: MyHomePage(
-                    userLanguage: Localizations.localeOf(context).languageCode),
-              );
-            },
-          },
-        ),
+              ),
       ),
     );
   }

@@ -14,21 +14,22 @@ import 'package:ordel/letter_button.dart';
 import 'package:ordel/loader.dart';
 import 'package:ordel/models/language_model.dart';
 import 'package:ordel/models/user_model.dart';
-import 'package:ordel/models/wordle_game_model.dart';
+import 'package:ordel/models/game_round_model.dart';
 import 'package:ordel/score_loading_controller.dart';
 import 'package:ordel/utils.dart';
 import 'package:ordel/word_grid.dart';
 import 'package:provider/provider.dart';
 
-class MyHomePage extends StatefulWidget {
+class SinglePlayerScreen extends StatefulWidget {
   final String userLanguage;
-  const MyHomePage({Key? key, required this.userLanguage}) : super(key: key);
+  const SinglePlayerScreen({Key? key, required this.userLanguage})
+      : super(key: key);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<SinglePlayerScreen> createState() => _SinglePlayerScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _SinglePlayerScreenState extends State<SinglePlayerScreen> {
   late double letterBoxSize;
   late double keySize;
   late RemoteConfig remoteConfig;
@@ -175,10 +176,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> endGame() async {
     Provider.of<GameProvider>(context, listen: false).createGame(
-      answer: _answer,
-      guesses: _guesses,
-      duration: DateTime.now().difference(_startTimeStamp),
-    );
+        answer: _answer,
+        guesses: _guesses,
+        duration: DateTime.now().difference(_startTimeStamp),
+        language: _language!.code);
     await toggleAll();
   }
 
@@ -511,7 +512,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
         if (_extraCharacters.length > 4) actionButtons,
-        SizedBox(height: keySize * (_extraCharacters.length > 4 ? 1 : 2)),
+        SizedBox(height: keySize * (_extraCharacters.length > 4 ? 0 : 1)),
       ],
     );
   }
@@ -632,6 +633,7 @@ class WinStreakText extends StatelessWidget {
   }
 }
 
+//TODO hela denna ska flyttas till leadboard tabben
 class ScoreDialog extends StatelessWidget {
   const ScoreDialog({Key? key}) : super(key: key);
 
@@ -663,10 +665,10 @@ class ScoreDialog extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     GameStreakList(
-                        provider.getUserLeaderBoard(provider.currentUser.uid)),
+                        provider.getUserLeaderBoard(provider.currentUser!.uid)),
                     const SizedBox(height: 10),
-                    LeaderBoard(provider.leaderboard, provider.users,
-                        provider.currentUser.uid),
+                    // LeaderBoard(provider.leaderboard, provider.users,
+                    //     provider.currentUser!.uid),
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
                       child: Text("close"),
@@ -683,7 +685,7 @@ class ScoreDialog extends StatelessWidget {
 }
 
 class GameStreakList extends StatelessWidget {
-  final List<List<WordleGame>> streaks;
+  final List<List<GameRound>> streaks;
   const GameStreakList(this.streaks, {Key? key}) : super(key: key);
 
   @override
@@ -712,7 +714,7 @@ class GameStreakList extends StatelessWidget {
 }
 
 class LeaderBoard extends StatelessWidget {
-  final List<List<WordleGame>> leaderboard;
+  final List<List<GameRound>> leaderboard;
   final List<User> users;
 
   final String activeUser;
@@ -723,8 +725,8 @@ class LeaderBoard extends StatelessWidget {
   Widget build(BuildContext context) {
     int activeUserTopRanking =
         leaderboard.indexWhere((streak) => streak.first.user == activeUser);
-    List<WordleGame> activeUserTopGame = leaderboard[activeUserTopRanking];
-    final List<List<WordleGame>> cut =
+    List<GameRound> activeUserTopGame = leaderboard[activeUserTopRanking];
+    final List<List<GameRound>> cut =
         leaderboard.sublist(0, min(10, leaderboard.length));
 
     return ListView(
@@ -739,7 +741,7 @@ class LeaderBoard extends StatelessWidget {
               (streak) => ListTile(
                 selected: streak.first.user == activeUser,
                 title: Text(
-                  "${streak.length} ${users.firstWhere((u) => u.uid == streak.first.user, orElse: () => User("-1", "Unknown")).name}",
+                  "${streak.length} ${users.firstWhere((u) => u.uid == streak.first.user, orElse: () => User.empty(displayname: "Unknown")).displayname}",
                   style: TextStyle(
                       color: streak.first.user == activeUser
                           ? Colors.green

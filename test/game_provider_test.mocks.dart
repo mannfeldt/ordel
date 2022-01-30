@@ -9,7 +9,7 @@ import 'package:flutter/cupertino.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:ordel/firebase_client.dart' as _i5;
 import 'package:ordel/local_storage.dart' as _i8;
-import 'package:ordel/models/wordle_game_model.dart' as _i7;
+import 'package:ordel/models/game_round_model.dart' as _i7;
 import 'package:shared_preferences/shared_preferences.dart' as _i3;
 
 // ignore_for_file: avoid_redundant_argument_values
@@ -106,12 +106,12 @@ class MockFirebaseClient extends _i1.Mock implements _i5.FirebaseClient {
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i6.Future<void>);
   @override
-  _i6.Future<List<_i7.WordleGame>> getGames() => (super.noSuchMethod(
-          Invocation.method(#getGames, []),
-          returnValue: Future<List<_i7.WordleGame>>.value(<_i7.WordleGame>[]))
-      as _i6.Future<List<_i7.WordleGame>>);
+  _i6.Future<List<_i7.GameRound>> getGames() =>
+      (super.noSuchMethod(Invocation.method(#getGames, []),
+              returnValue: Future<List<_i7.GameRound>>.value(<_i7.GameRound>[]))
+          as _i6.Future<List<_i7.GameRound>>);
   @override
-  _i6.Future<void> createGame(_i7.WordleGame? game) =>
+  _i6.Future<void> createGame(_i7.GameRound? game) =>
       (super.noSuchMethod(Invocation.method(#createGame, [game]),
           returnValue: Future<void>.value(),
           returnValueForMissingStub: Future<void>.value()) as _i6.Future<void>);

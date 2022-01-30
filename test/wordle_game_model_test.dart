@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ordel/models/wordle_game_model.dart';
+import 'package:ordel/models/game_round_model.dart';
 
 import 'games_data.dart';
 

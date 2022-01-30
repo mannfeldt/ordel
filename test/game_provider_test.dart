@@ -6,7 +6,7 @@ import 'package:ordel/firebase_client.dart';
 import 'package:ordel/game_provider.dart';
 import 'package:ordel/local_storage.dart';
 import 'package:ordel/models/user_model.dart';
-import 'package:ordel/models/wordle_game_model.dart';
+import 'package:ordel/models/game_round_model.dart';
 
 import 'game_provider_test.mocks.dart';
 import 'games_data.dart';
@@ -25,7 +25,7 @@ void main() {
   });
 
   test('myGames', () async {
-    final List<WordleGame> games = [
+    final List<GameRound> games = [
       createGame(user: "user1"),
       createGame(user: "user2"),
       createGame(user: "user3"),
@@ -33,7 +33,7 @@ void main() {
       createGame(user: "user2"),
     ];
     when(clientMock.getGames()).thenAnswer((_) async => games);
-    when(clientMock.user).thenReturn(User("user1", "name"));
+    when(clientMock.user).thenReturn(User.empty(uid: "user1"));
     sut = GameProvider(
         client: clientMock, localStorage: localStorage, observer: observer);
 
@@ -42,7 +42,7 @@ void main() {
     expect(sut.myGames, [games[0], games[3]]);
   });
   test('myStreaks', () async {
-    final List<WordleGame> games = [
+    final List<GameRound> games = [
       createGame(user: "user1", win: true),
       createGame(user: "user2", win: true),
       createGame(user: "user1", win: true),
@@ -61,7 +61,7 @@ void main() {
       createGame(user: "user1", win: true),
     ];
     when(clientMock.getGames()).thenAnswer((_) async => games);
-    when(clientMock.user).thenReturn(User("user1", "name"));
+    when(clientMock.user).thenReturn(User.empty(uid: "user1"));
     sut = GameProvider(
         client: clientMock, localStorage: localStorage, observer: observer);
 
@@ -75,7 +75,7 @@ void main() {
     ]);
   });
   test('getLeaderBoard', () async {
-    final List<WordleGame> games = [
+    final List<GameRound> games = [
       createGame(user: "user1", win: true),
       createGame(user: "user2", win: true, date: DateTime(2020, 1, 5)),
       createGame(user: "user1", win: true),
@@ -100,7 +100,7 @@ void main() {
       createGame(user: "user2", win: true),
     ];
     when(clientMock.getGames()).thenAnswer((_) async => games);
-    when(clientMock.user).thenReturn(User("user1", "name"));
+    when(clientMock.user).thenReturn(User.empty(uid: "user1"));
     sut = GameProvider(
         client: clientMock, localStorage: localStorage, observer: observer);
 
