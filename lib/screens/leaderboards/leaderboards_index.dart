@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ordel/models/game_round_model.dart';
 import 'package:ordel/models/user_model.dart';
+import 'package:ordel/navigation/app_router.dart';
 import 'package:ordel/screens/leaderboards/score_loading_controller.dart';
 import 'package:ordel/services/game_provider.dart';
 import 'package:ordel/services/user_provider.dart';
@@ -18,6 +19,7 @@ class LeaderboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer2<GameProvider, UserProvider>(
+      key: AppRouter.leaderboardScreenKey,
       builder: (context, gameProvider, userProvider, child) => Loader(
         controller: ScoreLoadingController(gameProvider),
         result: Material(

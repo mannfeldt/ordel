@@ -25,7 +25,7 @@ class PushNotificationsManager {
           .getInitialMessage()
           .then((RemoteMessage? message) {
         if (message != null) {
-          _serializeMessage(message.data, internal: false);
+          _serializeMessage(message, internal: false);
         }
       });
 
@@ -34,7 +34,7 @@ class PushNotificationsManager {
         AndroidNotification? android = message.notification?.android;
         if (notification != null && android != null && !kIsWeb) {
           try {
-            _serializeMessage(message.data, internal: true);
+            _serializeMessage(message, internal: true);
           } catch (e) {
             print(e.toString());
           }
@@ -44,7 +44,7 @@ class PushNotificationsManager {
       FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
         print('A new onMessageOpenedApp event was published!');
         try {
-          _serializeMessage(message.data, internal: false);
+          _serializeMessage(message, internal: false);
         } catch (e) {
           print(e.toString());
         }
@@ -133,7 +133,7 @@ class PushNotificationsManager {
         NotificationSnackbar.display(
           context,
           "It´s your turn to play!",
-          title: "Hey!", //TODO vad är messea och title?
+          title: "Hey!",
           // onNavigate: () => AppRouter.navigateTo(
           //     context, AppRouter.pathForGame(gameId),
           //     replace: true),
@@ -147,7 +147,7 @@ class PushNotificationsManager {
             .handleGameUpdated(gameId);
 
         NotificationSnackbar.display(context, "$name has invited you to a game",
-            title: "Hey!");
+            title: "Game invite");
         break;
       case CloudFunctionName.ACCEPT_GAME_INVITE:
         var gameId = data['game'];
@@ -155,7 +155,7 @@ class PushNotificationsManager {
         Provider.of<MultiplayerProvider>(context, listen: false)
             .handleGameUpdated(gameId);
         NotificationSnackbar.display(context, "$name accepted your game invite",
-            title: "Hey!");
+            title: "Invite accepted");
         break;
       case CloudFunctionName.DECLINE_GAME_INVITE:
         var gameId = data['game'];
@@ -163,7 +163,7 @@ class PushNotificationsManager {
         Provider.of<MultiplayerProvider>(context, listen: false)
             .handleGameDeleted(gameId);
         NotificationSnackbar.display(context, "$name declined your game invite",
-            title: "Hey!");
+            title: "Game invite declined");
         break;
       case CloudFunctionName.DECLINE_DELETE_GAME_INVITE:
         var gameId = data['game'];
@@ -172,7 +172,7 @@ class PushNotificationsManager {
             .handleGameDeleted(gameId);
         NotificationSnackbar.display(context,
             "$name declined your game invite. Game was removed as there is not enough players",
-            title: "Hey!");
+            title: "Game invite declined");
         break;
       case CloudFunctionName.NEW_FOLLOWER:
         var followerUid = data['follower'];
@@ -187,8 +187,8 @@ class PushNotificationsManager {
         var gameId = data['game'];
         Provider.of<MultiplayerProvider>(context, listen: false)
             .handleGameUpdated(gameId);
-        NotificationSnackbar.display(context, "Game has finished!",
-            title: "Hey!"
+        NotificationSnackbar.display(context, "Game has finished",
+            title: "Well played!"
             // onNavigate: () => AppRouter.navigateTo(
             //     context, AppRouter.pathForGame(gameId),
             //     replace: true),
@@ -198,14 +198,13 @@ class PushNotificationsManager {
     }
   }
 
-  void _serializeMessage(Map<String, dynamic> message,
-      {bool internal = false}) {
-    var notificationData = message['data'];
+  void _serializeMessage(RemoteMessage message, {bool internal = false}) {
+    var notificationData = message.data;
     var pushFunc = notificationData['push_func'];
     if (pushFunc != null) {
-      BuildContext? context = AppRouter.homeScreenKey.currentContext ??
+      BuildContext? context = AppRouter.singleplayerScreenKey.currentContext ??
           AppRouter.friendScreenKey.currentContext ??
-          AppRouter.playScreenKey.currentContext ??
+          AppRouter.multiplayerScreenKey.currentContext ??
           AppRouter.leaderboardScreenKey.currentContext;
       if (context == null) return;
       if (internal) {

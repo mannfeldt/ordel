@@ -16,7 +16,7 @@ class PlayScreen extends StatelessWidget {
     //börja enkelt med bara en game list och en knapp för att skapa nya games
     //kan bygga ut senare
     return SafeArea(
-      key: AppRouter.playScreenKey,
+      key: AppRouter.multiplayerScreenKey,
       child: Consumer2<UserProvider, MultiplayerProvider>(
         builder: (context, userProvider, multiplayerProvider, child) => Loader(
           controller:

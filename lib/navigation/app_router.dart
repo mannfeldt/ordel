@@ -5,10 +5,10 @@ class AppRouter {
   static final GlobalKey<NavigatorState> friendScreenKey = GlobalKey(
     debugLabel: "Friend Screen",
   );
-  static final GlobalKey<NavigatorState> homeScreenKey = GlobalKey(
+  static final GlobalKey<NavigatorState> singleplayerScreenKey = GlobalKey(
     debugLabel: "Singleplayer Screen",
   );
-  static final GlobalKey<NavigatorState> playScreenKey = GlobalKey(
+  static final GlobalKey<NavigatorState> multiplayerScreenKey = GlobalKey(
     debugLabel: "Multiplayer Screen",
   );
   static final GlobalKey<NavigatorState> leaderboardScreenKey = GlobalKey(

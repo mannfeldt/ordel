@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ordel/models/language_model.dart';
+import 'package:ordel/navigation/app_router.dart';
 import 'package:ordel/services/game_provider.dart';
 import 'package:ordel/services/session_provider.dart';
 import 'package:ordel/utils/constants.dart';
@@ -124,6 +125,7 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: AppRouter.singleplayerScreenKey,
       backgroundColor: Colors.grey.shade900,
       body: Consumer<GameProvider>(
         builder: (context, gameProvide, child) => SafeArea(
