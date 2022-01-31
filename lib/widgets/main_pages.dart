@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ordel/screens/friends/friends_screen.dart';
 import 'package:ordel/screens/leaderboards/leaderboards_index.dart';
+import 'package:ordel/screens/multiplayer/multiplayer_gameplay.dart';
 import 'package:ordel/screens/singleplayer/singleplayer_index.dart';
 import 'package:ordel/services/session_provider.dart';
 import 'package:ordel/utils/keys.dart';
@@ -68,15 +69,19 @@ class _MainPagesState extends State<MainPages> {
           pageChanged(index);
         },
         children: [
-          SinglePlayerScreen(
+          SingleplayerScreen(
             key: const Key(MainKeys.SINGLEPLAYER_SCREEN),
             sessionLanguageCode:
                 Provider.of<SessionProvider>(context, listen: false)
                         .languageCode ??
                     Localizations.localeOf(context).languageCode,
           ),
-          FriendsScreen(
-            key: const Key(MainKeys.MULTIPLAYER_SCREEN),
+          MultiplayerScreen(
+            key: const Key(MainKeys.SINGLEPLAYER_SCREEN),
+            sessionLanguageCode:
+                Provider.of<SessionProvider>(context, listen: false)
+                        .languageCode ??
+                    Localizations.localeOf(context).languageCode,
           ),
           FriendsScreen(
             key: const Key(MainKeys.FRIEND_SCREEN),
@@ -100,32 +105,20 @@ class _MainPagesState extends State<MainPages> {
           type: BottomNavigationBarType.fixed,
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              title: Text(
-                'Single',
-                key: Key(MainKeys.SINGLEPLAYER_NAV_BUTTON),
-              ),
+              icon: Icon(Icons.play_arrow),
+              label: 'Singleplayer',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.people),
-              title: Text(
-                'Multi',
-                key: Key(MainKeys.MULTIPLAYER_NAV_BUTTON),
-              ),
+              label: 'Multiplayer',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.play_arrow),
-              title: Text(
-                'Friends',
-                key: Key(MainKeys.FRIENDS_NAV_BUTTON),
-              ),
+              icon: Icon(Icons.person_search_rounded),
+              label: 'Friends',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.list),
-              title: Text(
-                'Leaderboard',
-                key: Key(MainKeys.LEADERBOARD_NAV_BUTTON),
-              ),
+              label: 'Leaderboard',
             ),
           ],
         ),

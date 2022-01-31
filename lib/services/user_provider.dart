@@ -8,6 +8,7 @@ import 'package:ordel/services/local_storage.dart';
 class UserProvider with ChangeNotifier {
   final FirebaseClient _client;
   final LocalStorage _localStorage;
+  // ignore: unused_field
   final FirebaseAnalyticsObserver _observer;
   List<User>? _users;
   List<User>? _followers;
@@ -88,8 +89,8 @@ class UserProvider with ChangeNotifier {
       String displayName, String color, String piece, bool notification) async {
     bool newName = displayName != _activeUser!.displayname;
     bool newColor = color != _activeUser!.colorString;
-    // bool newNotification = notification != hasActivePushNotifications;
-    bool newNotification = false;
+    bool newNotification = notification != hasActivePushNotifications;
+    // bool newNotification = false;
     if (newName || newColor || newNotification) {
       _activeUser!.colorString = color;
       _activeUser!.displayname = displayName;
@@ -108,7 +109,8 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // bool get hasActivePushNotifications => _activeUser.fcm == _client.fcmToken;
+  bool get hasActivePushNotifications =>
+      _activeUser?.fcm != null && _activeUser!.fcm == _client.fcmToken;
 
   Future<void> resetUsers() async {
     _users = null;

@@ -27,7 +27,6 @@ class _FriendListState extends State<FriendList>
     _tabController.addListener(() {
       setState(() {});
     });
-//möjliga problem här? om man ändrar på friends t.ex så slår ändringen även i providern?? referenbsen är kopierad?
 
     super.initState();
   }
@@ -40,13 +39,13 @@ class _FriendListState extends State<FriendList>
           title: Text("Remove friend"),
           content: Text("Are you sure you want to remove ${u.displayname}?"),
           actions: [
-            FlatButton(
+            TextButton(
               child: Text("Cancel"),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
-            FlatButton(
+            TextButton(
               // key: Key(FriendKeys.CONFIRM_DELETE_FRIEND),
               child: Text("Remove"),
               onPressed: () {
@@ -106,7 +105,7 @@ class _FriendListState extends State<FriendList>
                 // key: Key(FriendKeys.USER_LIST_TAB),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+                  children: const [
                     Icon(Icons.public),
                     Padding(
                       padding: EdgeInsets.only(left: 8.0),

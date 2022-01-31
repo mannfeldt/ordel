@@ -9,6 +9,7 @@ import 'package:ordel/services/local_storage.dart';
 class SessionProvider with ChangeNotifier {
   final FirebaseClient _client;
   final LocalStorage _localStorage;
+  // ignore: unused_field
   final FirebaseAnalyticsObserver _observer;
   String? _projectId;
   String? _languageCode;

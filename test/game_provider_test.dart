@@ -43,22 +43,26 @@ void main() {
   });
   test('myStreaks', () async {
     final List<GameRound> games = [
-      createGame(user: "user1", win: true),
-      createGame(user: "user2", win: true),
-      createGame(user: "user1", win: true),
-      createGame(user: "user1"),
-      createGame(user: "user1"),
-      createGame(user: "user1", win: true, date: DateTime(2020, 1, 3)),
-      createGame(user: "user1"),
-      createGame(user: "user1", win: true, date: DateTime(2020, 1, 2)),
-      createGame(user: "user1", win: true),
-      createGame(user: "user1", win: true),
-      createGame(user: "user1"),
-      createGame(user: "user1", win: true, date: DateTime(2020, 1, 2)),
-      createGame(user: "user1"),
-      createGame(user: "user1", win: true, date: DateTime(2020, 1, 3)),
-      createGame(user: "user1", win: true),
-      createGame(user: "user1", win: true),
+      createSingleplayerGameRound(user: "user1", win: true),
+      createSingleplayerGameRound(user: "user2", win: true),
+      createSingleplayerGameRound(user: "user1", win: true),
+      createSingleplayerGameRound(user: "user1"),
+      createSingleplayerGameRound(user: "user1"),
+      createSingleplayerGameRound(
+          user: "user1", win: true, date: DateTime(2020, 1, 3)),
+      createSingleplayerGameRound(user: "user1"),
+      createSingleplayerGameRound(
+          user: "user1", win: true, date: DateTime(2020, 1, 2)),
+      createSingleplayerGameRound(user: "user1", win: true),
+      createSingleplayerGameRound(user: "user1", win: true),
+      createSingleplayerGameRound(user: "user1"),
+      createSingleplayerGameRound(
+          user: "user1", win: true, date: DateTime(2020, 1, 2)),
+      createSingleplayerGameRound(user: "user1"),
+      createSingleplayerGameRound(
+          user: "user1", win: true, date: DateTime(2020, 1, 3)),
+      createSingleplayerGameRound(user: "user1", win: true),
+      createSingleplayerGameRound(user: "user1", win: true),
     ];
     when(clientMock.getGames()).thenAnswer((_) async => games);
     when(clientMock.user).thenReturn(User.empty(uid: "user1"));
@@ -76,28 +80,34 @@ void main() {
   });
   test('getLeaderBoard', () async {
     final List<GameRound> games = [
-      createGame(user: "user1", win: true),
-      createGame(user: "user2", win: true, date: DateTime(2020, 1, 5)),
-      createGame(user: "user1", win: true),
-      createGame(user: "user1"),
-      createGame(user: "user1"),
-      createGame(user: "user1", win: true, date: DateTime(2020, 1, 3)),
-      createGame(user: "user1"),
-      createGame(user: "user1", win: true, date: DateTime(2020, 1, 2)),
-      createGame(user: "user1", win: true),
-      createGame(user: "user1", win: true),
-      createGame(user: "user1"),
-      createGame(user: "user1", win: true, date: DateTime(2020, 1, 2)),
-      createGame(user: "user1"),
-      createGame(user: "user1", win: true, date: DateTime(2020, 1, 3)),
-      createGame(user: "user2", win: true),
-      createGame(user: "user2", win: true),
-      createGame(user: "user1", win: true),
-      createGame(user: "user2", win: true),
-      createGame(user: "user1", win: true),
-      createGame(user: "user2"),
-      createGame(user: "user2", win: true, date: DateTime(2019, 1, 3)),
-      createGame(user: "user2", win: true),
+      createSingleplayerGameRound(user: "user1", win: true),
+      createSingleplayerGameRound(
+          user: "user2", win: true, date: DateTime(2020, 1, 5)),
+      createSingleplayerGameRound(user: "user1", win: true),
+      createSingleplayerGameRound(user: "user1"),
+      createSingleplayerGameRound(user: "user1"),
+      createSingleplayerGameRound(
+          user: "user1", win: true, date: DateTime(2020, 1, 3)),
+      createSingleplayerGameRound(user: "user1"),
+      createSingleplayerGameRound(
+          user: "user1", win: true, date: DateTime(2020, 1, 2)),
+      createSingleplayerGameRound(user: "user1", win: true),
+      createSingleplayerGameRound(user: "user1", win: true),
+      createSingleplayerGameRound(user: "user1"),
+      createSingleplayerGameRound(
+          user: "user1", win: true, date: DateTime(2020, 1, 2)),
+      createSingleplayerGameRound(user: "user1"),
+      createSingleplayerGameRound(
+          user: "user1", win: true, date: DateTime(2020, 1, 3)),
+      createSingleplayerGameRound(user: "user2", win: true),
+      createSingleplayerGameRound(user: "user2", win: true),
+      createSingleplayerGameRound(user: "user1", win: true),
+      createSingleplayerGameRound(user: "user2", win: true),
+      createSingleplayerGameRound(user: "user1", win: true),
+      createSingleplayerGameRound(user: "user2"),
+      createSingleplayerGameRound(
+          user: "user2", win: true, date: DateTime(2019, 1, 3)),
+      createSingleplayerGameRound(user: "user2", win: true),
     ];
     when(clientMock.getGames()).thenAnswer((_) async => games);
     when(clientMock.user).thenReturn(User.empty(uid: "user1"));

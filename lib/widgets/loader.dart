@@ -92,10 +92,10 @@ class _DefaultWaitingWidgetState extends State<DefaultWaitingWidget>
 
 class DefaultEmptyWidget extends StatelessWidget {
   final bool fullscreen;
-  String? message;
-  String? illustration;
+  final String? message;
+  final String? illustration;
 
-  DefaultEmptyWidget({
+  const DefaultEmptyWidget({
     Key? key,
     this.fullscreen = false,
     this.message,
@@ -176,7 +176,7 @@ class DefaultErrorWidget extends StatelessWidget {
                   Text(message ?? "Ops, something went wrong"),
                   Padding(
                     padding: const EdgeInsets.only(top: 10, bottom: 10),
-                    child: RaisedButton(
+                    child: TextButton(
                       child: const Text("Retry"),
                       onPressed: retry,
                     ),
@@ -198,7 +198,7 @@ class DefaultErrorWidget extends StatelessWidget {
                 Text(message ?? "Ops, something went wrong"),
                 Padding(
                   padding: const EdgeInsets.only(top: 10, bottom: 10),
-                  child: RaisedButton(
+                  child: TextButton(
                     child: const Text("Retry"),
                     onPressed: retry,
                   ),

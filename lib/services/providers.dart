@@ -3,12 +3,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:ordel/navigation/app_router.dart';
 import 'package:ordel/navigation/routes.dart';
 import 'package:ordel/services/firebase_client.dart';
 import 'package:ordel/services/game_provider.dart';
 import 'package:ordel/services/local_storage.dart';
+import 'package:ordel/services/multiplayer_provider.dart';
 import 'package:ordel/services/session_provider.dart';
 import 'package:ordel/services/user_provider.dart';
 import 'package:provider/provider.dart';
@@ -93,6 +93,21 @@ List<SingleChildWidget> buildModelProviders(
       },
       create: (context) {
         return GameProvider(
+            client: client, localStorage: storage, observer: observer);
+      },
+    ),
+    ChangeNotifierProxyProvider3<FirebaseClient, FirebaseAnalyticsObserver,
+        LocalStorage, MultiplayerProvider>(
+      update: (context, client, analyticsObserver, localStorage, provider) {
+        var provider = MultiplayerProvider(
+          client: client,
+          localStorage: localStorage,
+          observer: analyticsObserver,
+        );
+        return provider;
+      },
+      create: (context) {
+        return MultiplayerProvider(
             client: client, localStorage: storage, observer: observer);
       },
     ),

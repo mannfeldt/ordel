@@ -1,30 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class GameRound {
-  final String answer;
-  final Duration duration;
+class SingleplayerGameRound extends GameRound {
   final String language;
-  final String user;
   final DateTime date;
-  final String finalGuess;
-  final int winIndex;
 
-  bool get isWin => winIndex > -1;
-  int get enteredGuesses => isWin ? winIndex + 1 : 6;
-  Duration get averageGuessTime => Duration(
-      milliseconds: (duration.inMilliseconds / enteredGuesses).round());
+  SingleplayerGameRound(
+      {required this.language,
+      required this.date,
+      answer,
+      duration,
+      user,
+      finalGuess,
+      winIndex})
+      : super(
+            answer: answer,
+            duration: duration,
+            user: user,
+            finalGuess: finalGuess,
+            winIndex: winIndex);
 
-  GameRound({
-    required this.answer,
-    required this.duration,
-    required this.language,
-    required this.user,
-    required this.date,
-    required this.finalGuess,
-    this.winIndex = -1,
-  });
-
-  factory GameRound.fromGuesses({
+  factory SingleplayerGameRound.fromGuesses({
     required String answer,
     required Duration duration,
     required String language,
@@ -32,18 +27,18 @@ class GameRound {
     required DateTime date,
     required List<String> guesses,
   }) {
-    return GameRound(
-      answer: answer,
+    return SingleplayerGameRound(
       language: language,
+      date: date,
+      answer: answer,
       user: user,
       duration: duration,
-      date: date,
       finalGuess: guesses.last,
       winIndex: guesses.indexOf(answer),
     );
   }
 
-  factory GameRound.fromJson(dynamic json) {
+  factory SingleplayerGameRound.fromJson(dynamic json) {
     String answer = json['answer'];
     String user = json['user'];
     Timestamp timestamp = json['date'];
@@ -56,7 +51,7 @@ class GameRound {
     dynamic winIndexData = json['win'];
     int winIndex = int.tryParse(winIndexData) ?? -1;
 
-    GameRound game = GameRound(
+    SingleplayerGameRound game = SingleplayerGameRound(
       answer: answer,
       language: lang,
       user: user,
@@ -69,6 +64,7 @@ class GameRound {
     return game;
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       "answer": answer,
@@ -78,6 +74,72 @@ class GameRound {
       "user": user,
       "dur": duration.inMilliseconds,
       "date": date,
+    };
+  }
+}
+
+class GameRound {
+  final String answer;
+  final Duration duration;
+  final String user;
+  final String finalGuess;
+  final int winIndex;
+
+  bool get isWin => winIndex > -1;
+  int get enteredGuesses => isWin ? winIndex + 1 : 6;
+  Duration get averageGuessTime => Duration(
+      milliseconds: (duration.inMilliseconds / enteredGuesses).round());
+
+  GameRound({
+    required this.answer,
+    required this.duration,
+    required this.user,
+    required this.finalGuess,
+    this.winIndex = -1,
+  });
+
+  factory GameRound.fromGuesses({
+    required String answer,
+    required Duration duration,
+    required String user,
+    required List<String> guesses,
+  }) {
+    return GameRound(
+      answer: answer,
+      user: user,
+      duration: duration,
+      finalGuess: guesses.last,
+      winIndex: guesses.indexOf(answer),
+    );
+  }
+
+  factory GameRound.fromJson(dynamic json) {
+    String answer = json['answer'];
+    String user = json['user'];
+    int dur = json['dur'];
+    Duration duration = Duration(milliseconds: dur);
+    String finalGuess = json['guess'];
+    dynamic winIndexData = json['win'];
+    int winIndex = int.tryParse(winIndexData) ?? -1;
+
+    GameRound game = GameRound(
+      answer: answer,
+      user: user,
+      duration: duration,
+      finalGuess: winIndex > -1 ? answer : finalGuess,
+      winIndex: winIndex,
+    );
+
+    return game;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "answer": answer,
+      if (isWin) "win": winIndex,
+      if (!isWin) "guess": finalGuess,
+      "user": user,
+      "dur": duration.inMilliseconds,
     };
   }
 }

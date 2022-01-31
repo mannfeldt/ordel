@@ -12,16 +12,16 @@ import 'package:ordel/utils/utils.dart';
 import 'package:ordel/widgets/gameplay.dart';
 import 'package:provider/provider.dart';
 
-class SingleplayerScreen extends StatefulWidget {
+class MultiplayerScreen extends StatefulWidget {
   final String sessionLanguageCode;
-  const SingleplayerScreen({Key? key, required this.sessionLanguageCode})
+  const MultiplayerScreen({Key? key, required this.sessionLanguageCode})
       : super(key: key);
 
   @override
-  State<SingleplayerScreen> createState() => _SingleplayerScreenState();
+  State<MultiplayerScreen> createState() => _MultiplayerScreenState();
 }
 
-class _SingleplayerScreenState extends State<SingleplayerScreen> {
+class _MultiplayerScreenState extends State<MultiplayerScreen> {
   late RemoteConfig remoteConfig;
 
   List<String> _wordList = [];

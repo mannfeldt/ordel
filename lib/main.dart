@@ -35,6 +35,7 @@ Future<void> main() async {
     final providers = await bootstrap();
 //TODO kolla mot pelabs depricated?
     runApp(App(providers));
+    // ignore: deprecated_member_use
   }, onError: (error, stackTrace) async {
     await FirebaseCrashlytics.instance.recordError(error, stackTrace);
   }));

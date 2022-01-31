@@ -6,7 +6,7 @@ import 'package:ordel/utils/constants.dart';
 
 class User {
   late String uid;
-  String fcm;
+  String? fcm;
   final String username;
   String displayname;
   String colorString;

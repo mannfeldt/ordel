@@ -1,5 +1,4 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/cupertino.dart';
 
 import 'package:ordel/models/game_round_model.dart';
@@ -10,23 +9,21 @@ import 'package:ordel/services/local_storage.dart';
 class GameProvider with ChangeNotifier {
   final FirebaseClient _client;
   final LocalStorage _localStorage;
+  // ignore: unused_field
   final FirebaseAnalyticsObserver _observer;
-  String? _projectId;
   bool _fetchingGames = false;
   bool _initialized = false;
 
   bool get fetchingGames => _fetchingGames;
   bool get initialized => _initialized;
 
-  bool get isProd => _projectId == null || _projectId == "ordel-prod";
+  List<SingleplayerGameRound> _games = [];
+  List<List<SingleplayerGameRound>> _leaderboard = [];
 
-  List<GameRound> _games = [];
-  List<List<GameRound>> _leaderboard = [];
+  List<SingleplayerGameRound> get allGames => _games;
+  List<List<SingleplayerGameRound>> get leaderboard => _leaderboard;
 
-  List<GameRound> get allGames => _games;
-  List<List<GameRound>> get leaderboard => _leaderboard;
-
-  List<GameRound> get myGames =>
+  List<SingleplayerGameRound> get myGames =>
       _games.where((g) => g.user == _client.user?.uid).toList();
 
   User? get currentUser => _client.user;
@@ -39,12 +36,12 @@ class GameProvider with ChangeNotifier {
 //TODO tvådemsnionell lista då. lista med listor av WordleGame. kan ha en linjediagram över trend
 //TODO se hur man förbättrar sig.
 //TODO retunera bara de som är minst 2 vinster i rad.
-  List<List<GameRound>> get myStreaks {
-    List<GameRound> games = myGames;
-    List<List<GameRound>> streaks = [];
+  List<List<SingleplayerGameRound>> get myStreaks {
+    List<SingleplayerGameRound> games = myGames;
+    List<List<SingleplayerGameRound>> streaks = [];
     int streakIndex = 0;
     for (int i = 0; i < games.length; i++) {
-      GameRound g = games[i];
+      SingleplayerGameRound g = games[i];
       if (g.isWin) {
         if (streaks.length <= streakIndex) {
           streaks.add([g]);
@@ -63,20 +60,20 @@ class GameProvider with ChangeNotifier {
     return streaks;
   }
 
-  List<List<GameRound>> getUserLeaderBoard(String userId) {
+  List<List<SingleplayerGameRound>> getUserLeaderBoard(String userId) {
     return _leaderboard.where((streak) => streak.first.user == userId).toList();
   }
 
 //TODO denna här kan vara väldigt tung. kanske ska göra den initalt. ha en laddad leaderboard variabel som kan hämtas..
-  List<List<GameRound>> getLeaderBoard() {
-    List<GameRound> games = List.from(allGames);
+  List<List<SingleplayerGameRound>> getLeaderBoard() {
+    List<SingleplayerGameRound> games = List.from(allGames);
 
     games.sort((a, b) => a.user.compareTo(b.user));
-    List<List<GameRound>> streaks = [];
+    List<List<SingleplayerGameRound>> streaks = [];
     int streakIndex = 0;
-    GameRound? lastGame;
+    SingleplayerGameRound? lastGame;
     for (int i = 0; i < games.length; i++) {
-      GameRound g = games[i];
+      SingleplayerGameRound g = games[i];
       if (lastGame != null && g.user != lastGame.user) {
         streakIndex = streaks.length;
       }
@@ -113,20 +110,6 @@ class GameProvider with ChangeNotifier {
         _localStorage = localStorage,
         _observer = observer;
 
-  logOut() async {
-    await auth.FirebaseAuth.instance.signOut();
-  }
-
-  initSession(String projectId) async {
-    await _client.init();
-    _localStorage.storeLastLoggedInVersion();
-
-    // _games = await _client.getGames();
-    _projectId = projectId;
-
-    notifyListeners();
-  }
-
   loadGames() async {
     if (!_fetchingGames) {
       try {
@@ -142,7 +125,7 @@ class GameProvider with ChangeNotifier {
   }
 
   Future<void> getGames() async {
-    _games = await _client.getGames();
+    _games = await _client.getSingleplayerGames();
   }
 
   resetGames() {
@@ -155,7 +138,7 @@ class GameProvider with ChangeNotifier {
       required Duration duration,
       required List<String> guesses,
       required String language}) async {
-    GameRound game = GameRound.fromGuesses(
+    SingleplayerGameRound game = SingleplayerGameRound.fromGuesses(
       answer: answer,
       duration: duration,
       language: language,
@@ -167,9 +150,5 @@ class GameProvider with ChangeNotifier {
     _leaderboard = getLeaderBoard();
     await _client.createGame(game);
     notifyListeners();
-  }
-
-  clearLocalStorage() async {
-    _localStorage.clearLastLoggedInVersion();
   }
 }

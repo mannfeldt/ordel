@@ -56,11 +56,11 @@ class NotificationSnackbar {
         )
       ],
       mainButton: onNavigate != null
-          ? FlatButton(
-              textColor: Colors.white,
+          ? TextButton(
               onPressed: () => onNavigate(),
               child: Text(
                 "Go to",
+                style: TextStyle(color: Colors.white),
               ),
             )
           : null,

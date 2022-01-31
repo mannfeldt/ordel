@@ -63,7 +63,7 @@ class LeaderboardScreen extends StatelessWidget {
 }
 
 class GameStreakList extends StatelessWidget {
-  final List<List<GameRound>> streaks;
+  final List<List<SingleplayerGameRound>> streaks;
   const GameStreakList(this.streaks, {Key? key}) : super(key: key);
 
   @override
@@ -92,7 +92,7 @@ class GameStreakList extends StatelessWidget {
 }
 
 class LeaderBoard extends StatelessWidget {
-  final List<List<GameRound>> leaderboard;
+  final List<List<SingleplayerGameRound>> leaderboard;
   final List<User> users;
 
   final String activeUser;
@@ -103,8 +103,9 @@ class LeaderBoard extends StatelessWidget {
   Widget build(BuildContext context) {
     int activeUserTopRanking =
         leaderboard.indexWhere((streak) => streak.first.user == activeUser);
-    List<GameRound> activeUserTopGame = leaderboard[activeUserTopRanking];
-    final List<List<GameRound>> cut =
+    List<SingleplayerGameRound> activeUserTopGame =
+        leaderboard[activeUserTopRanking];
+    final List<List<SingleplayerGameRound>> cut =
         leaderboard.sublist(0, min(10, leaderboard.length));
 
     return ListView(
