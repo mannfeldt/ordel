@@ -120,9 +120,8 @@ class FirebaseClient {
   Future<User?> getUser() async {
     if (isPossibleInfiniteLoop) throw "POSSIBLE INFINITE LOOP";
     print("------------------firebase_client getUser---------------------");
-
     DocumentSnapshot doc =
-        await _firestore.collection("users").doc(_activeUser!.uid).get();
+        await _firestore.collection("users").doc(_auth.currentUser?.uid).get();
 
     if (doc.exists) {
       User user = User.fromJson(doc.data());
@@ -288,12 +287,13 @@ class FirebaseClient {
   }
 
   Future<MultiplayerGame> createMultiplayerGame(
-      MultiplayerGame game, List<User> invitedUsers, User hostUser) async {
+      MultiplayerGame game, List<User> invitedUsers, User? hostUser) async {
     if (isPossibleInfiniteLoop) throw "POSSIBLE INFINITE LOOP";
     print(
         "------------------firebase_client createMultiplayerGame---------------------");
 
-    DocumentReference ref = await _firestore.collection('games').add({});
+    DocumentReference ref =
+        await _firestore.collection('multiplayer_games').add({});
 
     game.id = ref.id;
 
@@ -305,7 +305,7 @@ class FirebaseClient {
             _functions.httpsCallable(CloudFunctionName.GAME_INVITE);
         callable.call(<String, dynamic>{
           'invited_fcm': invitee.fcm,
-          'host_name': hostUser.displayname,
+          'host_name': hostUser?.displayname ?? "unknown",
           'game_id': game.id,
         });
       }
@@ -324,13 +324,17 @@ class FirebaseClient {
     print(
         "------------------firebase_client acceptGameInvite---------------------");
 
+    Map<String, dynamic> gameJson = game.toJson();
+
     await _firestore.collection('multiplayer_games').doc(game.id).update({
-      MultiplayerGame.INVITEES_FIELD: FieldValue.arrayRemove([user.uid]),
+      MultiplayerGame.INVITEES_FIELD: FieldValue.delete(),
+      MultiplayerGame.STATE_FIELD: gameJson[MultiplayerGame.STATE_FIELD],
       MultiplayerGame.PLAYER_UIDS_FIELD: FieldValue.arrayUnion([user.uid])
     });
+    // testa att start game funkar bättre nu. och att bara host kans starta. och att den startas rätt både i firebase och i _games
+    _observer.analytics.logEvent(name: "play__start_game");
     //vi vet ju hela värdet så skulle kunna köra en hårt set till game. game.invitees game.playerUids etc. om det är effektivare?
 
-    //ska vi updatera själva gamet här? eller i providern kanske?
     game.invitees.remove(user.uid);
     game.playerUids.add(user.uid);
 
@@ -347,7 +351,6 @@ class FirebaseClient {
         //kolla i funktionen om host_fcm finns, annars behöver vi hämta det från users med hjälp av host_uid
       });
     }
-    _observer.analytics.logEvent(name: "play__accept_game_invite");
     return game;
   }
 
@@ -398,8 +401,6 @@ class FirebaseClient {
     Map<String, dynamic> gameJson = game.toJson();
 
     await _firestore.collection('multiplayer_games').doc(game.id).update({
-      MultiplayerGame.CURRENT_PLAYER_FIELD:
-          gameJson[MultiplayerGame.CURRENT_PLAYER_FIELD],
       MultiplayerGame.INVITEES_FIELD: FieldValue.delete(),
       MultiplayerGame.STATE_FIELD: gameJson[MultiplayerGame.STATE_FIELD],
       MultiplayerGame.ROUNDS_FIELD: gameJson[MultiplayerGame.ROUNDS_FIELD],

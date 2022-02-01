@@ -36,15 +36,7 @@ class GamePendingSection extends StatelessWidget {
               (g) => ExpansionTile(
                 // key: Key(PlayKeys.gameListItemForid(g.id)),
                 title: Text(g.id),
-                leading: g.canStart(me.uid)
-                    ? TextButton(
-                        onPressed: () => onStartGame(g),
-                        child: Text("Start"),
-                      )
-                    : null,
-                subtitle: Text(g.invitees.isNotEmpty
-                    ? "${g.invitees.length} more is invited"
-                    : "Everyone is ready"),
+                subtitle: Text("Waiting for response"),
                 trailing: g.host == me.uid
                     ? IconButton(
                         onPressed: () => onDeleteGame(g),

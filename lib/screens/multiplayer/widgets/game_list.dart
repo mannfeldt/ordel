@@ -21,21 +21,28 @@ class GameList extends StatefulWidget {
 }
 
 class _GameListState extends State<GameList> {
+  // fortsätt här. skapa ett game. välja språk och personer att bjuda in. HUr bjöd man inte spelare i patchfeud?
+  //1. välja språk och användare att utmana. Kalla det duel istället.
   void _openNewGameForm() {
     AppRouter.navigateTo(
       context,
-      "AppRouter.NEW_GAME_PLATFORM_SCREEN",
+      AppRouter.SETUP_LANGUAGE_SCREEN,
       transition: TransitionType.inFromBottom,
     );
   }
 
   Future<void> _onAcceptInvite(MultiplayerGame game, User me) async {
+    //TODO onacceptInvite ska starta spelet direkt och "me" ska få köra min runda.
+    //TODO så kör acceptGameInvite och startgame ihop till ett här.
     try {
       User? gameHost = widget.userProvider.users?.firstWhere(
         (u) => u.uid == game.host,
         orElse: () => User.empty(),
       );
+      //TODO game eller returnen från acceptGameinvite? samma sak?
       await widget.multiplayerProvider.acceptGameInvite(game, me, gameHost);
+
+      _onOpenGame(game);
     } catch (e) {
       ErrorSnackbar.display(context, "error accepting game invite");
     }
@@ -110,13 +117,13 @@ class _GameListState extends State<GameList> {
                 // key: Key(FriendKeys.CONFIRM_DELETE_FRIEND),
                 child: Text("Start"),
                 onPressed: () async {
-                  try {
-                    await widget.multiplayerProvider.startGame(game);
-                  } catch (e) {
-                    ErrorSnackbar.display(context, "error starting game");
-                  } finally {
-                    Navigator.of(context).pop();
-                  }
+                  // try {
+                  //   await widget.multiplayerProvider.startGame(game);
+                  // } catch (e) {
+                  //   ErrorSnackbar.display(context, "error starting game");
+                  // } finally {
+                  //   Navigator.of(context).pop();
+                  // }
                 },
               ),
             ],

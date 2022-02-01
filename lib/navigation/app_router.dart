@@ -20,6 +20,10 @@ class AppRouter {
   static const LEADERBOARD_TAB = "/leaderboard_tab";
   static const MULTIPLAYER_TAB = "/multiplayer_tab";
   static const GAMEPLAY_SCREEN = "/gameplay";
+  static const SETUP_LANGUAGE_SCREEN = "/new_game_language";
+  static const SETUP_INVITE_SCREEN = "/new_game_invite";
+  static const SETUP_WORD_SCREEN = "/new_game_word";
+  static const PROFILE_SCREEN = "/profile";
 
   static const List<String> TAB_PATHS = [
     SINGLEPLAYER_TAB,

@@ -28,75 +28,79 @@ class GameInvitesSection extends StatelessWidget {
           "Game invites",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        ...games
-            .map(
-              (g) => ExpansionTile(
-                // key: Key(PlayKeys.gameListItemForid(g.id)),
-                title: Text(g.id),
-                subtitle: Text("${g.invitees.length - 1} more is invited"),
-                trailing: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      height: 25,
-                      child: TextButton(
-                        onPressed: () => onAcceptInvite(g, me),
-                        child: Text("Accept"),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 25,
-                      child: TextButton(
-                        onPressed: () => onDeclineInvite(g, me),
-                        child: Text("Decline"),
-                      ),
-                    )
-                  ],
-                ),
+        ...games.map(
+          (g) {
+            User host = users.firstWhere(
+              (u) => u.uid == g.host,
+              orElse: () => User.empty(),
+            );
+            return ExpansionTile(
+              // key: Key(PlayKeys.gameListItemForid(g.id)),
+              title: Text(g.id),
+              subtitle: Text("Invited by ${host.displayname}"),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ListView(
-                    shrinkWrap: true,
-                    children: [
-                      ...g.playerUids.map((i) {
-                        User user = users.firstWhere(
-                          (u) => u.uid == i,
-                          orElse: () => User.empty(),
-                        );
-                        if (user.uid.isEmpty) return Container();
-                        return UserTile(
-                          dense: true,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 30),
-                          user: user,
-                          trailing: Text(
-                            g.host == i ? "Host" : "Accepted",
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        );
-                      }),
-                      ...g.invitees.map((i) {
-                        User user = users.firstWhere(
-                          (u) => u.uid == i,
-                          orElse: () => User.empty(),
-                        );
-                        if (user.uid.isEmpty) return Container();
-
-                        return UserTile(
-                          dense: true,
-                          user: user,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 30),
-                          trailing: Text(
-                            "Pending response",
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        );
-                      })
-                    ],
-                  )
+                  IconButton(
+                    onPressed: () => onAcceptInvite(g, me),
+                    icon: Icon(
+                      Icons.thumb_up,
+                      color: Colors.green,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => onDeclineInvite(g, me),
+                    icon: Icon(
+                      Icons.thumb_down,
+                      color: Colors.red,
+                    ),
+                  ),
                 ],
               ),
-            )
-            .toList(),
+              children: [
+                ListView(
+                  shrinkWrap: true,
+                  children: [
+                    ...g.playerUids.map((i) {
+                      User user = users.firstWhere(
+                        (u) => u.uid == i,
+                        orElse: () => User.empty(),
+                      );
+                      if (user.uid.isEmpty) return Container();
+                      return UserTile(
+                        dense: true,
+                        contentPadding: EdgeInsets.symmetric(horizontal: 30),
+                        user: user,
+                        trailing: Text(
+                          g.host == i ? "Host" : "Accepted",
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      );
+                    }),
+                    ...g.invitees.map((i) {
+                      User user = users.firstWhere(
+                        (u) => u.uid == i,
+                        orElse: () => User.empty(),
+                      );
+                      if (user.uid.isEmpty) return Container();
+
+                      return UserTile(
+                        dense: true,
+                        user: user,
+                        contentPadding: EdgeInsets.symmetric(horizontal: 30),
+                        trailing: Text(
+                          "Pending response",
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      );
+                    })
+                  ],
+                )
+              ],
+            );
+          },
+        ).toList(),
         Divider(),
         SizedBox(
           height: 20,

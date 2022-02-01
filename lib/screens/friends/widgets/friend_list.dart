@@ -1,5 +1,7 @@
+import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:ordel/models/user_model.dart';
+import 'package:ordel/navigation/app_router.dart';
 import 'package:ordel/screens/friends/widgets/my_friends_list.dart';
 import 'package:ordel/screens/friends/widgets/users_list.dart';
 import 'package:ordel/services/user_provider.dart';
@@ -117,27 +119,38 @@ class _FriendListState extends State<FriendList>
             ],
           ),
           automaticallyImplyLeading: false,
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          title: Row(
             children: [
-              Text(
-                widget.userProvider.activeUser!.displayname,
-                style: TextStyle(
-                    color: Colors.black87,
-                    letterSpacing: 1.125,
-                    fontWeight: FontWeight.bold),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.userProvider.activeUser!.displayname,
+                    style: TextStyle(
+                        color: Colors.black87,
+                        letterSpacing: 1.125,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Text(
+                    widget.userProvider.activeUser!.username,
+                    style: TextStyle(
+                        color: Colors.black45,
+                        letterSpacing: 0.5,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold),
+                  )
+                ],
               ),
-              SizedBox(
-                height: 5,
-              ),
-              Text(
-                widget.userProvider.activeUser!.username,
-                style: TextStyle(
-                    color: Colors.black45,
-                    letterSpacing: 0.5,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold),
-              )
+              IconButton(
+                  onPressed: () => AppRouter.navigateTo(
+                        context,
+                        AppRouter.PROFILE_SCREEN,
+                        transition: TransitionType.inFromBottom,
+                      ),
+                  icon: Icon(Icons.edit))
             ],
           ),
         ),

@@ -1,5 +1,6 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:ordel/models/game_round_model.dart';
 import 'package:ordel/models/multiplayer_game_model.dart';
 
 import 'package:ordel/models/user_model.dart';
@@ -77,10 +78,13 @@ class MultiplayerProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> acceptGameInvite(
+  Future<MultiplayerGame> acceptGameInvite(
       MultiplayerGame game, User user, User? host) async {
+    game.state = GameState.Playing;
     await _client.acceptGameInvite(game, user, host);
+    //TODO nu updateras den vid accept.
     notifyListeners();
+    return game;
   }
 
   Future<void> declineGameInvite(
@@ -98,7 +102,7 @@ class MultiplayerProvider with ChangeNotifier {
   }
 
   Future<void> startGame(MultiplayerGame game) async {
-    game.currentPlayerUid = game.host;
+    //TODO det är den som blivit invitad som "börjar" denna bordde slås ihop med acceptInvite
     game.invitees.clear();
     game.state = GameState.Playing;
     await _client.startGame(game);
@@ -106,9 +110,28 @@ class MultiplayerProvider with ChangeNotifier {
   }
 
   Future<void> createNewGame(
-      MultiplayerGame game, List<User> invitedUsers, User host) async {
+      {required String language,
+      required User invite,
+      required String word}) async {
+    User host = _client.user!;
+    MultiplayerGame game = MultiplayerGame(
+        id: "",
+        state: GameState.Inviting,
+        language: language,
+        startTime: DateTime.now(),
+        invitees: [invite.uid],
+        playerUids: [host.uid],
+        rounds: [
+          GameRound(
+            answer: word,
+            user: invite.uid,
+          )
+        ],
+        //TODO detta kan förenklas för duel när det alltid är 1v1 med att bara ha host och invitee som två strängar istället för invitees playerUids etc
+        host: host.uid);
+
     MultiplayerGame neweGame =
-        await _client.createMultiplayerGame(game, invitedUsers, host);
+        await _client.createMultiplayerGame(game, [invite], host);
     _games?.add(neweGame);
     notifyListeners();
   }

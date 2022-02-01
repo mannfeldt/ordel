@@ -127,6 +127,7 @@ class _AppRootState extends State<AppRoot> {
                     TextButton(
                       onPressed: () async {
                         await FirebaseAuth.instance.signInAnonymously();
+
                         await userProvider.initUser();
                       },
                       child: const Text("Anonym"),

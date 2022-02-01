@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ordel/screens/friends/friends_screen.dart';
 import 'package:ordel/screens/leaderboards/leaderboards_index.dart';
 import 'package:ordel/screens/multiplayer/multiplayer_gameplay.dart';
+import 'package:ordel/screens/multiplayer/multiplayer_index.dart';
 import 'package:ordel/screens/singleplayer/singleplayer_index.dart';
 import 'package:ordel/services/session_provider.dart';
 import 'package:ordel/utils/keys.dart';
@@ -77,11 +78,7 @@ class _MainPagesState extends State<MainPages> {
                     Localizations.localeOf(context).languageCode,
           ),
           MultiplayerScreen(
-            key: const Key(MainKeys.SINGLEPLAYER_SCREEN),
-            sessionLanguageCode:
-                Provider.of<SessionProvider>(context, listen: false)
-                        .languageCode ??
-                    Localizations.localeOf(context).languageCode,
+            key: const Key(MainKeys.MULTIPLAYER_SCREEN),
           ),
           FriendsScreen(
             key: const Key(MainKeys.FRIEND_SCREEN),
@@ -109,11 +106,11 @@ class _MainPagesState extends State<MainPages> {
               label: 'Singleplayer',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.people),
-              label: 'Multiplayer',
+              icon: Icon(Icons.sports_mma),
+              label: 'Duel',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_search_rounded),
+              icon: Icon(Icons.people),
               label: 'Friends',
             ),
             BottomNavigationBarItem(

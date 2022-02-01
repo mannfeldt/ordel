@@ -72,7 +72,7 @@ class SingleplayerGameRound extends GameRound {
       if (!isWin) "guess": finalGuess,
       "lang": language,
       "user": user,
-      "dur": duration.inMilliseconds,
+      if (duration != null) "dur": duration!.inMilliseconds,
       "date": date,
     };
   }
@@ -80,21 +80,24 @@ class SingleplayerGameRound extends GameRound {
 
 class GameRound {
   final String answer;
-  final Duration duration;
+  Duration? duration;
   final String user;
-  final String finalGuess;
+  String? finalGuess;
   final int winIndex;
 
   bool get isWin => winIndex > -1;
   int get enteredGuesses => isWin ? winIndex + 1 : 6;
-  Duration get averageGuessTime => Duration(
-      milliseconds: (duration.inMilliseconds / enteredGuesses).round());
+  bool get isPlayed => isWin || finalGuess != null;
+  Duration? get averageGuessTime => duration != null
+      ? Duration(
+          milliseconds: (duration!.inMilliseconds / enteredGuesses).round())
+      : null;
 
   GameRound({
     required this.answer,
-    required this.duration,
+    this.duration,
     required this.user,
-    required this.finalGuess,
+    this.finalGuess,
     this.winIndex = -1,
   });
 
@@ -116,11 +119,11 @@ class GameRound {
   factory GameRound.fromJson(dynamic json) {
     String answer = json['answer'];
     String user = json['user'];
-    int dur = json['dur'];
-    Duration duration = Duration(milliseconds: dur);
-    String finalGuess = json['guess'];
-    dynamic winIndexData = json['win'];
-    int winIndex = int.tryParse(winIndexData) ?? -1;
+    int? dur = json['dur'];
+    Duration? duration = dur != null ? Duration(milliseconds: dur) : null;
+    String? finalGuess = json['guess'];
+    String? winIndexData = json['win'];
+    int winIndex = winIndexData == null ? -1 : int.tryParse(winIndexData)!;
 
     GameRound game = GameRound(
       answer: answer,
@@ -139,7 +142,7 @@ class GameRound {
       if (isWin) "win": winIndex,
       if (!isWin) "guess": finalGuess,
       "user": user,
-      "dur": duration.inMilliseconds,
+      if (duration != null) "dur": duration!.inMilliseconds,
     };
   }
 }

@@ -53,6 +53,8 @@ class UserProvider with ChangeNotifier {
     return _users!;
   }
 
+  User getUserById(String uid) => _users!.firstWhere((user) => user.uid == uid);
+
   void handleNewFollower(String userUid) async {
     //if null then getUsers will run instead and get followers anyway
     if (_followers == null || _users == null) return;
@@ -86,7 +88,7 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> updateProfile(
-      String displayName, String color, String piece, bool notification) async {
+      String displayName, String color, bool notification) async {
     bool newName = displayName != _activeUser!.displayname;
     bool newColor = color != _activeUser!.colorString;
     bool newNotification = notification != hasActivePushNotifications;
@@ -102,6 +104,7 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> initUser() async {
+    _client.init();
     _activeUser = await _client.getUser();
     _activeUser ??= await _client.createUser();
     _localStorage.storeActiveUser(_activeUser!);
