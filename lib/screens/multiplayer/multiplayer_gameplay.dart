@@ -124,7 +124,7 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
             children: [
               TextButton(
                 onPressed: () async {
-                  // forstätt här... bygg apk debug och installera på en emulator och sen debuga på en annan och testa hela flödet.
+                  forstätt här... bygg apk debug och installera på en emulator och sen debuga på en annan och testa hela flödet.
                   //TODO testa hela flödet nu finns säkert problem längst vägen... installera appen på en mobil som jag kan köra mot sen sitt på andra och debugga
 //TODO testa spela hela rundor. rematch, new game. ok osv.
                   //TODO challenger är fel. ska ta inte ta motsatt host för det kan vara vem som helst. ska ta motsatt current/activeUser.

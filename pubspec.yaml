@@ -2,7 +2,7 @@ name: ordel
 description: A new Flutter project.
 
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
-
+//TODO jag har gjorde api-key för ordel dev restricted till android apps https://console.cloud.google.com/apis/credentials?referrer=search&authuser=1&hl=sv&project=ordel-dev
 version: 1.0.1+2
 
 environment:
