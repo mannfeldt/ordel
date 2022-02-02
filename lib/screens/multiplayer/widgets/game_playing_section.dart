@@ -21,7 +21,7 @@ class GamePlayingSection extends StatelessWidget {
       children: [
         Text(
           "Active games",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         ...games.map(
           (g) {
@@ -31,12 +31,16 @@ class GamePlayingSection extends StatelessWidget {
             );
             return ListTile(
               // key: Key(PlayKeys.gameListItemForid(g.id)),
-              subtitle: Text("Turn to play: ${playing.displayname}"),
-              title: Text(g.id),
+              subtitle: Text("Turn to play: ${playing.displayname}",
+                  style: TextStyle(color: Colors.grey.shade100)),
+              title: Text(g.id, style: TextStyle(color: Colors.grey.shade100)),
               trailing: IconButton(
                 // key: Key(PlayKeys.OPEN_GAME_BUTTON),
                 onPressed: () => onOpenGame(g),
-                icon: Icon(Icons.chevron_right),
+                icon: Icon(
+                  Icons.chevron_right,
+                  color: Colors.white,
+                ),
               ),
             );
           },

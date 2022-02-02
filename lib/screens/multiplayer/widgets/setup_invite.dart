@@ -93,13 +93,14 @@ class _SetupInviteFormState extends State<SetupInviteForm> {
         .toList();
 
     return Scaffold(
+      backgroundColor: Colors.grey.shade900,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.grey.shade800,
         centerTitle: true,
         title: Text(
           "Select Opponent",
           style: TextStyle(
-            color: Colors.black87,
+            color: Colors.white,
             letterSpacing: 1.125,
             fontWeight: FontWeight.bold,
           ),
@@ -108,7 +109,7 @@ class _SetupInviteFormState extends State<SetupInviteForm> {
           onPressed: () => Navigator.of(context).pop(),
           icon: Icon(
             Icons.chevron_left,
-            color: Colors.blue,
+            color: Colors.grey.shade100,
           ),
         ),
       ),
@@ -121,7 +122,7 @@ class _SetupInviteFormState extends State<SetupInviteForm> {
             height: 40,
             margin: EdgeInsets.only(top: 10, bottom: 20),
             child: TextField(
-              style: TextStyle(fontSize: 14),
+              style: TextStyle(fontSize: 14, color: Colors.white),
               focusNode: focusNode1,
               controller: _searchController,
               onChanged: (_) => setState(() {}),
@@ -136,22 +137,22 @@ class _SetupInviteFormState extends State<SetupInviteForm> {
                         ),
                         splashColor: Colors.transparent,
                         highlightColor: Colors.transparent,
-                        color: Colors.grey.shade500,
+                        color: Colors.grey.shade100,
                       )
                     : null,
                 prefixIcon: Icon(
                   Icons.search,
                   size: 22,
-                  color: Colors.grey.shade500,
+                  color: Colors.grey.shade100,
                 ),
                 hintText: "search users...",
-                hintStyle: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                hintStyle: TextStyle(fontSize: 14, color: Colors.grey.shade100),
                 border: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey.shade500),
+                  borderSide: BorderSide(color: Colors.grey.shade100),
                   borderRadius: BorderRadius.circular(15),
                 ),
                 enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey.shade500),
+                  borderSide: BorderSide(color: Colors.grey.shade100),
                   borderRadius: BorderRadius.circular(15),
                 ),
                 focusedBorder: UnderlineInputBorder(
@@ -180,7 +181,10 @@ class _SetupInviteFormState extends State<SetupInviteForm> {
                       children: [
                         Text(
                           "Friends",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                         ...filteredFriends
                             .map(
@@ -188,7 +192,10 @@ class _SetupInviteFormState extends State<SetupInviteForm> {
                                 user: u,
                                 trailing: IconButton(
                                   onPressed: () => _nextStep(u.uid),
-                                  icon: Icon(Icons.add),
+                                  icon: Icon(
+                                    Icons.sports_mma,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             )
@@ -205,7 +212,8 @@ class _SetupInviteFormState extends State<SetupInviteForm> {
                       children: [
                         Text(
                           "All users",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                         ...filteredAllUsers
                             .map(
@@ -213,7 +221,10 @@ class _SetupInviteFormState extends State<SetupInviteForm> {
                                 user: u,
                                 trailing: IconButton(
                                   onPressed: () => _nextStep(u.uid),
-                                  icon: Icon(Icons.add),
+                                  icon: Icon(
+                                    Icons.sports_mma,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             )

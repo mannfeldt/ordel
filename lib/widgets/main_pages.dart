@@ -60,7 +60,7 @@ class _MainPagesState extends State<MainPages> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: Colors.grey.shade900,
       body: PageView(
         physics: _disablePageScroll
             ? NeverScrollableScrollPhysics()
@@ -90,13 +90,10 @@ class _MainPagesState extends State<MainPages> {
       ),
       bottomNavigationBar: SizedBox(
         child: BottomNavigationBar(
+          backgroundColor: Colors.grey.shade900,
           currentIndex: _selectedPageIndex,
           onTap: (int index) => navBarTapped(index),
           selectedItemColor: Colors.cyan,
-          // fixa någon liknande hantering som PE labs för färger. ta fram några färger jag vill jobba med.
-          //kolla på inspiration till mobile UI med färger. man ska väl typ välja 3-4 färger. sen lite olika nyanser av det som vi gjort i pe labs. hitta mina fräger.
-          //PRimary purple? sätt upp det som primary, secondary, third etc? och testa sen med lite färger?
-          //hitta en font också?
           unselectedItemColor: Colors.grey,
           selectedFontSize: 12,
           type: BottomNavigationBarType.fixed,

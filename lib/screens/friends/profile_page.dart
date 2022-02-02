@@ -55,12 +55,16 @@ class _ProfilePageState extends State<ProfilePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Pick a color!'),
+        backgroundColor: Colors.grey.shade900,
+        title: const Text(
+          'Pick a color!',
+          style: TextStyle(color: Colors.white),
+        ),
         content: SingleChildScrollView(
           child: BlockPicker(
             pickerColor: myColor,
             onColorChanged: _onColorChanged,
-            availableColors: [...Colors.primaries],
+            availableColors: Colors.primaries,
           ),
         ),
         actions: <Widget>[
@@ -109,10 +113,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.userProvider.activeUser == null) return Container();
     User me = widget.userProvider.activeUser!;
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: Colors.grey.shade900,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: profileHasChanges
           ? TextButton(
@@ -175,7 +180,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
+                      SizedBox(
                         height: 52,
                         child: editModeDisplayName
                             ? TextField(
@@ -188,12 +193,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                   contentPadding: EdgeInsets.only(bottom: 0),
                                   border: UnderlineInputBorder(
                                     borderSide:
-                                        BorderSide(color: Colors.grey.shade500),
+                                        BorderSide(color: Colors.grey.shade100),
                                     borderRadius: BorderRadius.circular(2),
                                   ),
                                   enabledBorder: UnderlineInputBorder(
                                     borderSide:
-                                        BorderSide(color: Colors.grey.shade500),
+                                        BorderSide(color: Colors.grey.shade100),
                                     borderRadius: BorderRadius.circular(2),
                                   ),
                                   focusedBorder: UnderlineInputBorder(
@@ -202,7 +207,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                 ),
                                 style: TextStyle(
-                                    fontSize: 22, fontWeight: FontWeight.bold),
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                                 focusNode: focusNode,
                               )
                             : Row(
@@ -215,6 +223,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       minFontSize: 10,
                                       style: TextStyle(
                                           fontSize: 22,
+                                          color: Colors.white,
                                           fontWeight: FontWeight.bold),
                                     ),
                                   ),
@@ -226,6 +235,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     icon: Icon(
                                       Icons.edit,
                                       size: 18,
+                                      color: Colors.white,
                                     ),
                                   ),
                                 ],
@@ -234,12 +244,14 @@ class _ProfilePageState extends State<ProfilePage> {
                       Text(
                         "game-tag",
                         style: TextStyle(
-                            fontSize: 12, color: Colors.grey.shade600),
+                            fontSize: 12, color: Colors.grey.shade100),
                       ),
                       Text(
                         me.username,
                         style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold),
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey.shade100),
                       ),
                     ],
                   ),
@@ -265,8 +277,15 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             CheckboxListTile(
-              title: Text("Push notifications"),
-              secondary: Icon(Icons.notifications),
+              checkColor: Colors.white,
+              title: Text(
+                "Push notifications",
+                style: TextStyle(color: Colors.white),
+              ),
+              secondary: Icon(
+                Icons.notifications,
+                color: Colors.white,
+              ),
               value: _pushNotification,
               onChanged: (value) => setState(() {
                 _pushNotification = value ?? false;

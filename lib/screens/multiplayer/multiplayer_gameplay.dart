@@ -1,15 +1,22 @@
+import 'dart:math';
+
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:fluro/fluro.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ordel/models/game_round_model.dart';
 import 'package:ordel/models/language_model.dart';
 import 'package:ordel/models/multiplayer_game_model.dart';
+import 'package:ordel/models/user_model.dart';
+import 'package:ordel/navigation/app_router.dart';
 import 'package:ordel/screens/multiplayer/widgets/multiplayer_game_load_controller.dart';
 import 'package:ordel/services/game_provider.dart';
 import 'package:ordel/services/multiplayer_provider.dart';
 import 'package:ordel/services/user_provider.dart';
+import 'package:ordel/utils/utils.dart';
 import 'package:ordel/widgets/gameplay.dart';
 import 'package:ordel/widgets/loader.dart';
+import 'package:ordel/widgets/word_grid.dart';
 import 'package:provider/provider.dart';
 
 class MultiplayerGameplayScreen extends StatelessWidget {
@@ -29,7 +36,7 @@ class MultiplayerGameplayScreen extends StatelessWidget {
             MediaQuery.of(context),
           ),
           result: MultiplayerGameplay(
-            game: multiplayerProvider.activeGame,
+            game: multiplayerProvider.activeGame ?? MultiplayerGame.empty(),
           ),
         ),
       ),
@@ -103,21 +110,173 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
 
 //flutter build apk --target-platform android-arm,android-arm64,android-x64
 
-  Future<void> _onRoundFinished(List<String> guesses, Duration duration) async {
-    //TODO när rundan är klar så ska vi visa dialog om att välja nytt ord och sen skicka det till nästa spelare.
-    //TODO eller om det är finished nu så spara och visa slutresultatet.
-    //_language.code blir fel. måste ha en currentRoundLanguage också?
-    //så man inte kan ändra mitt i gamet..
-    // await Provider.of<GameProvider>(context, listen: false).createGame(
-    //     answer: _answer,
-    //     guesses: guesses,
-    //     duration: duration,
-    //     language: _currentRoundLanguage.code);
-    // initLanguages();
+  Future<void> _onGameFinished(User currentUser) async {
+    await showGeneralDialog<String>(
+      barrierDismissible: false,
+      context: context,
+      pageBuilder: (context, animation, secondaryAnimation) {
+        MediaQueryData mq = MediaQuery.of(context);
+        double size = ((mq.size.width - 120) / 5);
+        return AlertDialog(
+          title: Text("Select next word"),
+          content: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              TextButton(
+                onPressed: () async {
+                  // forstätt här... bygg apk debug och installera på en emulator och sen debuga på en annan och testa hela flödet.
+                  //TODO testa hela flödet nu finns säkert problem längst vägen... installera appen på en mobil som jag kan köra mot sen sitt på andra och debugga
+//TODO testa spela hela rundor. rematch, new game. ok osv.
+                  //TODO challenger är fel. ska ta inte ta motsatt host för det kan vara vem som helst. ska ta motsatt current/activeUser.
+                  //TODO TESTA OM DETTA FUNKAR
+                  // Navigator.pop(context); //TODO behövs?
+                  AppRouter.navigateTo(
+                    context,
+                    "${AppRouter.SETUP_WORD_SCREEN}?language=${widget.game.language}&invite=${widget.game.playerUids.firstWhere((p) => p != currentUser.uid)}",
+                    replace: true,
+                    // clearStack: true,
+                    transition: TransitionType.inFromBottom,
+                  );
+                },
+                child: Text(
+                  "Rematch",
+                  style: TextStyle(
+                    color: Colors.grey.shade100,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () async {
+                  AppRouter.navigateTo(
+                    context,
+                    AppRouter.SETUP_LANGUAGE_SCREEN,
+                    replace: true,
+                    // clearStack: true, //TODO clearstack replace?
+                    transition: TransitionType.inFromBottom,
+                  );
+                },
+                child: Text(
+                  "New game",
+                  style: TextStyle(
+                    color: Colors.grey.shade100,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () async {
+                  AppRouter.navigateTo(
+                    context,
+                    AppRouter.MULTIPLAYER_TAB,
+                    replace: true,
+                    // clearStack: true,
+                  );
+                },
+                child: Text(
+                  "Ok",
+                  style: TextStyle(
+                    color: Colors.grey.shade100,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
-    // setState(() {
-    //   _answer = _wordList[Random().nextInt(_wordList.length)];
-    // });
+  Future<void> _onRoundFinished(
+      List<String> guesses, Duration duration, BuildContext context) async {
+    MultiplayerProvider provider =
+        Provider.of<MultiplayerProvider>(context, listen: false);
+    provider.saveRound(guesses, duration);
+
+    if (widget.game.isFinished) {
+      _onGameFinished(provider.currentUser!);
+    } else {
+      await _startNewRound(context);
+    }
+  }
+
+  Future<void> _startNewRound(BuildContext context) async {
+    MultiplayerProvider provider =
+        Provider.of<MultiplayerProvider>(context, listen: false);
+    String? newWord = await showGeneralDialog<String>(
+      barrierDismissible: false,
+      context: context,
+      pageBuilder: (context, animation, secondaryAnimation) {
+        MediaQueryData mq = MediaQuery.of(context);
+        double size = ((mq.size.width - 200) / 5);
+        final List<String> _words = [];
+        List<String> wordList = RemoteConfig.instance
+            .getString("answers_${widget.game.language}")
+            .split(",")
+            .where((w) => w.length == 5)
+            .toList();
+        Random _random = Random();
+        while (_words.length < 3) {
+          String randomWord = wordList[_random.nextInt(wordList.length)];
+          if (!_words.contains(randomWord)) {
+            _words.add(randomWord);
+          }
+        }
+        return WillPopScope(
+          onWillPop: () async => true,
+          child: SafeArea(
+            child: AlertDialog(
+              contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+              title: Text(
+                "Select next word",
+                style: TextStyle(color: Colors.white),
+              ),
+              backgroundColor: Colors.grey.shade900,
+              content: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: _words
+                    .map(
+                      (word) => Expanded(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 20),
+                          width: double.infinity,
+                          child: MaterialButton(
+                            elevation: 0,
+                            focusElevation: 4,
+                            highlightColor: Colors.grey.shade900,
+                            splashColor: Colors.grey.shade900,
+                            color: Colors.grey.shade900,
+                            onPressed: () => Navigator.pop(context, word),
+                            child: Center(
+                              child: IgnorePointer(
+                                child: WordRow(
+                                  boxSize: size,
+                                  answer: word,
+                                  guess: word,
+                                  state: RowState.done,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+    if (newWord != null) {
+      await provider.startNewRound(newWord);
+      AppRouter.navigateTo(
+        context,
+        AppRouter.MULTIPLAYER_TAB,
+        replace: true,
+        // clearStack: true,
+        transition: TransitionType.inFromBottom,
+      );
+    }
   }
 
   Widget _buildLanguageIcon(Language? lang) {
@@ -132,7 +291,7 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
 
   @override
   Widget build(BuildContext context) {
-    GameRound activeRound = widget.game.activeRound;
+    GameRound activeRound = widget.game.activeGameRound;
     return Scaffold(
       backgroundColor: Colors.grey.shade900,
       body: Consumer<GameProvider>(
@@ -159,7 +318,8 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
                     language: _language,
                     answer: activeRound.answer,
                     extraKeys: _extraCharacters,
-                    onFinished: _onRoundFinished,
+                    onFinished: (List<String> guesses, Duration duration) =>
+                        _onRoundFinished(guesses, duration, context),
                     size: _gamePlaySize,
                   ),
                 ],

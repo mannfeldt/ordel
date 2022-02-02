@@ -18,22 +18,20 @@ class GameplayLoadController implements LoadController {
 
   @override
   bool get isEmpty => false;
-fortsätt här med att skapa activeGame och inintwithlesterner grejset. 
+
   @override
-  bool get isInitialized => 
+  bool get isInitialized =>
       multiplayerProvider.activeGame != null &&
-      multiplayerProvider.activeGame.id == gameId &&
-      multiplayerProvider.activeGame.players != null;
+      multiplayerProvider.activeGame!.id == gameId;
 
   @override
   Future load() {
     return multiplayerProvider.initWithLiseners(
-        gameId, mq, userProvider.activeUser);
+        gameId, mq, userProvider.activeUser!);
   }
 
-//borde heta reset?
   @override
   void retry() {
-    multiplayerProvider.reset();
+    multiplayerProvider.resetActiveGame();
   }
 }

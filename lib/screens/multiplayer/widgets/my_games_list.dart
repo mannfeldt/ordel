@@ -16,7 +16,6 @@ class MyGamesList extends StatelessWidget {
   final Function onAcceptInvite;
   final Function onDeclineInvite;
   final Function onDeleteGame;
-  final Function onStartGame;
   final Function onOpenGame;
 
   const MyGamesList(
@@ -27,7 +26,6 @@ class MyGamesList extends StatelessWidget {
       required this.onAcceptInvite,
       required this.onDeclineInvite,
       required this.onDeleteGame,
-      required this.onStartGame,
       required this.onOpenGame})
       : super(key: key);
 
@@ -85,7 +83,6 @@ class MyGamesList extends StatelessWidget {
             games: gamesPending,
             users: users,
             onDeleteGame: onDeleteGame,
-            onStartGame: onStartGame,
             me: me,
           ),
         if (gamesFinished.isNotEmpty)

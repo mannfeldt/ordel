@@ -37,13 +37,14 @@ class _SetupLanguageScreenState extends State<SetupLanguageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade900,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.grey.shade800,
         centerTitle: true,
         title: Text(
           "Select language",
           style: TextStyle(
-            color: Colors.black87,
+            color: Colors.white,
             letterSpacing: 1.125,
             fontWeight: FontWeight.bold,
           ),
@@ -52,7 +53,7 @@ class _SetupLanguageScreenState extends State<SetupLanguageScreen> {
           onPressed: () => Navigator.of(context).pop(),
           icon: Icon(
             Icons.chevron_left,
-            color: Colors.blue,
+            color: Colors.white,
           ),
         ),
       ),
@@ -74,7 +75,12 @@ class _SetupLanguageScreenState extends State<SetupLanguageScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(language.name),
+                    Text(
+                      language.name,
+                      style: TextStyle(
+                          color: Colors.grey.shade100,
+                          fontWeight: FontWeight.w900),
+                    ),
                     FractionallySizedBox(
                       widthFactor: 0.4,
                       child: Image.asset(
@@ -86,7 +92,7 @@ class _SetupLanguageScreenState extends State<SetupLanguageScreen> {
                   ],
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.amber,
+                  color: Colors.black87,
                   borderRadius: BorderRadius.circular(15),
                 ),
               ),

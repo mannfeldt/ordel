@@ -86,14 +86,14 @@ class _FriendListState extends State<FriendList>
     return DefaultTabController(
       length: _tabController.length,
       child: Scaffold(
-        backgroundColor: Colors.grey.shade100,
+        backgroundColor: Colors.grey.shade900,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.grey.shade800,
           bottom: TabBar(
-            indicatorColor: Colors.grey.shade700,
+            indicatorColor: Colors.grey.shade100,
             controller: _tabController,
-            labelColor: Colors.black87,
-            unselectedLabelColor: Colors.black45,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.grey.shade600,
             tabs: [
               Tab(
                 // key: Key(FriendKeys.FRIEND_LIST_TAB),
@@ -127,7 +127,7 @@ class _FriendListState extends State<FriendList>
                   Text(
                     widget.userProvider.activeUser!.displayname,
                     style: TextStyle(
-                        color: Colors.black87,
+                        color: Colors.white,
                         letterSpacing: 1.125,
                         fontWeight: FontWeight.bold),
                   ),
@@ -137,7 +137,7 @@ class _FriendListState extends State<FriendList>
                   Text(
                     widget.userProvider.activeUser!.username,
                     style: TextStyle(
-                        color: Colors.black45,
+                        color: Colors.grey.shade100,
                         letterSpacing: 0.5,
                         fontSize: 12,
                         fontWeight: FontWeight.bold),

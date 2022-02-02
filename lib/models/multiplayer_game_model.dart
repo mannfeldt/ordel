@@ -90,14 +90,17 @@ class MultiplayerGame {
 
   bool get hasUnansweredInvites => invitees.isNotEmpty;
 
-  bool get isFinished => state == GameState.Finished;
+  String get currentPlayerUid => activeGameRound.user;
 
-  bool canStart(String uid) =>
-      playerUids.length > 1 && state == GameState.Inviting && host == uid;
+  GameRound get activeGameRound =>
+      rounds.firstWhere((round) => !round.isPlayed, orElse: () => rounds.first);
 
-  String get currentPlayerUid => rounds
-      .firstWhere((round) => !round.isPlayed, orElse: () => rounds.first)
-      .user;
+//TODO här definerar vi hur många rundor ett game är..
+  bool get isFinished =>
+      rounds.length == 4 && rounds.every((round) => round.isPlayed);
+
+  String? get opponent =>
+      playerUids.length < 2 ? null : playerUids.firstWhere((p) => p != host);
 
   Map<String, dynamic> toJson() {
     return {

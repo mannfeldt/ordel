@@ -123,7 +123,10 @@ class DefaultEmptyWidget extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: [
-                  Text(message ?? "Ops, nothing was found"),
+                  Text(
+                    message ?? "Ops, nothing was found",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ],
               ),
             )
@@ -134,7 +137,10 @@ class DefaultEmptyWidget extends StatelessWidget {
     return Center(
       child: Container(
         padding: const EdgeInsets.all(8.0),
-        child: Text(message ?? "Ops, nothing was found"),
+        child: Text(
+          message ?? "Ops, nothing was found",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
@@ -173,11 +179,17 @@ class DefaultErrorWidget extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: [
-                  Text(message ?? "Ops, something went wrong"),
+                  Text(
+                    message ?? "Ops, something went wrong",
+                    style: TextStyle(color: Colors.white),
+                  ),
                   Padding(
                     padding: const EdgeInsets.only(top: 10, bottom: 10),
                     child: TextButton(
-                      child: const Text("Retry"),
+                      child: const Text(
+                        "Retry",
+                        style: TextStyle(color: Colors.white),
+                      ),
                       onPressed: retry,
                     ),
                   )
@@ -195,11 +207,17 @@ class DefaultErrorWidget extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
-                Text(message ?? "Ops, something went wrong"),
+                Text(
+                  message ?? "Ops, something went wrong",
+                  style: TextStyle(color: Colors.white),
+                ),
                 Padding(
                   padding: const EdgeInsets.only(top: 10, bottom: 10),
                   child: TextButton(
-                    child: const Text("Retry"),
+                    child: const Text(
+                      "Retry",
+                      style: TextStyle(color: Colors.white),
+                    ),
                     onPressed: retry,
                   ),
                 )

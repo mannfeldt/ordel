@@ -9,7 +9,7 @@ class WordRow extends StatefulWidget {
   final String answer;
   final String guess;
   final RowState state;
-  final List<FlipCardController> controllers;
+  final List<FlipCardController>? controllers;
   final double boxSize;
 
   const WordRow({
@@ -18,7 +18,7 @@ class WordRow extends StatefulWidget {
     this.guess = "",
     this.answer = "",
     required this.boxSize,
-    required this.controllers,
+    this.controllers,
   }) : super(key: key);
 
   @override
@@ -41,7 +41,8 @@ class _WordRowState extends State<WordRow> {
         for (int i = 0; i < 5; i++)
           LetterBox(
             size: widget.boxSize,
-            flipController: widget.controllers[i],
+            flipController:
+                widget.controllers != null ? widget.controllers![i] : null,
             state: getLetterBoxState(
               i,
               rowState: widget.state,

@@ -42,6 +42,7 @@ class AppRouter {
       RouteTransitionsBuilder? transitionBuilder}) {
     currentPath = path;
     return router!.navigateTo(context, path,
+        replace: replace,
         clearStack: clearStack,
         transition: transition,
         transitionDuration: transitionDuration,

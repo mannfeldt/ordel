@@ -72,22 +72,22 @@ class _UsersListState extends State<UsersList> {
                         ),
                         splashColor: Colors.transparent,
                         highlightColor: Colors.transparent,
-                        color: Colors.grey.shade500,
+                        color: Colors.grey.shade100,
                       )
                     : null,
                 prefixIcon: Icon(
                   Icons.search,
                   size: 22,
-                  color: Colors.grey.shade500,
+                  color: Colors.grey.shade100,
                 ),
                 hintText: widget.hintText,
-                hintStyle: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                hintStyle: TextStyle(fontSize: 14, color: Colors.grey.shade100),
                 border: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey.shade500),
+                  borderSide: BorderSide(color: Colors.grey.shade100),
                   borderRadius: BorderRadius.circular(15),
                 ),
                 enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey.shade500),
+                  borderSide: BorderSide(color: Colors.grey.shade100),
                   borderRadius: BorderRadius.circular(15),
                 ),
                 focusedBorder: UnderlineInputBorder(
@@ -104,11 +104,17 @@ class _UsersListState extends State<UsersList> {
                     trailing: !widget.friends.contains(u)
                         ? IconButton(
                             onPressed: () => widget.addFriend(u),
-                            icon: Icon(Icons.person_add),
+                            icon: Icon(
+                              Icons.person_add,
+                              color: Colors.white,
+                            ),
                           )
                         : Padding(
                             padding: const EdgeInsets.only(right: 12.0),
-                            child: Icon(Icons.done),
+                            child: Icon(
+                              Icons.done,
+                              color: Colors.white,
+                            ),
                           ),
                   ))
               .toList(),

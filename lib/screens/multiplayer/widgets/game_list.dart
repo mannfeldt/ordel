@@ -97,59 +97,17 @@ class _GameListState extends State<GameList> {
     );
   }
 
-  Future<void> _onStartGame(MultiplayerGame game) async {
-    if (game.hasUnansweredInvites) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Start game"),
-            content: Text(
-                "There are still ${game.invitees.length} unanswered invites to this game. Do you want to start without them?"),
-            actions: [
-              TextButton(
-                child: Text("Cancel"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                // key: Key(FriendKeys.CONFIRM_DELETE_FRIEND),
-                child: Text("Start"),
-                onPressed: () async {
-                  // try {
-                  //   await widget.multiplayerProvider.startGame(game);
-                  // } catch (e) {
-                  //   ErrorSnackbar.display(context, "error starting game");
-                  // } finally {
-                  //   Navigator.of(context).pop();
-                  // }
-                },
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      try {
-        await widget.multiplayerProvider.startGame(game);
-      } catch (e) {
-        ErrorSnackbar.display(context, "error starting game");
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: Colors.grey.shade900,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.grey.shade800,
         centerTitle: true,
         title: Text(
           "My games",
           style: TextStyle(
-            color: Colors.black87,
+            color: Colors.white,
             letterSpacing: 1.125,
             fontWeight: FontWeight.bold,
           ),
@@ -168,7 +126,6 @@ class _GameListState extends State<GameList> {
                 onAcceptInvite: _onAcceptInvite,
                 onDeclineInvite: _onDeclineInvite,
                 onDeleteGame: _onDeleteGame,
-                onStartGame: _onStartGame,
                 onOpenGame: _onOpenGame,
                 users: widget.userProvider.users!,
               )

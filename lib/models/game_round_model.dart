@@ -83,7 +83,7 @@ class GameRound {
   Duration? duration;
   final String user;
   String? finalGuess;
-  final int winIndex;
+  int winIndex;
 
   bool get isWin => winIndex > -1;
   int get enteredGuesses => isWin ? winIndex + 1 : 6;
@@ -122,8 +122,8 @@ class GameRound {
     int? dur = json['dur'];
     Duration? duration = dur != null ? Duration(milliseconds: dur) : null;
     String? finalGuess = json['guess'];
-    String? winIndexData = json['win'];
-    int winIndex = winIndexData == null ? -1 : int.tryParse(winIndexData)!;
+    int? winIndexData = json['win'];
+    int winIndex = winIndexData ?? -1;
 
     GameRound game = GameRound(
       answer: answer,

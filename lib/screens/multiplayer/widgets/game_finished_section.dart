@@ -25,23 +25,29 @@ class GameFinishedSection extends StatelessWidget {
       children: [
         Text(
           "Finished games",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         ...games
             .map(
               (g) => ListTile(
                 // key: Key(PlayKeys.gameListItemForid(g.id)),
-                title: Text(g.id),
-                subtitle: Text("${g.invitees.length} more is invited"),
+                title:
+                    Text(g.id, style: TextStyle(color: Colors.grey.shade100)),
+                subtitle: Text("who is winner?",
+                    style: TextStyle(color: Colors.grey.shade100)),
                 leading: IconButton(
                   onPressed: () => onDeleteGame(g),
                   icon: Icon(
                     Icons.delete,
+                    color: Colors.white,
                   ),
                 ),
                 trailing: IconButton(
                   onPressed: () => onOpenGame(g),
-                  icon: Icon(Icons.chevron_right),
+                  icon: Icon(
+                    Icons.chevron_right,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             )

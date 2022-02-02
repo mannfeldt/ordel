@@ -450,21 +450,3 @@ class _GameplayState extends State<Gameplay> {
     );
   }
 }
-
-class WinStreakText extends StatelessWidget {
-  final int streak;
-  final double size;
-  const WinStreakText(this.streak, {Key? key, required this.size})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      "$streak",
-      style: TextStyle(
-        fontSize: size,
-        color: streak > 0 ? Colors.green : Colors.white,
-      ),
-    );
-  }
-}

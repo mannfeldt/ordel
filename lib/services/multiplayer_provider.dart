@@ -1,8 +1,10 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:ordel/models/game_round_model.dart';
 import 'package:ordel/models/multiplayer_game_model.dart';
-
 import 'package:ordel/models/user_model.dart';
 import 'package:ordel/services/firebase_client.dart';
 import 'package:ordel/services/local_storage.dart';
@@ -14,7 +16,10 @@ class MultiplayerProvider with ChangeNotifier {
   final FirebaseAnalyticsObserver _observer;
   bool _fetchingGames = false;
   bool _initialized = false;
+  StreamSubscription<DocumentSnapshot>? _activeGameListener;
+  MultiplayerGame? _activeGame;
 
+  MultiplayerGame? get activeGame => _activeGame;
   bool get fetchingGames => _fetchingGames;
   bool get initialized => _initialized;
   bool get hasGames => _games != null && _games!.isNotEmpty;
@@ -24,6 +29,13 @@ class MultiplayerProvider with ChangeNotifier {
   List<MultiplayerGame>? _games;
 
   List<MultiplayerGame>? get games => _games;
+
+  @override
+  @mustCallSuper
+  Future<void> dispose() async {
+    await _activeGameListener?.cancel();
+    super.dispose();
+  }
 
   MultiplayerProvider(
       {required FirebaseClient client,
@@ -44,6 +56,55 @@ class MultiplayerProvider with ChangeNotifier {
         notifyListeners();
       }
     }
+  }
+
+  Future<void> initWithLiseners(
+      String gameId, MediaQueryData mq, User activeUser) async {
+    // if (gameId != _activeGame?.id) return;
+
+    if (_activeGameListener != null) {
+      await _activeGameListener?.cancel();
+    }
+
+    _activeGame = await _client.getMultiplayerGame(gameId);
+    _activeGameListener = _client.subscribeToGame(gameId, _activeGameChanged);
+  }
+
+  void _activeGameChanged(MultiplayerGame game) {
+    _activeGame = game;
+
+    // this.ha
+    notifyListeners();
+  }
+
+  void saveRound(List<String> guesses, Duration duration) {
+    _activeGame!.activeGameRound.duration = duration;
+    _activeGame!.activeGameRound.finalGuess = guesses.last;
+    _activeGame!.activeGameRound.winIndex =
+        guesses.indexOf(_activeGame!.activeGameRound.answer);
+    notifyListeners();
+  }
+
+  Future<void> startNewRound(String newAnswer) async {
+    _activeGame!.rounds.add(GameRound(
+        answer: newAnswer,
+        user: _activeGame!.playerUids
+            .firstWhere((p) => p != _activeGame!.currentPlayerUid)));
+    await updateGame();
+    // notifyListeners();
+  }
+
+  Future<void> updateGame() async {
+    await _client.updateGame(activeGame!);
+  }
+
+  void resetActiveGame() {
+    _activeGame = null;
+    notifyListeners();
+  }
+
+  Future<void> notifyGameHasEnded(List<User> users) async {
+    await _client.notifyGameHasEnded(users, activeGame!);
   }
 
   Future<List<MultiplayerGame>> getGames() async {
@@ -82,7 +143,6 @@ class MultiplayerProvider with ChangeNotifier {
       MultiplayerGame game, User user, User? host) async {
     game.state = GameState.Playing;
     await _client.acceptGameInvite(game, user, host);
-    //TODO nu updateras den vid accept.
     notifyListeners();
     return game;
   }
@@ -98,14 +158,6 @@ class MultiplayerProvider with ChangeNotifier {
     await _client.deleteGame(game);
 
     _games?.removeWhere((g) => g.id == game.id);
-    notifyListeners();
-  }
-
-  Future<void> startGame(MultiplayerGame game) async {
-    //TODO det är den som blivit invitad som "börjar" denna bordde slås ihop med acceptInvite
-    game.invitees.clear();
-    game.state = GameState.Playing;
-    await _client.startGame(game);
     notifyListeners();
   }
 

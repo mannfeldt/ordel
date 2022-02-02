@@ -26,13 +26,14 @@ class GameMyTurnSection extends StatelessWidget {
       children: [
         Text(
           "My turn",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         ...games
             .map(
               (g) => ListTile(
                 // key: Key(PlayKeys.gameListItemForid(g.id)),
-                title: Text(g.id),
+                title:
+                    Text(g.id, style: TextStyle(color: Colors.grey.shade100)),
                 subtitle: Row(
                   children: g.playerUids.map((p) {
                     User user = users.firstWhere(
@@ -41,14 +42,18 @@ class GameMyTurnSection extends StatelessWidget {
                     );
                     return Padding(
                       padding: const EdgeInsets.only(right: 5.0),
-                      child: Text(user.displayname),
+                      child: Text(user.displayname,
+                          style: TextStyle(color: Colors.grey.shade100)),
                     );
                   }).toList(),
                 ),
                 trailing: IconButton(
                   // key: Key(PlayKeys.OPEN_GAME_BUTTON),
                   onPressed: () => onOpenGame(g),
-                  icon: Icon(Icons.chevron_right),
+                  icon: Icon(
+                    Icons.chevron_right,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             )

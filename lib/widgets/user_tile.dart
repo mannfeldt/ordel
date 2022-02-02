@@ -46,8 +46,12 @@ class UserTile extends StatelessWidget {
       title: AutoSizeText(
         user.displayname,
         maxLines: 1,
+        style: TextStyle(color: Colors.white),
       ),
-      subtitle: Text(user.username),
+      subtitle: Text(
+        user.username,
+        style: TextStyle(color: Colors.white),
+      ),
       trailing: trailing,
     );
   }

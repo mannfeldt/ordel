@@ -26,7 +26,10 @@ class GameInvitesSection extends StatelessWidget {
       children: [
         Text(
           "Game invites",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         ...games.map(
           (g) {
@@ -36,8 +39,9 @@ class GameInvitesSection extends StatelessWidget {
             );
             return ExpansionTile(
               // key: Key(PlayKeys.gameListItemForid(g.id)),
-              title: Text(g.id),
-              subtitle: Text("Invited by ${host.displayname}"),
+              title: Text(g.id, style: TextStyle(color: Colors.grey.shade100)),
+              subtitle: Text("Invited by ${host.displayname}",
+                  style: TextStyle(color: Colors.grey.shade100)),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -74,7 +78,8 @@ class GameInvitesSection extends StatelessWidget {
                         user: user,
                         trailing: Text(
                           g.host == i ? "Host" : "Accepted",
-                          style: TextStyle(fontSize: 12),
+                          style: TextStyle(
+                              fontSize: 12, color: Colors.grey.shade100),
                         ),
                       );
                     }),
@@ -91,7 +96,8 @@ class GameInvitesSection extends StatelessWidget {
                         contentPadding: EdgeInsets.symmetric(horizontal: 30),
                         trailing: Text(
                           "Pending response",
-                          style: TextStyle(fontSize: 12),
+                          style: TextStyle(
+                              fontSize: 12, color: Colors.grey.shade100),
                         ),
                       );
                     })

@@ -3,15 +3,15 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:ordel/models/game_round_model.dart';
 import 'package:ordel/models/multiplayer_game_model.dart';
 import 'package:ordel/models/user_model.dart';
-import 'package:ordel/models/game_round_model.dart';
 import 'package:ordel/services/local_storage.dart';
 import 'package:ordel/services/notification_service.dart';
 import 'package:ordel/utils/constants.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 
 class FirebaseClient {
   final FirebaseAnalyticsObserver _observer;

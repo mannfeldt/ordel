@@ -11,16 +11,14 @@ class GamePendingSection extends StatelessWidget {
   final List<User> users;
   final User me;
   final Function onDeleteGame;
-  final Function onStartGame;
 
-  const GamePendingSection(
-      {Key? key,
-      required this.games,
-      required this.users,
-      required this.me,
-      required this.onDeleteGame,
-      required this.onStartGame})
-      : super(key: key);
+  const GamePendingSection({
+    Key? key,
+    required this.games,
+    required this.users,
+    required this.me,
+    required this.onDeleteGame,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -29,23 +27,34 @@ class GamePendingSection extends StatelessWidget {
       children: [
         Text(
           "Pending games",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         ...games
             .map(
               (g) => ExpansionTile(
                 // key: Key(PlayKeys.gameListItemForid(g.id)),
-                title: Text(g.id),
-                subtitle: Text("Waiting for response"),
+                title:
+                    Text(g.id, style: TextStyle(color: Colors.grey.shade100)),
+                subtitle: Text(
+                  "Waiting for response",
+                  style: TextStyle(color: Colors.grey.shade100),
+                ),
                 trailing: g.host == me.uid
                     ? IconButton(
                         onPressed: () => onDeleteGame(g),
                         icon: Icon(
                           Icons.delete,
+                          color: Colors.grey.shade100,
                         ),
                       )
                     : Text(
                         GAME_STATE_NAMES[g.state]?.toUpperCase() ?? "unkown",
+                        style: TextStyle(
+                          color: Colors.grey.shade100,
+                        ),
                       ),
                 children: [
                   ListView(
@@ -63,7 +72,10 @@ class GamePendingSection extends StatelessWidget {
                           contentPadding: EdgeInsets.symmetric(horizontal: 30),
                           trailing: Text(
                             g.host == i ? "Host" : "Accepted",
-                            style: TextStyle(fontSize: 12),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade100,
+                            ),
                           ),
                         );
                       }),
@@ -86,13 +98,17 @@ class GamePendingSection extends StatelessWidget {
                                   },
                                   icon: Icon(
                                     Icons.add,
+                                    color: Colors.grey.shade100,
                                   ),
                                 )
                               : null,
                           contentPadding: EdgeInsets.symmetric(horizontal: 30),
                           trailing: Text(
                             "Pending response",
-                            style: TextStyle(fontSize: 12),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade100,
+                            ),
                           ),
                         );
                       })

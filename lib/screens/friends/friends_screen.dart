@@ -17,7 +17,7 @@ class FriendsScreen extends StatelessWidget {
       child: Consumer<UserProvider>(
         builder: (context, userProvider, child) => Loader(
           controller: FriendsLoadController(userProvider),
-          // empty: ProfilePage(userProvider: userProvider),
+          empty: ProfilePage(userProvider: userProvider),
           result: FriendList(userProvider: userProvider),
         ),
       ),

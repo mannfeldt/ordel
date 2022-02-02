@@ -5,7 +5,9 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:ordel/models/user_model.dart';
 import 'package:ordel/services/multiplayer_provider.dart';
 import 'package:ordel/services/user_provider.dart';
+import 'package:ordel/utils/utils.dart';
 import 'package:ordel/widgets/custom_snackbar.dart';
+import 'package:ordel/widgets/word_grid.dart';
 import 'package:provider/provider.dart';
 
 class SetupWordScreen extends StatefulWidget {
@@ -56,14 +58,17 @@ class _SetupWordScreenState extends State<SetupWordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    MediaQueryData mq = MediaQuery.of(context);
+    double size = ((mq.size.width - 120) / 5);
     return Scaffold(
+      backgroundColor: Colors.grey.shade900,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.grey.shade800,
         centerTitle: true,
         title: Text(
           "Select starting word",
           style: TextStyle(
-            color: Colors.black87,
+            color: Colors.white,
             letterSpacing: 1.125,
             fontWeight: FontWeight.bold,
           ),
@@ -72,7 +77,7 @@ class _SetupWordScreenState extends State<SetupWordScreen> {
           onPressed: () => Navigator.of(context).pop(),
           icon: Icon(
             Icons.chevron_left,
-            color: Colors.blue,
+            color: Colors.grey.shade100,
           ),
         ),
       ),
@@ -85,12 +90,23 @@ class _SetupWordScreenState extends State<SetupWordScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                   width: double.infinity,
                   child: MaterialButton(
-                      elevation: 4,
-                      color: Colors.blue,
-                      onPressed: () => _createNewGame(word, context),
-                      child: Center(
-                        child: Text(word),
-                      )),
+                    elevation: 0,
+                    focusElevation: 4,
+                    highlightColor: Colors.grey.shade900,
+                    splashColor: Colors.grey.shade900,
+                    color: Colors.grey.shade900,
+                    onPressed: () => _createNewGame(word, context),
+                    child: Center(
+                      child: IgnorePointer(
+                        child: WordRow(
+                          boxSize: size,
+                          answer: word,
+                          guess: word,
+                          state: RowState.done,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             )
