@@ -10,6 +10,7 @@ import 'package:ordel/models/multiplayer_game_model.dart';
 import 'package:ordel/models/user_model.dart';
 import 'package:ordel/navigation/app_router.dart';
 import 'package:ordel/screens/multiplayer/widgets/multiplayer_game_load_controller.dart';
+import 'package:ordel/screens/multiplayer/widgets/multiplayer_game_standings.dart';
 import 'package:ordel/services/game_provider.dart';
 import 'package:ordel/services/multiplayer_provider.dart';
 import 'package:ordel/services/user_provider.dart';
@@ -37,6 +38,12 @@ class MultiplayerGameplayScreen extends StatelessWidget {
           ),
           result: MultiplayerGameplay(
             game: multiplayerProvider.activeGame ?? MultiplayerGame.empty(),
+            activeUser: userProvider.activeUser!,
+            otherUser: userProvider.getUserById(multiplayerProvider
+                        .activeGame?.playerUids
+                        .firstWhere((p) => p != userProvider.activeUser!.uid) ??
+                    userProvider.activeUser!.uid) ??
+                User.empty(),
           ),
         ),
       ),
@@ -46,10 +53,17 @@ class MultiplayerGameplayScreen extends StatelessWidget {
 
 class MultiplayerGameplay extends StatefulWidget {
   final MultiplayerGame game;
+  final User activeUser;
+  final User otherUser;
   //TODO används för att visa lite ställnign osv i headern.. skapa en getter som hämtar activeRound och släng in det i gameplay..
   //Språk hämtar vi härifrån också
 
-  const MultiplayerGameplay({Key? key, required this.game}) : super(key: key);
+  const MultiplayerGameplay({
+    Key? key,
+    required this.game,
+    required this.activeUser,
+    required this.otherUser,
+  }) : super(key: key);
 
   @override
   State<MultiplayerGameplay> createState() => _MultiplayerGameplayState();
@@ -111,6 +125,10 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
 //flutter build apk --target-platform android-arm,android-arm64,android-x64
 
   Future<void> _onGameFinished(User currentUser) async {
+    MultiplayerProvider provider =
+        Provider.of<MultiplayerProvider>(context, listen: false);
+    provider.finishGame();
+
     await showGeneralDialog<String>(
       barrierDismissible: false,
       context: context,
@@ -118,13 +136,14 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
         MediaQueryData mq = MediaQuery.of(context);
         double size = ((mq.size.width - 120) / 5);
         return AlertDialog(
-          title: Text("Select next word"),
+          backgroundColor: Colors.grey.shade900,
+          title: Text("Game finished"),
           content: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
               TextButton(
                 onPressed: () async {
-                  forstätt här... bygg apk debug och installera på en emulator och sen debuga på en annan och testa hela flödet.
+                  // forstätt här... bygg apk debug och installera på en emulator och sen debuga på en annan och testa hela flödet.
                   //TODO testa hela flödet nu finns säkert problem längst vägen... installera appen på en mobil som jag kan köra mot sen sitt på andra och debugga
 //TODO testa spela hela rundor. rematch, new game. ok osv.
                   //TODO challenger är fel. ska ta inte ta motsatt host för det kan vara vem som helst. ska ta motsatt current/activeUser.
@@ -282,6 +301,7 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
   Widget _buildLanguageIcon(Language? lang) {
     return Image.asset(
       "assets/img/${lang?.code ?? "unknown"}.png",
+      height: 30,
       errorBuilder: (context, error, stackTrace) => Text(
         lang?.code ?? "unknown",
         style: const TextStyle(color: Colors.white),
@@ -292,6 +312,7 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
   @override
   Widget build(BuildContext context) {
     GameRound activeRound = widget.game.activeGameRound;
+
     return Scaffold(
       backgroundColor: Colors.grey.shade900,
       body: Consumer<GameProvider>(
@@ -301,18 +322,16 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildLanguageIcon(_language),
-                      Text(
-                        kReleaseMode ? "Ordel" : activeRound.answer,
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
-                          fontSize: 20,
-                        ),
-                      ),
-                    ],
+                  //TODO visa detta direkt, en mindre variant eller scrollbar variant då? eller bara visa detta i en dialog?
+                  //TODO eller så minskat jag bara wordgrid minska lite.
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: MultiplayerGameStandings(
+                      game: widget.game,
+                      activeUser: widget.activeUser,
+                      otherUser: widget.otherUser,
+                      size: _gamePlaySize,
+                    ),
                   ),
                   Gameplay(
                     language: _language,
@@ -324,6 +343,21 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
                   ),
                 ],
               ),
+              Container(
+                alignment: Alignment.topCenter,
+                child: _buildLanguageIcon(_language),
+              ),
+              if (!kReleaseMode)
+                Container(
+                  alignment: Alignment.topRight,
+                  child: Text(
+                    activeRound.answer,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

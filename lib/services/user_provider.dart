@@ -53,7 +53,8 @@ class UserProvider with ChangeNotifier {
     return _users!;
   }
 
-  User getUserById(String uid) => _users!.firstWhere((user) => user.uid == uid);
+  User? getUserById(String uid) =>
+      _users?.firstWhere((user) => user.uid == uid);
 
   void handleNewFollower(String userUid) async {
     //if null then getUsers will run instead and get followers anyway

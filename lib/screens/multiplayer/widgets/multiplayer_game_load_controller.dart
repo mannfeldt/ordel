@@ -19,15 +19,22 @@ class GameplayLoadController implements LoadController {
   @override
   bool get isEmpty => false;
 
-  @override
-  bool get isInitialized =>
+  bool get activeGameInitializeed =>
       multiplayerProvider.activeGame != null &&
       multiplayerProvider.activeGame!.id == gameId;
 
   @override
+  bool get isInitialized =>
+      userProvider.users != null && activeGameInitializeed;
+
+  @override
   Future load() {
-    return multiplayerProvider.initWithLiseners(
-        gameId, mq, userProvider.activeUser!);
+    return Future.wait([
+      if (userProvider.users == null) userProvider.getUsers(),
+      if (!activeGameInitializeed)
+        multiplayerProvider.initWithLiseners(
+            gameId, mq, userProvider.activeUser!)
+    ]);
   }
 
   @override

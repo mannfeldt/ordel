@@ -70,12 +70,14 @@ class MyGamesList extends StatelessWidget {
           GameMyTurnSection(
             users: users,
             games: gamesMyTurn,
+            activeUser: me,
             onOpenGame: onOpenGame,
           ),
         if (gamesPlaying.isNotEmpty)
           GamePlayingSection(
             games: gamesPlaying,
             users: users,
+            activeUser: me,
             onOpenGame: onOpenGame,
           ),
         if (gamesPending.isNotEmpty)

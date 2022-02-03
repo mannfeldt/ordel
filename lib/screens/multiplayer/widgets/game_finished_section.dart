@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ordel/models/multiplayer_game_model.dart';
 import 'package:ordel/models/user_model.dart';
+import 'package:ordel/screens/multiplayer/widgets/multiplayer_game_standings.dart';
 
 class GameFinishedSection extends StatelessWidget {
   final List<MultiplayerGame> games;
@@ -20,6 +21,8 @@ class GameFinishedSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    MediaQueryData mq = MediaQuery.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -29,7 +32,7 @@ class GameFinishedSection extends StatelessWidget {
         ),
         ...games
             .map(
-              (g) => ListTile(
+              (g) => ExpansionTile(
                 // key: Key(PlayKeys.gameListItemForid(g.id)),
                 title:
                     Text(g.id, style: TextStyle(color: Colors.grey.shade100)),
@@ -49,6 +52,24 @@ class GameFinishedSection extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
+                children: [
+                  ListView(
+                    shrinkWrap: true,
+                    children: [
+                      MultiplayerGameStandings(
+                        game: g,
+                        activeUser: me,
+                        otherUser: users.firstWhere((u) =>
+                            u.uid ==
+                            g.playerUids.firstWhere((id) => id != me.uid)),
+                        size: Size(
+                          mq.size.width,
+                          mq.size.height - mq.padding.top,
+                        ),
+                      )
+                    ],
+                  )
+                ],
               ),
             )
             .toList(),

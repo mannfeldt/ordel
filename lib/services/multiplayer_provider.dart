@@ -79,19 +79,37 @@ class MultiplayerProvider with ChangeNotifier {
 
   void saveRound(List<String> guesses, Duration duration) {
     _activeGame!.activeGameRound.duration = duration;
-    _activeGame!.activeGameRound.finalGuess = guesses.last;
+    _activeGame!.activeGameRound.finalGuess =
+        guesses.lastWhere((g) => g.isNotEmpty);
     _activeGame!.activeGameRound.winIndex =
         guesses.indexOf(_activeGame!.activeGameRound.answer);
+        forsätt härtyp
+        //1. när man spelat sin runda så ser ligger den fortfarande under "my turn" innan man kör pull to refresh?
+        // behöver vi synka _activegames till _games? saveRound följs av startNewRound som updaterar game
+   
+   //2. just nu kan man öppna "active game" när det är någon annans tur.
+   // ta bort den möjligheten eller anpassa multiplayer_gameplay för om det inte är min tur.
+   //enklaste att byta ikon till arrow down etc och lås så man inte kan öppna.
+   //3. testa kör hela flödet igen, bytt till mobil och spela mot en fysisk mobil.
     notifyListeners();
   }
 
   Future<void> startNewRound(String newAnswer) async {
+    //TODO nytt game från fyfisk mobil. när jag spelat rundan på debug så
+    //TODO går den vidare rätt men listan updateras inte utan en pulltorefresh?
+
+//TODO blir ingen notis om myturn och mygames updateras inte utan pull to refresh..
     _activeGame!.rounds.add(GameRound(
         answer: newAnswer,
-        user: _activeGame!.playerUids
-            .firstWhere((p) => p != _activeGame!.currentPlayerUid)));
+        user:
+            _activeGame!.playerUids.firstWhere((p) => p != _client.user!.uid)));
     await updateGame();
     // notifyListeners();
+  }
+
+  Future<void> finishGame() async {
+    _activeGame?.state = GameState.Finished;
+    await updateGame();
   }
 
   Future<void> updateGame() async {

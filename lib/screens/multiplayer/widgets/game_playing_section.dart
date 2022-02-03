@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:ordel/models/multiplayer_game_model.dart';
 import 'package:ordel/models/user_model.dart';
+import 'package:ordel/screens/multiplayer/widgets/multiplayer_game_standings.dart';
 
 class GamePlayingSection extends StatelessWidget {
   final List<MultiplayerGame> games;
   final List<User> users;
   final Function onOpenGame;
+  final User activeUser;
 
   const GamePlayingSection(
       {Key? key,
       required this.games,
       required this.onOpenGame,
+      required this.activeUser,
       required this.users})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    MediaQueryData mq = MediaQuery.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -29,7 +34,7 @@ class GamePlayingSection extends StatelessWidget {
               (u) => u.uid == g.currentPlayerUid,
               orElse: () => User.empty(),
             );
-            return ListTile(
+            return ExpansionTile(
               // key: Key(PlayKeys.gameListItemForid(g.id)),
               subtitle: Text("Turn to play: ${playing.displayname}",
                   style: TextStyle(color: Colors.grey.shade100)),
@@ -42,6 +47,25 @@ class GamePlayingSection extends StatelessWidget {
                   color: Colors.white,
                 ),
               ),
+              children: [
+                ListView(
+                  shrinkWrap: true,
+                  children: [
+                    MultiplayerGameStandings(
+                      game: g,
+                      activeUser: activeUser,
+                      otherUser: users.firstWhere((u) =>
+                          u.uid ==
+                          g.playerUids
+                              .firstWhere((id) => id != activeUser.uid)),
+                      size: Size(
+                        mq.size.width,
+                        mq.size.height - mq.padding.top,
+                      ),
+                    )
+                  ],
+                )
+              ],
             );
           },
         ).toList(),

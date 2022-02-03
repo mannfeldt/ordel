@@ -1,4 +1,5 @@
 import 'package:ordel/models/game_round_model.dart';
+import 'package:ordel/utils/constants.dart';
 
 enum GameState { Waiting, Playing, Finished, Inviting }
 
@@ -33,6 +34,7 @@ class MultiplayerGame {
   final List<String> invitees;
   final List<GameRound> rounds;
   final String language;
+  // final String currentPlayerUid;
   //lägg till en lista med GameRounds eller liknande.
   //grejen är att varje gameround måste var kopplad till en spelare men de är det ju?
   //enda är att lagnuage inte behövs. kan vi ha här istället kanske?
@@ -97,10 +99,17 @@ class MultiplayerGame {
 
 //TODO här definerar vi hur många rundor ett game är..
   bool get isFinished =>
-      rounds.length == 4 && rounds.every((round) => round.isPlayed);
+      rounds.length == Constants.multiplayerRounds * 2 &&
+      rounds.every((round) => round.isPlayed);
 
-  String? get opponent =>
+  String? get challenger =>
       playerUids.length < 2 ? null : playerUids.firstWhere((p) => p != host);
+
+  int getPointsByUser(String uid) {
+    if (!playerUids.contains(uid)) return 0;
+    return rounds.where((r) => r.user == uid).fold(
+        0, (int previousValue, element) => previousValue + element.points);
+  }
 
   Map<String, dynamic> toJson() {
     return {

@@ -11,6 +11,8 @@ class WordRow extends StatefulWidget {
   final RowState state;
   final List<FlipCardController>? controllers;
   final double boxSize;
+  final bool defaultFlipped;
+  final double boxMargin;
 
   const WordRow({
     Key? key,
@@ -19,6 +21,8 @@ class WordRow extends StatefulWidget {
     this.answer = "",
     required this.boxSize,
     this.controllers,
+    this.defaultFlipped = false,
+    this.boxMargin = Constants.boxMargin,
   }) : super(key: key);
 
   @override
@@ -41,6 +45,8 @@ class _WordRowState extends State<WordRow> {
         for (int i = 0; i < 5; i++)
           LetterBox(
             size: widget.boxSize,
+            boxMargin: widget.boxMargin,
+            defaultFlipped: widget.defaultFlipped,
             flipController:
                 widget.controllers != null ? widget.controllers![i] : null,
             state: getLetterBoxState(
@@ -62,6 +68,8 @@ class LetterBox extends StatelessWidget {
   final String letter;
   final FlipCardController? flipController;
   final double size;
+  final bool defaultFlipped;
+  final double boxMargin;
 
   const LetterBox({
     Key? key,
@@ -69,6 +77,8 @@ class LetterBox extends StatelessWidget {
     this.state = LetterBoxState.inactive,
     this.letter = "",
     this.flipController,
+    this.defaultFlipped = false,
+    this.boxMargin = Constants.boxMargin,
   }) : super(key: key);
 
   @override
@@ -114,8 +124,8 @@ class LetterBox extends StatelessWidget {
         color: boxColorHidden,
         borderRadius: BorderRadius.all(Radius.circular(2 + (size / 10))),
       ),
-      padding: const EdgeInsets.all(Constants.boxMargin),
-      margin: const EdgeInsets.all(Constants.boxMargin),
+      padding: EdgeInsets.all(boxMargin),
+      margin: EdgeInsets.all(boxMargin),
       child: state == LetterBoxState.focused
           ? Container(
               alignment: Alignment.bottomCenter,
@@ -143,8 +153,8 @@ class LetterBox extends StatelessWidget {
         color: boxColor,
         borderRadius: BorderRadius.all(Radius.circular(2 + (size / 10))),
       ),
-      padding: const EdgeInsets.all(Constants.boxMargin),
-      margin: const EdgeInsets.all(Constants.boxMargin),
+      padding: EdgeInsets.all(boxMargin),
+      margin: EdgeInsets.all(boxMargin),
       child: state == LetterBoxState.focused
           ? Container(
               alignment: Alignment.bottomCenter,
@@ -171,7 +181,7 @@ class LetterBox extends StatelessWidget {
       flipOnTouch: !kReleaseMode,
       speed: 500,
       direction: FlipDirection.HORIZONTAL,
-      front: hidden,
+      front: defaultFlipped ? revealed : hidden,
       back: revealed,
     );
   }

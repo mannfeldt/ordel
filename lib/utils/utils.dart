@@ -24,8 +24,8 @@ KeyState getKeyState(String key,
 
 LetterBoxState getLetterBoxState(
   int i, {
-  required RowState rowState,
-  required int activeIndex,
+  RowState rowState = RowState.done,
+  int activeIndex = 0,
   required String answer,
   required String guess,
 }) {

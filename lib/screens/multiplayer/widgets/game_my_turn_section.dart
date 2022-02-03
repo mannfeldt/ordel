@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:ordel/models/multiplayer_game_model.dart';
 import 'package:ordel/models/user_model.dart';
+import 'package:ordel/screens/multiplayer/widgets/multiplayer_game_standings.dart';
 
 class GameMyTurnSection extends StatelessWidget {
   final List<MultiplayerGame> games;
   final Function onOpenGame;
   final List<User> users;
+  final User activeUser;
 
   const GameMyTurnSection({
     Key? key,
     required this.games,
     required this.onOpenGame,
     required this.users,
+    required this.activeUser,
   }) : super(key: key);
 
 //TODO denna och activeSection så man kunna expandera och se progress. två kolumner en för varje spelare med 5 rader, en för varje omgång.
@@ -21,6 +24,7 @@ class GameMyTurnSection extends StatelessWidget {
 //TODO ANnars presenteras man med slutresultatet i en dialog och kan välja rematch eller "ok" för att komma tillbaka till gameList.
   @override
   Widget build(BuildContext context) {
+    MediaQueryData mq = MediaQuery.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -30,7 +34,7 @@ class GameMyTurnSection extends StatelessWidget {
         ),
         ...games
             .map(
-              (g) => ListTile(
+              (g) => ExpansionTile(
                 // key: Key(PlayKeys.gameListItemForid(g.id)),
                 title:
                     Text(g.id, style: TextStyle(color: Colors.grey.shade100)),
@@ -55,6 +59,25 @@ class GameMyTurnSection extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
+                children: [
+                  ListView(
+                    shrinkWrap: true,
+                    children: [
+                      MultiplayerGameStandings(
+                        game: g,
+                        activeUser: activeUser,
+                        otherUser: users.firstWhere((u) =>
+                            u.uid ==
+                            g.playerUids
+                                .firstWhere((id) => id != activeUser.uid)),
+                        size: Size(
+                          mq.size.width,
+                          mq.size.height - mq.padding.top,
+                        ),
+                      )
+                    ],
+                  )
+                ],
               ),
             )
             .toList(),

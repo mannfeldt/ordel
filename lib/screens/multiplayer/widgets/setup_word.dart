@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:ordel/models/user_model.dart';
+import 'package:ordel/navigation/app_router.dart';
 import 'package:ordel/services/multiplayer_provider.dart';
 import 'package:ordel/services/user_provider.dart';
 import 'package:ordel/utils/utils.dart';
@@ -46,11 +47,11 @@ class _SetupWordScreenState extends State<SetupWordScreen> {
 
   void _createNewGame(String word, BuildContext context) async {
     try {
-      User user = Provider.of<UserProvider>(context, listen: false)
+      User? user = Provider.of<UserProvider>(context, listen: false)
           .getUserById(widget.invite);
       Provider.of<MultiplayerProvider>(context, listen: false)
-          .createNewGame(word: word, invite: user, language: widget.language);
-      Navigator.of(context).popUntil(ModalRoute.withName('/'));
+          .createNewGame(word: word, invite: user!, language: widget.language);
+      AppRouter.navigateTo(context, AppRouter.MULTIPLAYER_TAB);
     } catch (e) {
       ErrorSnackbar.display(context, "error creating new game");
     }

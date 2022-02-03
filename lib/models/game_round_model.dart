@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ordel/utils/utils.dart';
 
 class SingleplayerGameRound extends GameRound {
   final String language;
@@ -92,6 +93,24 @@ class GameRound {
       ? Duration(
           milliseconds: (duration!.inMilliseconds / enteredGuesses).round())
       : null;
+
+  int get points {
+    if (!isPlayed) return 0;
+    if (isWin) {
+      return 100 - (winIndex * 10);
+    }
+    int points = 0;
+    for (int i = 0; i < answer.length; i++) {
+      LetterBoxState state =
+          getLetterBoxState(0, guess: finalGuess!, answer: answer);
+      if (state == LetterBoxState.correct) {
+        points += 5;
+      } else if (state == LetterBoxState.included) {
+        points += 1;
+      }
+    }
+    return points;
+  }
 
   GameRound({
     required this.answer,

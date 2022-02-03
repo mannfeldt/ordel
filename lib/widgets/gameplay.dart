@@ -113,7 +113,7 @@ class _GameplayState extends State<Gameplay> {
             (Constants.horizontalPadding / 2) -
             (Constants.keyMargin * 22)) /
         11;
-    double minKeyBoardHeight = keySize * 10;
+    double minKeyBoardHeight = keySize * 12;
     double maxLetterBoxSize =
         (size.height - minKeyBoardHeight - (Constants.boxMargin * 10)) / 6;
     letterBoxSize = min(letterBoxSize, maxLetterBoxSize);
@@ -281,7 +281,7 @@ class _GameplayState extends State<Gameplay> {
   Widget _buildWordGrid() {
     return Column(
       children: [
-        const SizedBox(height: Constants.horizontalPadding / 3),
+        const SizedBox(height: Constants.horizontalPadding / 2),
         for (int i = 0; i < 6; i++)
           WordRow(
             boxSize: letterBoxSize,

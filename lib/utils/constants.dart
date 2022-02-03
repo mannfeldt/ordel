@@ -1,4 +1,5 @@
 class Constants {
+  static const int multiplayerRounds = 3;
   static const double boxMargin = 4;
   static const double keyMargin = 2;
   static const double horizontalPadding = 30;
