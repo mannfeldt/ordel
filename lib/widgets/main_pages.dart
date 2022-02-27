@@ -1,12 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:native_updater/native_updater.dart';
 import 'package:ordel/screens/friends/friends_screen.dart';
-import 'package:ordel/screens/leaderboards/leaderboards_index.dart';
-import 'package:ordel/screens/multiplayer/multiplayer_gameplay.dart';
 import 'package:ordel/screens/multiplayer/multiplayer_index.dart';
 import 'package:ordel/screens/singleplayer/singleplayer_index.dart';
 import 'package:ordel/services/session_provider.dart';
 import 'package:ordel/utils/keys.dart';
 import 'package:ordel/navigation/app_router.dart';
+import 'package:ordel/utils/version_checker.dart';
 import 'package:provider/provider.dart';
 
 class MainPages extends StatefulWidget {
@@ -25,6 +26,7 @@ class _MainPagesState extends State<MainPages> {
   late int _selectedPageIndex;
   final bool _disablePageScroll = false;
   late PageController pageController;
+  final bool _versionCheckerDialogIsOpen = false;
   @override
   void initState() {
     _selectedPageIndex = widget.initialPageIndex;
@@ -59,6 +61,10 @@ class _MainPagesState extends State<MainPages> {
 
   @override
   Widget build(BuildContext context) {
+    if (kReleaseMode) {
+      VersionChecker.run(context);
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey.shade900,
       body: PageView(
@@ -83,9 +89,10 @@ class _MainPagesState extends State<MainPages> {
           FriendsScreen(
             key: const Key(MainKeys.FRIEND_SCREEN),
           ),
-          LeaderboardScreen(
-            key: const Key(MainKeys.LEADERBOARD_SCREEN),
-          ),
+          //TODO tar bort leadboard tillsvidare. behöver lägga in cachning osv på den..
+          // LeaderboardScreen(
+          //   key: const Key(MainKeys.LEADERBOARD_SCREEN),
+          // ),
         ],
       ),
       bottomNavigationBar: SizedBox(
@@ -110,10 +117,10 @@ class _MainPagesState extends State<MainPages> {
               icon: Icon(Icons.people),
               label: 'Friends',
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.list),
-              label: 'Leaderboard',
-            ),
+            // BottomNavigationBarItem(
+            //   icon: Icon(Icons.list),
+            //   label: 'Leaderboard',
+            // ),
           ],
         ),
       ),

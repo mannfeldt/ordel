@@ -12,6 +12,7 @@ class User {
   String colorString;
   final String? image;
   List<String> friendsUids;
+  final bool isAnonymous;
 
   User({
     required this.uid,
@@ -21,6 +22,7 @@ class User {
     friendsUids,
     required this.displayname,
     required this.colorString,
+    this.isAnonymous = false,
   }) : friendsUids = friendsUids ?? <String>[];
 
   User.empty({
@@ -31,6 +33,7 @@ class User {
     friendsUids,
     displayname,
     colorString,
+    this.isAnonymous = false,
   })  : friendsUids = friendsUids ?? <String>[],
         uid = uid ?? "",
         fcm = fcm ?? "",
@@ -63,7 +66,11 @@ class User {
     return user;
   }
 
-  factory User.generateUser({String? uid, required String fcm, String? image}) {
+  factory User.generateUser(
+      {String? uid,
+      required String fcm,
+      String? image,
+      bool isAnonymous = false}) {
     int number = Random().nextInt(9000) + 1000;
     String username =
         Constants.ADJECTIVE[Random().nextInt(Constants.ADJECTIVE.length)] +
@@ -78,6 +85,7 @@ class User {
       displayname: username.split("#").first,
       colorString: ColorHelpers.toHexString(
           Colors.primaries[Random().nextInt(Colors.primaries.length - 1)]),
+      isAnonymous: isAnonymous,
     );
   }
 

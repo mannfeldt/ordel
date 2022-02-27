@@ -138,7 +138,7 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        kReleaseMode ? "Ordel" : _answer,
+                        kReleaseMode ? "Word streak" : _answer,
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.9),
                           fontSize: 20,
@@ -223,15 +223,6 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
                       );
                     }).toList();
                   },
-                ),
-              ),
-              Positioned(
-                right: 10,
-                child: IconButton(
-                  onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/profile');
-                  },
-                  icon: const Icon(Icons.person_pin, color: Colors.white),
                 ),
               ),
             ],

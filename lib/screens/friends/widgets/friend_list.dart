@@ -120,37 +120,46 @@ class _FriendListState extends State<FriendList>
           ),
           automaticallyImplyLeading: false,
           title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Row(
                 children: [
-                  Text(
-                    widget.userProvider.activeUser!.displayname,
-                    style: TextStyle(
-                        color: Colors.white,
-                        letterSpacing: 1.125,
-                        fontWeight: FontWeight.bold),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.userProvider.activeUser!.displayname,
+                        style: TextStyle(
+                            color: Colors.white,
+                            letterSpacing: 1.125,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        widget.userProvider.activeUser!.username,
+                        style: TextStyle(
+                            color: Colors.grey.shade100,
+                            letterSpacing: 0.5,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold),
+                      )
+                    ],
                   ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Text(
-                    widget.userProvider.activeUser!.username,
-                    style: TextStyle(
-                        color: Colors.grey.shade100,
-                        letterSpacing: 0.5,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold),
-                  )
+                  IconButton(
+                      onPressed: () => AppRouter.navigateTo(
+                            context,
+                            AppRouter.PROFILE_SCREEN,
+                            transition: TransitionType.inFromBottom,
+                          ),
+                      icon: Icon(Icons.edit))
                 ],
               ),
               IconButton(
-                  onPressed: () => AppRouter.navigateTo(
-                        context,
-                        AppRouter.PROFILE_SCREEN,
-                        transition: TransitionType.inFromBottom,
-                      ),
-                  icon: Icon(Icons.edit))
+                onPressed: () => widget.userProvider.refreshUsers,
+                icon: Icon(Icons.refresh),
+              )
             ],
           ),
         ),

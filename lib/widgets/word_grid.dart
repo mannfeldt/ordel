@@ -5,6 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:ordel/utils/constants.dart';
 import 'package:ordel/utils/utils.dart';
 
+//TODO testa att spelet fungerar singleplayer. alla språk..
+//TODO--- 2. lägg till cachning av users och/eller ta bort hämtning av alla games helt...
+//TODO--- 3. fixa foreceupdate dialog och ett custom meddelande. likt PELabs.
+//TODO 4. kanske också ta in ett paket för att pusha meddelande om valfri updatering.
+//TODO se över multiplayer. hur fungerar det?
+//TODO nytt namn? see keep/events kalender: ordna, ordning, ordas, ordat, orda
+//TODO. Skapa nytt bygge och pushnotis som förklarar mig lite.. och tackar.
+//TODO svara också på reviews.
+
 class WordRow extends StatefulWidget {
   final String answer;
   final String guess;
@@ -105,7 +114,7 @@ class LetterBox extends StatelessWidget {
 
         break;
       case LetterBoxState.included:
-        boxColor = Colors.purple;
+        boxColor = Colors.orange;
         boxColorHidden = Colors.black87;
 
         break;

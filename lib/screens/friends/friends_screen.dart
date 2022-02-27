@@ -1,5 +1,5 @@
+import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:ordel/navigation/app_router.dart';
 import 'package:ordel/screens/friends/friends_load_controller.dart';
 import 'package:ordel/screens/friends/profile_page.dart';
@@ -15,11 +15,51 @@ class FriendsScreen extends StatelessWidget {
     return SafeArea(
       key: AppRouter.friendScreenKey,
       child: Consumer<UserProvider>(
-        builder: (context, userProvider, child) => Loader(
-          controller: FriendsLoadController(userProvider),
-          empty: ProfilePage(userProvider: userProvider),
-          result: FriendList(userProvider: userProvider),
-        ),
+        builder: (context, userProvider, child) {
+          if (userProvider.activeUser!.isAnonymous) {
+            return Center(
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Text(
+                          "You must be a registered user to access friends",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10, bottom: 10),
+                          child: TextButton(
+                            child: const Text(
+                              "Register or Login now",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onPressed: () async {
+                              await userProvider.signOut();
+                              AppRouter.navigateTo(
+                                context,
+                                "/",
+                                clearStack: true,
+                                transition: TransitionType.fadeIn,
+                                transitionDuration: Duration(milliseconds: 50),
+                              );
+                            },
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            );
+          }
+          return Loader(
+            controller: FriendsLoadController(userProvider),
+            empty: ProfilePage(userProvider: userProvider),
+            result: FriendList(userProvider: userProvider),
+          );
+        },
       ),
     );
   }

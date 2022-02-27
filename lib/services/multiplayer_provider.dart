@@ -83,14 +83,20 @@ class MultiplayerProvider with ChangeNotifier {
         guesses.lastWhere((g) => g.isNotEmpty);
     _activeGame!.activeGameRound.winIndex =
         guesses.indexOf(_activeGame!.activeGameRound.answer);
-        forsätt härtyp
-        //1. när man spelat sin runda så ser ligger den fortfarande under "my turn" innan man kör pull to refresh?
-        // behöver vi synka _activegames till _games? saveRound följs av startNewRound som updaterar game
-   
-   //2. just nu kan man öppna "active game" när det är någon annans tur.
-   // ta bort den möjligheten eller anpassa multiplayer_gameplay för om det inte är min tur.
-   //enklaste att byta ikon till arrow down etc och lås så man inte kan öppna.
-   //3. testa kör hela flödet igen, bytt till mobil och spela mot en fysisk mobil.
+    // forsätt härtyp
+    //1. när man spelat sin runda så ser ligger den fortfarande under "my turn" innan man kör pull to refresh?
+    // behöver vi synka _activegames till _games? saveRound följs av startNewRound som updaterar game
+
+    //TODO alltså typ göra de här ändringarna på _games[activegame] istället?
+    //TODO eller båda?
+
+    // problemet jag ska ta tag i är här att när man spelat klart sin runda står den fortfarande under "my turn"
+    // troligen synkas det inte tillräckligt bra..
+
+    //2. just nu kan man öppna "active game" när det är någon annans tur.
+    // ta bort den möjligheten eller anpassa multiplayer_gameplay för om det inte är min tur.
+    //enklaste att byta ikon till arrow down etc och lås så man inte kan öppna.
+    //3. testa kör hela flödet igen, bytt till mobil och spela mot en fysisk mobil.
     notifyListeners();
   }
 
@@ -105,6 +111,7 @@ class MultiplayerProvider with ChangeNotifier {
             _activeGame!.playerUids.firstWhere((p) => p != _client.user!.uid)));
     await updateGame();
     // notifyListeners();
+    //TODO det är kanske denna som gör att det krävs pull to refresh? kör ju ladrig notifylistener..
   }
 
   Future<void> finishGame() async {

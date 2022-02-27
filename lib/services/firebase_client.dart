@@ -55,10 +55,11 @@ class FirebaseClient {
     _notificationService = PushNotificationsManager();
     _notificationService.init();
     _fcmToken = await _notificationService.getFcmToken();
-    _activeUser = User.generateUser(
+    _activeUser ??= User.generateUser(
         uid: _auth.currentUser?.uid,
         fcm: _fcmToken,
-        image: _auth.currentUser?.photoURL);
+        image: _auth.currentUser?.photoURL,
+        isAnonymous: _auth.currentUser?.isAnonymous ?? true);
   }
 
   Future<void> clear() async {
@@ -73,8 +74,15 @@ class FirebaseClient {
     if (isPossibleInfiniteLoop) throw "POSSIBLE INFINITE LOOP";
     print("------------------firebase_client createUser---------------------");
 
-    await _firestore.collection('users').doc(user!.uid).set(user!.toJson());
+    // _activeUser ??= User.generateUser(
+    //     uid: _auth.currentUser?.uid,
+    //     fcm: _fcmToken,
+    //     image: _auth.currentUser?.photoURL,
+    //     isAnonymous: _auth.currentUser?.isAnonymous ?? true);
 
+    if (!user!.isAnonymous) {
+      await _firestore.collection('users').doc(user!.uid).set(user!.toJson());
+    }
     return user!;
   }
 
@@ -120,6 +128,7 @@ class FirebaseClient {
   Future<User?> getUser() async {
     if (isPossibleInfiniteLoop) throw "POSSIBLE INFINITE LOOP";
     print("------------------firebase_client getUser---------------------");
+    if (user?.isAnonymous ?? true) return null;
     DocumentSnapshot doc =
         await _firestore.collection("users").doc(_auth.currentUser?.uid).get();
 

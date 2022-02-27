@@ -26,7 +26,7 @@ class LetterButton extends StatelessWidget {
         color = Colors.blueGrey.shade900;
         break;
       case KeyState.included:
-        color = Colors.purple;
+        color = Colors.orange;
         break;
       case KeyState.correct:
         color = Colors.green;

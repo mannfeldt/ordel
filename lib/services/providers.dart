@@ -5,6 +5,7 @@ import 'package:fluro/fluro.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ordel/navigation/app_router.dart';
 import 'package:ordel/navigation/routes.dart';
+import 'package:ordel/services/cache_manager.dart';
 import 'package:ordel/services/firebase_client.dart';
 import 'package:ordel/services/game_provider.dart';
 import 'package:ordel/services/local_storage.dart';
@@ -32,27 +33,29 @@ Future<List<SingleChildWidget>> bootstrap() async {
   await remoteConfig.setConfigSettings(
     RemoteConfigSettings(
       fetchTimeout: const Duration(seconds: 30),
-      minimumFetchInterval: kReleaseMode
-          ? const Duration(hours: 12)
-          : const Duration(seconds: 60),
+      minimumFetchInterval:
+          kReleaseMode ? const Duration(hours: 1) : const Duration(seconds: 60),
     ),
   );
   await remoteConfig.setDefaults({
     "answers_en": "BEACH,PILOT",
     "answers_sv": "BJÖRK,AKTIE",
     "supported_languages": "en:English,sv:Svenska",
+    "users_cache_seconds": 30,
   });
   await remoteConfig.fetchAndActivate();
 
   final router = FluroRouter();
   Routes.configureRoutes(router);
   AppRouter.router = router;
+  final CacheManager cacheManager = CacheManager(firebaseClient, localStorage);
 
   // Responsive.init(ScreenType.small);
   return [
-    ...buildServiceProviders(firebaseClient, analyticsObserver, localStorage),
-    ...buildModelProviders(
-        firebaseClient, analyticsObserver, localStorage, options.projectId)
+    ...buildServiceProviders(
+        firebaseClient, analyticsObserver, localStorage, cacheManager),
+    ...buildModelProviders(firebaseClient, analyticsObserver, localStorage,
+        cacheManager, options.projectId)
   ];
 }
 
@@ -60,6 +63,7 @@ List<SingleChildWidget> buildModelProviders(
     FirebaseClient client,
     FirebaseAnalyticsObserver observer,
     LocalStorage storage,
+    CacheManager cacheManager,
     String projectId) {
   return [
     ChangeNotifierProxyProvider3<FirebaseClient, FirebaseAnalyticsObserver,
@@ -114,10 +118,12 @@ List<SingleChildWidget> buildModelProviders(
     ChangeNotifierProxyProvider3<FirebaseClient, FirebaseAnalyticsObserver,
         LocalStorage, UserProvider>(
       update: (context, client, analyticsObserver, localStorage, provider) {
+        //TODO ska cachemanager vara del av ChangeNotifierProxyProvider3? som i F1?
         var provider = UserProvider(
           client: client,
           localStorage: localStorage,
           observer: analyticsObserver,
+          cacheManager: cacheManager,
         );
         provider.setActiveUser(localStorage.activeUser);
 
@@ -125,17 +131,24 @@ List<SingleChildWidget> buildModelProviders(
       },
       create: (context) {
         return UserProvider(
-            client: client, localStorage: storage, observer: observer);
+            client: client,
+            localStorage: storage,
+            observer: observer,
+            cacheManager: cacheManager);
       },
     ),
   ];
 }
 
-List<SingleChildWidget> buildServiceProviders(FirebaseClient firebaseClient,
-    FirebaseAnalyticsObserver analyticsObserver, LocalStorage localStorage) {
+List<SingleChildWidget> buildServiceProviders(
+    FirebaseClient firebaseClient,
+    FirebaseAnalyticsObserver analyticsObserver,
+    LocalStorage localStorage,
+    CacheManager cacheManager) {
   return [
     Provider<FirebaseClient>.value(value: firebaseClient),
     Provider<FirebaseAnalyticsObserver>.value(value: analyticsObserver),
     Provider<LocalStorage>.value(value: localStorage),
+    Provider<CacheManager>.value(value: cacheManager),
   ];
 }

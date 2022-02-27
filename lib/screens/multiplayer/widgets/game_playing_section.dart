@@ -39,19 +39,16 @@ class GamePlayingSection extends StatelessWidget {
               subtitle: Text("Turn to play: ${playing.displayname}",
                   style: TextStyle(color: Colors.grey.shade100)),
               title: Text(g.id, style: TextStyle(color: Colors.grey.shade100)),
-              trailing: IconButton(
-                // key: Key(PlayKeys.OPEN_GAME_BUTTON),
-                onPressed: () => onOpenGame(g),
-                icon: Icon(
-                  Icons.chevron_right,
-                  color: Colors.white,
-                ),
+              trailing: Icon(
+                Icons.arrow_downward,
+                color: Colors.white,
               ),
               children: [
                 ListView(
                   shrinkWrap: true,
                   children: [
                     MultiplayerGameStandings(
+                      //TODO funkar inte riktigt med namnen här eller väl inne i game viewn.. man får bara sitt egna.
                       game: g,
                       activeUser: activeUser,
                       otherUser: users.firstWhere((u) =>

@@ -32,15 +32,15 @@ class MultiplayerGameStandings extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _buildUserStanding(activeUserRounds),
-        _buildUserStanding(otherUserRounds)
+        _buildUserStanding(activeUserRounds, activeUser),
+        _buildUserStanding(otherUserRounds, otherUser)
       ],
     );
 
     //Visa denna även i gameList i details på alla rader. extensionTile...
   }
 
-  Widget _buildUserStanding(List<GameRound> rounds) {
+  Widget _buildUserStanding(List<GameRound> rounds, User user) {
     int points = rounds.fold(
         0, (int previousValue, element) => previousValue + element.points);
     return Column(
@@ -48,7 +48,7 @@ class MultiplayerGameStandings extends StatelessWidget {
         Row(
           children: [
             Text(
-              activeUser.displayname,
+              user.displayname,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,

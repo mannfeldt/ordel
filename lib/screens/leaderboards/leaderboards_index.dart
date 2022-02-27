@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
@@ -19,48 +20,90 @@ class LeaderboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer2<GameProvider, UserProvider>(
-      key: AppRouter.leaderboardScreenKey,
-      builder: (context, gameProvider, userProvider, child) => Loader(
-        controller: ScoreLoadingController(gameProvider),
-        result: Material(
-          type: MaterialType.transparency,
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 18.0, sigmaY: 18.0),
-            child: SafeArea(
-              child: Container(
-                margin: EdgeInsets.all(30),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  color: Colors.black87,
-                ),
+        key: AppRouter.leaderboardScreenKey,
+        builder: (context, gameProvider, userProvider, child) {
+          if (userProvider.activeUser!.isAnonymous) {
+            return SafeArea(
+              child: Center(
                 child: Column(
                   children: [
-                    Text(
-                      "total games played: ${gameProvider.allGames.length}",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    Text(
-                      "my games played: ${gameProvider.myGames.length}",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    const SizedBox(height: 10),
-                    GameStreakList(gameProvider
-                        .getUserLeaderBoard(gameProvider.currentUser!.uid)),
-                    const SizedBox(height: 10),
-                    LeaderBoard(gameProvider.leaderboard, userProvider.users!,
-                        gameProvider.currentUser!.uid),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text("close"),
-                    ),
+                    Container(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            "You must be a registered user to access leaderboard",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10, bottom: 10),
+                            child: TextButton(
+                              child: const Text(
+                                "Register or Login now",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              onPressed: () async {
+                                await userProvider.signOut();
+                                AppRouter.navigateTo(
+                                  context,
+                                  "/",
+                                  clearStack: true,
+                                  transition: TransitionType.fadeIn,
+                                  transitionDuration:
+                                      Duration(milliseconds: 50),
+                                );
+                              },
+                            ),
+                          )
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ),
+            );
+          }
+          return Loader(
+            controller: ScoreLoadingController(gameProvider),
+            result: Material(
+              type: MaterialType.transparency,
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 18.0, sigmaY: 18.0),
+                child: SafeArea(
+                  child: Container(
+                    margin: EdgeInsets.all(30),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      color: Colors.black87,
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          "total games played: ${gameProvider.allGames.length}",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Text(
+                          "my games played: ${gameProvider.myGames.length}",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        const SizedBox(height: 10),
+                        GameStreakList(gameProvider
+                            .getUserLeaderBoard(gameProvider.currentUser!.uid)),
+                        const SizedBox(height: 10),
+                        LeaderBoard(gameProvider.leaderboard,
+                            userProvider.users!, gameProvider.currentUser!.uid),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text("close"),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      ),
-    );
+          );
+        });
   }
 }
 

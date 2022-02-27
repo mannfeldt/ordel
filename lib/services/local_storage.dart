@@ -107,6 +107,37 @@ class LocalStorage {
     _languageCode = null;
   }
 
+  Future<void> clearUsers() async {
+    SharedPreferences prefs = await getPref();
+
+    await prefs.remove(LocalStorageKeys.USERS);
+  }
+
+  Future<void> storeUsers(List<User> users) async {
+    SharedPreferences prefs = await getPref();
+    await prefs.setString(
+        LocalStorageKeys.USERS,
+        json.encode({
+          "timestamp": Timestamp.now().millisecondsSinceEpoch,
+          "value": users.map((u) => u.toJson()).toList(),
+        }));
+  }
+
+  Future<CachedValue<List<User>>?> getUsers() async {
+    SharedPreferences prefs = await getPref();
+    String? s = prefs.getString(LocalStorageKeys.USERS);
+    if (s == null) return null;
+    dynamic jsonData = json.decode(s);
+    int timestamp = jsonData['timestamp'];
+    List<dynamic> schedule =
+        jsonData['value'].map((u) => User.fromJson(u)).toList();
+
+    CachedValue<List<User>> cachedValue = CachedValue(
+        Timestamp.fromMillisecondsSinceEpoch(timestamp),
+        schedule.cast<User>().toList());
+    return cachedValue;
+  }
+
   Future<void> init() async {
     String? lastLoggedInVersion = await getLastLoggedInVersion();
     final PackageInfo info = await PackageInfo.fromPlatform();
