@@ -32,7 +32,7 @@ void main() {
       createGame(user: "user1"),
       createGame(user: "user2"),
     ];
-    when(clientMock.getGames()).thenAnswer((_) async => games);
+    // when(clientMock.getSingleplayerGames()).thenAnswer((_) async => games);
     when(clientMock.user).thenReturn(User.empty(uid: "user1"));
     sut = GameProvider(
         client: clientMock, localStorage: localStorage, observer: observer);
@@ -64,7 +64,7 @@ void main() {
       createSingleplayerGameRound(user: "user1", win: true),
       createSingleplayerGameRound(user: "user1", win: true),
     ];
-    when(clientMock.getGames()).thenAnswer((_) async => games);
+    // when(clientMock.getGames()).thenAnswer((_) async => games);
     when(clientMock.user).thenReturn(User.empty(uid: "user1"));
     sut = GameProvider(
         client: clientMock, localStorage: localStorage, observer: observer);
@@ -109,7 +109,7 @@ void main() {
           user: "user2", win: true, date: DateTime(2019, 1, 3)),
       createSingleplayerGameRound(user: "user2", win: true),
     ];
-    when(clientMock.getGames()).thenAnswer((_) async => games);
+    // when(clientMock.getGames()).thenAnswer((_) async => games);
     when(clientMock.user).thenReturn(User.empty(uid: "user1"));
     sut = GameProvider(
         client: clientMock, localStorage: localStorage, observer: observer);
