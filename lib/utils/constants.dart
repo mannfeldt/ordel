@@ -275,6 +275,7 @@ class LocalStorageKeys {
   static const String LAST_LOGGED_IN_VERSION = "last_logged_in_version";
   static const String LANGUAGE = "language";
   static const String USERS = "users";
+  static const String ANON_GAMES = "anon_games";
 }
 
 class CloudFunctionName {

@@ -34,7 +34,7 @@ class SingleplayerGameRound extends GameRound {
       answer: answer,
       user: user,
       duration: duration,
-      finalGuess: guesses.last,
+      finalGuess: guesses.lastWhere((g) => g.isNotEmpty),
       winIndex: guesses.indexOf(answer),
     );
   }
@@ -51,15 +51,16 @@ class SingleplayerGameRound extends GameRound {
     String finalGuess = json['guess'];
     dynamic winIndexData = json['win'];
     int winIndex = int.tryParse(winIndexData) ?? -1;
+    int millisecondsSinceEpoch = json["date"];
 
     SingleplayerGameRound game = SingleplayerGameRound(
       answer: answer,
       language: lang,
       user: user,
       duration: duration,
-      date: date,
       finalGuess: winIndex > -1 ? answer : finalGuess,
       winIndex: winIndex,
+      date: DateTime.fromMillisecondsSinceEpoch(millisecondsSinceEpoch),
     );
 
     return game;
@@ -74,7 +75,7 @@ class SingleplayerGameRound extends GameRound {
       "lang": language,
       "user": user,
       if (duration != null) "dur": duration!.inMilliseconds,
-      "date": date,
+      "date": date.millisecondsSinceEpoch,
     };
   }
 }

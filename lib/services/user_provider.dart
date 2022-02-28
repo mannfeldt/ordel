@@ -99,6 +99,8 @@ class UserProvider with ChangeNotifier {
   Future<void> clearLocalStorage() async {
     await _localStorage.clearActiveUser();
     await _localStorage.clearLastLoggedInVersion();
+    await _localStorage.clearUsers();
+    await _localStorage.clearAnonGames();
   }
 
   Future<void> updateProfile(
@@ -122,9 +124,9 @@ class UserProvider with ChangeNotifier {
 //TODO problem med att nya användare inte skapas heller? körs inte alltid createUser??
 //TODO eller den skapas men med annat displayname/kod...
 // behöver helt enkelt debugga lite kring vad som händer här...
-    await _client.init();
-    _activeUser = await _client.getUser();
-    _activeUser ??= await _client.createUser();
+    _activeUser = await _client.init();
+    // _activeUser = await _client.getUser();
+    // _activeUser ??= await _client.createUser();
     _localStorage.storeActiveUser(_activeUser!);
     notifyListeners();
   }

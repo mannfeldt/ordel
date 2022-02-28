@@ -90,6 +90,7 @@ class LeaderboardScreen extends StatelessWidget {
                         GameStreakList(gameProvider
                             .getUserLeaderBoard(gameProvider.currentUser!.uid)),
                         const SizedBox(height: 10),
+                        //TODO leadboard är inte relevant för anonyma då de bara har sina egna.. så bara gamestreak som gäller
                         LeaderBoard(gameProvider.leaderboard,
                             userProvider.users!, gameProvider.currentUser!.uid),
                         TextButton(

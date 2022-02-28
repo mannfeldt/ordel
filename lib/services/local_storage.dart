@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ordel/models/game_round_model.dart';
 import 'package:ordel/utils/constants.dart';
 import 'package:ordel/models/user_model.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -20,9 +21,11 @@ class LocalStorage {
 
   User? _activeUser;
   String? _languageCode;
+  List<SingleplayerGameRound> _anonGames = [];
 
   User? get activeUser => _activeUser;
   String? get languageCode => _languageCode;
+  List<SingleplayerGameRound>? get anonGames => _anonGames;
 
   bool get isPossibleInfiniteLoop {
     _callsTimeStamps.add(DateTime.now());
@@ -138,6 +141,31 @@ class LocalStorage {
     return cachedValue;
   }
 
+  Future<void> storeAnonGame(SingleplayerGameRound game) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _anonGames.add(game);
+    await prefs.setString(LocalStorageKeys.ANON_GAMES,
+        json.encode(_anonGames.map((g) => g.toJson()).toList()));
+    _languageCode = languageCode;
+  }
+
+  Future<List<SingleplayerGameRound>> getAnonGames() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? anonGamesPref = prefs.getString(LocalStorageKeys.ANON_GAMES);
+    if (anonGamesPref == null) return [];
+    List<dynamic> anonGamesData = json.decode(anonGamesPref);
+    _anonGames = anonGamesData
+        .map((d) => SingleplayerGameRound.fromJson(anonGamesData))
+        .toList();
+    return _anonGames;
+  }
+
+  Future<void> clearAnonGames() async {
+    SharedPreferences prefs = await getPref();
+
+    await prefs.remove(LocalStorageKeys.ANON_GAMES);
+  }
+
   Future<void> init() async {
     String? lastLoggedInVersion = await getLastLoggedInVersion();
     final PackageInfo info = await PackageInfo.fromPlatform();
@@ -150,5 +178,6 @@ class LocalStorage {
       _activeUser = await getActiveUser();
       _languageCode = await getLanguage();
     }
+    _anonGames = await getAnonGames();
   }
 }

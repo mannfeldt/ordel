@@ -85,13 +85,6 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
   }
 
 //flutter build apk --target-platform android-arm,android-arm64,android-x64
-  //visa total stats kring vilken rank man har. bästa rundan osv.
-  //! när detta är på plats finns det lite att spela för och då är vi redo för att releasea version till play store.
-  //TODO vidare: lägg till stöd för flera språk. Ett språk har en KeyboardConfig som definerar vilka bokstäver som är på vilken rad
-  //TODO inkl var enter och delete är? Språket styr också vilken remoteconfig paramter vi hämtar upp för answers.
-  //TODO vi sprar språk till roundHistory också.
-  //TODO också en referens till en sråkfil. en json/property fil likt vi använder i pelabs. translations.dart kopiera rakt av typ.
-  //Tror jag kör allt på engelska tillsvidare dock.
 
   //skapa en Provider och klient för detta. Flytta upp _currentHistorik och _allHistorik dit
   //när man är klar med en runda så läggs det till i provider.currentHistorik osv.
@@ -134,18 +127,6 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        kReleaseMode ? "Word streak" : _answer,
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
-                          fontSize: 20,
-                        ),
-                      ),
-                    ],
-                  ),
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: Constants.horizontalPadding / 2),
@@ -162,11 +143,22 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
                             ),
                           ),
                         ),
-                        WinStreakText(
-                          getWinStreak(
-                              Provider.of<GameProvider>(context, listen: false)
+                        Column(
+                          children: [
+                            Text(
+                              kReleaseMode ? "Word streak" : _answer,
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: 20,
+                              ),
+                            ),
+                            WinStreakText(
+                              getWinStreak(Provider.of<GameProvider>(context,
+                                      listen: false)
                                   .myGames),
-                          size: 20,
+                              size: 20,
+                            ),
+                          ],
                         ),
                         SizedBox(width: 40),
                       ],

@@ -72,7 +72,11 @@ class MultiplayerProvider with ChangeNotifier {
 
   void _activeGameChanged(MultiplayerGame game) {
     _activeGame = game;
-
+//!
+    int activeGameIndex = _games!.indexWhere((g) => g.id == _activeGame!.id);
+    if (activeGameIndex > -1) {
+      _games![activeGameIndex] = _activeGame!;
+    }
     // this.ha
     notifyListeners();
   }
@@ -81,15 +85,23 @@ class MultiplayerProvider with ChangeNotifier {
     _activeGame!.activeGameRound.duration = duration;
     _activeGame!.activeGameRound.finalGuess =
         guesses.lastWhere((g) => g.isNotEmpty);
+
     _activeGame!.activeGameRound.winIndex =
         guesses.indexOf(_activeGame!.activeGameRound.answer);
+    //TODO index blir fel här....
+
     // forsätt härtyp
     //1. när man spelat sin runda så ser ligger den fortfarande under "my turn" innan man kör pull to refresh?
     // behöver vi synka _activegames till _games? saveRound följs av startNewRound som updaterar game
 
-    //TODO alltså typ göra de här ändringarna på _games[activegame] istället?
+    // TODO alltså typ göra de här ändringarna på _games[activegame] istället?
     //TODO eller båda?
-
+    //TODO när detta funkar så test sepla lite men två riktiga mobiler. kolla att pushnotiser osv fungerar..
+    //TODO släpp detta som en ny release. uppdatera i play store med nya screenshoots på rätt färger nu.
+    //TODO också nytt namn så man inte ser ordel... och sätt namnet till det jag vill...
+//TODO nytt namn? see keep/events kalender: ordna, ordning++, ordas, ordat, orda
+//TODO. Skapa nytt bygge och pushnotis som förklarar mig lite.. och tackar.
+//TODO svara också på reviews.
     // problemet jag ska ta tag i är här att när man spelat klart sin runda står den fortfarande under "my turn"
     // troligen synkas det inte tillräckligt bra..
 

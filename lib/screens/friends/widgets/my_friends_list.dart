@@ -107,6 +107,7 @@ class _MyFriendsListState extends State<MyFriendsList> {
                             onPressed: () => widget.removeFriend(u, context),
                             icon: Icon(
                               Icons.delete,
+                              color: Colors.white,
                             ),
                           ),
                         ))

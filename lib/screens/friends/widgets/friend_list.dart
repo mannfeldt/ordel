@@ -157,7 +157,7 @@ class _FriendListState extends State<FriendList>
                 ],
               ),
               IconButton(
-                onPressed: () => widget.userProvider.refreshUsers,
+                onPressed: () => widget.userProvider.refreshUsers(),
                 icon: Icon(Icons.refresh),
               )
             ],

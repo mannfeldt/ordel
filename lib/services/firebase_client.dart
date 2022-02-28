@@ -46,7 +46,7 @@ class FirebaseClient {
 
   User? get user => _activeUser;
 
-  Future<void> init() async {
+  Future<User> init() async {
     if (isPossibleInfiniteLoop) throw "POSSIBLE INFINITE LOOP";
     print("------------------firebase_client init---------------------");
     // _firestore ??= FirebaseFirestore.instance;
@@ -55,11 +55,21 @@ class FirebaseClient {
     _notificationService = PushNotificationsManager();
     _notificationService.init();
     _fcmToken = await _notificationService.getFcmToken();
-    _activeUser ??= User.generateUser(
-        uid: _auth.currentUser?.uid,
-        fcm: _fcmToken,
-        image: _auth.currentUser?.photoURL,
-        isAnonymous: _auth.currentUser?.isAnonymous ?? true);
+
+    _activeUser = await getUser();
+
+    if (_activeUser == null) {
+      _activeUser ??= User.generateUser(
+          uid: _auth.currentUser?.uid,
+          fcm: _fcmToken,
+          image: _auth.currentUser?.photoURL,
+          isAnonymous: _auth.currentUser?.isAnonymous ?? true);
+
+      if (!user!.isAnonymous) {
+        await _firestore.collection('users').doc(user!.uid).set(user!.toJson());
+      }
+    }
+    return user!;
   }
 
   Future<void> clear() async {
@@ -70,21 +80,21 @@ class FirebaseClient {
     await _auth.signOut();
   }
 
-  Future<User> createUser() async {
-    if (isPossibleInfiniteLoop) throw "POSSIBLE INFINITE LOOP";
-    print("------------------firebase_client createUser---------------------");
+  // Future<User> createUser() async {
+  //   if (isPossibleInfiniteLoop) throw "POSSIBLE INFINITE LOOP";
+  //   print("------------------firebase_client createUser---------------------");
 
-    // _activeUser ??= User.generateUser(
-    //     uid: _auth.currentUser?.uid,
-    //     fcm: _fcmToken,
-    //     image: _auth.currentUser?.photoURL,
-    //     isAnonymous: _auth.currentUser?.isAnonymous ?? true);
+  //   // _activeUser ??= User.generateUser(
+  //   //     uid: _auth.currentUser?.uid,
+  //   //     fcm: _fcmToken,
+  //   //     image: _auth.currentUser?.photoURL,
+  //   //     isAnonymous: _auth.currentUser?.isAnonymous ?? true);
 
-    if (!user!.isAnonymous) {
-      await _firestore.collection('users').doc(user!.uid).set(user!.toJson());
-    }
-    return user!;
-  }
+  //   if (!user!.isAnonymous) {
+  //     await _firestore.collection('users').doc(user!.uid).set(user!.toJson());
+  //   }
+  //   return user!;
+  // }
 
   Future<void> updateUserProfile(
       User user, bool newName, bool newColor, bool newNotification) async {
@@ -128,7 +138,7 @@ class FirebaseClient {
   Future<User?> getUser() async {
     if (isPossibleInfiniteLoop) throw "POSSIBLE INFINITE LOOP";
     print("------------------firebase_client getUser---------------------");
-    if (user?.isAnonymous ?? true) return null;
+    // if (user?.isAnonymous ?? true) return null;
     DocumentSnapshot doc =
         await _firestore.collection("users").doc(_auth.currentUser?.uid).get();
 

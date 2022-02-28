@@ -148,7 +148,12 @@ class GameProvider with ChangeNotifier {
     );
     _games.add(game);
     _leaderboard = getLeaderBoard();
-    await _client.createGame(game);
+
+    if (currentUser!.isAnonymous) {
+      await _localStorage.storeAnonGame(game);
+    } else {
+      await _client.createGame(game);
+    }
     notifyListeners();
   }
 }

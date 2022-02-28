@@ -30,7 +30,7 @@ class GameplayLoadController implements LoadController {
   @override
   Future load() {
     return Future.wait([
-      if (userProvider.users == null) userProvider.getUsers(),
+      if (userProvider.users == null) userProvider.refreshUsers(),
       if (!activeGameInitializeed)
         multiplayerProvider.initWithLiseners(
             gameId, mq, userProvider.activeUser!)
