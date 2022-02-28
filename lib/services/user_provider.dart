@@ -44,9 +44,12 @@ class UserProvider with ChangeNotifier {
   }
 
   void setActiveUser(User? user) {
+    //TODO här kommer vi in om det fanns användare sparat i minnet så vi loggas in direkt.
+    //TODO men sätts _client.activeuser då? det är viktigt va?
     if (user != null) {
       _activeUser = user;
       _localStorage.storeActiveUser(user);
+      _client.setActiveUser(user);
     }
     notifyListeners();
   }

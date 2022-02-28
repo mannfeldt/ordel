@@ -56,7 +56,9 @@ class FirebaseClient {
     _notificationService.init();
     _fcmToken = await _notificationService.getFcmToken();
 
-    _activeUser = await getUser();
+    if (_auth.currentUser != null) {
+      _activeUser = await getUser();
+    }
 
     if (_activeUser == null) {
       _activeUser ??= User.generateUser(
@@ -70,6 +72,10 @@ class FirebaseClient {
       }
     }
     return user!;
+  }
+
+  void setActiveUser(User user) {
+    _activeUser = user;
   }
 
   Future<void> clear() async {

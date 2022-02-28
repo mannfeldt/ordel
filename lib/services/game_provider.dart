@@ -125,7 +125,21 @@ class GameProvider with ChangeNotifier {
   }
 
   Future<void> getGames() async {
-    _games = await _client.getSingleplayerGames();
+    //wtf dett görs ju fortfarande...
+    if (currentUser?.isAnonymous ?? true) {
+      _games = await _localStorage.getAnonGames();
+    } else {
+      //TODO detta är väldigt onödit. används bara för leadboard som vi inte visar just nu..
+
+      //TODO fast vill ju kunna se streak även som inloggad... vilket försvinner här då..
+      //TODO så fixa till detta men med cache då...
+      _games = [];
+      fixa här med cahe. och även då i createGame så ska vi lägga till gamet i localstorage...
+
+      //kan vara rätt mycket lägnre cache lifetime här. då egna games alltid är upp to date och andras singleplayer games är inte så viktigt.
+      //kan sätta 24h initallt och sen öka i remoteconfig... dev så sätt den till 1-2min
+      // _games = await _client.getSingleplayerGames();
+    }
   }
 
   resetGames() {
@@ -152,6 +166,7 @@ class GameProvider with ChangeNotifier {
     if (currentUser!.isAnonymous) {
       await _localStorage.storeAnonGame(game);
     } else {
+      //TODO lägg också till i localstorage för cachningsyfte..
       await _client.createGame(game);
     }
     notifyListeners();
