@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ordel/utils/utils.dart';
 
 class SingleplayerGameRound extends GameRound {
@@ -42,15 +41,15 @@ class SingleplayerGameRound extends GameRound {
   factory SingleplayerGameRound.fromJson(dynamic json) {
     String answer = json['answer'];
     String user = json['user'];
-    Timestamp timestamp = json['date'];
-    DateTime date = DateTime.parse(timestamp.toDate().toString());
-
     String lang = json['lang'];
     int dur = json['dur'];
     Duration duration = Duration(milliseconds: dur);
-    String finalGuess = json['guess'];
-    dynamic winIndexData = json['win'];
-    int winIndex = int.tryParse(winIndexData) ?? -1;
+    String? finalGuess = json['guess'];
+    //TODO winIndex går att förenkla, det är ingen sträng?
+    //TODO problem med att guess saknas??
+    // dynamic winIndexData = json['win'];
+    // int winIndex = int.tryParse(winIndexData) ?? -1;
+    int winIndex = json['win'];
     int millisecondsSinceEpoch = json["date"];
 
     SingleplayerGameRound game = SingleplayerGameRound(

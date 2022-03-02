@@ -46,7 +46,7 @@ class FirebaseClient {
 
   User? get user => _activeUser;
 
-  Future<User> init() async {
+  Future<User> init(User? cachedUser) async {
     if (isPossibleInfiniteLoop) throw "POSSIBLE INFINITE LOOP";
     print("------------------firebase_client init---------------------");
     // _firestore ??= FirebaseFirestore.instance;
@@ -56,16 +56,17 @@ class FirebaseClient {
     _notificationService.init();
     _fcmToken = await _notificationService.getFcmToken();
 
-    if (_auth.currentUser != null) {
+    if (!(_auth.currentUser?.isAnonymous ?? true)) {
       _activeUser = await getUser();
     }
 
     if (_activeUser == null) {
-      _activeUser ??= User.generateUser(
-          uid: _auth.currentUser?.uid,
-          fcm: _fcmToken,
-          image: _auth.currentUser?.photoURL,
-          isAnonymous: _auth.currentUser?.isAnonymous ?? true);
+      _activeUser ??= cachedUser ??
+          User.generateUser(
+              uid: _auth.currentUser?.uid,
+              fcm: _fcmToken,
+              image: _auth.currentUser?.photoURL,
+              isAnonymous: _auth.currentUser?.isAnonymous ?? true);
 
       if (!user!.isAnonymous) {
         await _firestore.collection('users').doc(user!.uid).set(user!.toJson());
@@ -74,9 +75,9 @@ class FirebaseClient {
     return user!;
   }
 
-  void setActiveUser(User user) {
-    _activeUser = user;
-  }
+  // void setActiveUser(User user) {
+  //   _activeUser = user;
+  // }
 
   Future<void> clear() async {
     if (isPossibleInfiniteLoop) throw "POSSIBLE INFINITE LOOP";
@@ -104,6 +105,7 @@ class FirebaseClient {
 
   Future<void> updateUserProfile(
       User user, bool newName, bool newColor, bool newNotification) async {
+    _activeUser = user;
     await _firestore.collection('users').doc(user.uid).update({
       User.DISPLAYNAME_FIELD: user.displayname,
       User.COLOR_FIELD: user.colorString,

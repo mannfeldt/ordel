@@ -3,6 +3,8 @@ import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:ordel/models/user_model.dart';
 import 'package:ordel/navigation/app_router.dart';
+import 'package:ordel/services/game_provider.dart';
+import 'package:ordel/services/multiplayer_provider.dart';
 import 'package:ordel/services/user_provider.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:ordel/utils/colors_helper.dart';
@@ -314,6 +316,10 @@ class _ProfilePageState extends State<ProfilePage> {
               // key: Key(ProfileKeys.LOGOUT_BUTTON),
               onPressed: () async {
                 await widget.userProvider.signOut();
+                Provider.of<GameProvider>(context, listen: false).resetGames();
+                Provider.of<MultiplayerProvider>(context, listen: false)
+                    .resetGames();
+
                 AppRouter.navigateTo(
                   context,
                   "/",

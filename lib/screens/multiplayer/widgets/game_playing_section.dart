@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:ordel/models/language_model.dart';
 import 'package:ordel/models/multiplayer_game_model.dart';
 import 'package:ordel/models/user_model.dart';
 import 'package:ordel/screens/multiplayer/widgets/multiplayer_game_standings.dart';
@@ -7,15 +9,19 @@ class GamePlayingSection extends StatelessWidget {
   final List<MultiplayerGame> games;
   final List<User> users;
   final Function onOpenGame;
+  final Function onDeleteGame;
   final User activeUser;
+  final List<Language> languages;
 
-  const GamePlayingSection(
-      {Key? key,
-      required this.games,
-      required this.onOpenGame,
-      required this.activeUser,
-      required this.users})
-      : super(key: key);
+  const GamePlayingSection({
+    Key? key,
+    required this.games,
+    required this.onOpenGame,
+    required this.activeUser,
+    required this.users,
+    required this.languages,
+    required this.onDeleteGame,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +40,17 @@ class GamePlayingSection extends StatelessWidget {
               (u) => u.uid == g.currentPlayerUid,
               orElse: () => User.empty(),
             );
+            Language language = languages.firstWhere(
+                (l) => l.code == g.language,
+                orElse: () => Language("", ""));
             return ExpansionTile(
               // key: Key(PlayKeys.gameListItemForid(g.id)),
               subtitle: Text("Turn to play: ${playing.displayname}",
                   style: TextStyle(color: Colors.grey.shade100)),
-              title: Text(g.id, style: TextStyle(color: Colors.grey.shade100)),
+              title: Text(
+                kReleaseMode ? "${language.name} duel" : g.id,
+                style: TextStyle(color: Colors.grey.shade100),
+              ),
               trailing: Icon(
                 Icons.arrow_downward,
                 color: Colors.white,
@@ -48,7 +60,6 @@ class GamePlayingSection extends StatelessWidget {
                   shrinkWrap: true,
                   children: [
                     MultiplayerGameStandings(
-                      //TODO funkar inte riktigt med namnen här eller väl inne i game viewn.. man får bara sitt egna.
                       game: g,
                       activeUser: activeUser,
                       otherUser: users.firstWhere((u) =>
@@ -58,6 +69,13 @@ class GamePlayingSection extends StatelessWidget {
                       size: Size(
                         mq.size.width,
                         mq.size.height - mq.padding.top,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => onDeleteGame(g),
+                      icon: Icon(
+                        Icons.delete,
+                        color: Colors.grey.shade100,
                       ),
                     )
                   ],

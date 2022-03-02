@@ -42,7 +42,7 @@ class SessionProvider with ChangeNotifier {
   }
 
   initSession(String projectId, String? language) async {
-    await _client.init();
+    await _client.init(null);
     _localStorage.storeLastLoggedInVersion();
 
     _projectId = projectId;

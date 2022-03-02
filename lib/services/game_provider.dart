@@ -3,12 +3,14 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:ordel/models/game_round_model.dart';
 import 'package:ordel/models/user_model.dart';
+import 'package:ordel/services/cache_manager.dart';
 import 'package:ordel/services/firebase_client.dart';
 import 'package:ordel/services/local_storage.dart';
 
 class GameProvider with ChangeNotifier {
   final FirebaseClient _client;
   final LocalStorage _localStorage;
+  final CacheManager _cacheManager;
   // ignore: unused_field
   final FirebaseAnalyticsObserver _observer;
   bool _fetchingGames = false;
@@ -102,13 +104,15 @@ class GameProvider with ChangeNotifier {
 //Täkna ut sin bästa streak och jämför med alla andra användare se var man rankar.
   int get rank => 1;
 
-  GameProvider(
-      {required FirebaseClient client,
-      required LocalStorage localStorage,
-      required FirebaseAnalyticsObserver observer})
-      : _client = client,
+  GameProvider({
+    required FirebaseClient client,
+    required LocalStorage localStorage,
+    required FirebaseAnalyticsObserver observer,
+    required CacheManager cacheManager,
+  })  : _client = client,
         _localStorage = localStorage,
-        _observer = observer;
+        _observer = observer,
+        _cacheManager = cacheManager;
 
   loadGames() async {
     if (!_fetchingGames) {
@@ -125,20 +129,13 @@ class GameProvider with ChangeNotifier {
   }
 
   Future<void> getGames() async {
-    //wtf dett görs ju fortfarande...
+    //TODO Fokusera på felet med att man bli inloggad som random nonanonym användare när man kör restart inloggad som anonym....
+    //TODO troligen för att client.init kallas på utan cacheUser?
+    //TODO borde ha en cachUser för anon kanske? om vi inte har det.. jämför med inloggad som användare så funkar det ju..
     if (currentUser?.isAnonymous ?? true) {
       _games = await _localStorage.getAnonGames();
     } else {
-      //TODO detta är väldigt onödit. används bara för leadboard som vi inte visar just nu..
-
-      //TODO fast vill ju kunna se streak även som inloggad... vilket försvinner här då..
-      //TODO så fixa till detta men med cache då...
-      _games = [];
-      fixa här med cahe. och även då i createGame så ska vi lägga till gamet i localstorage...
-
-      //kan vara rätt mycket lägnre cache lifetime här. då egna games alltid är upp to date och andras singleplayer games är inte så viktigt.
-      //kan sätta 24h initallt och sen öka i remoteconfig... dev så sätt den till 1-2min
-      // _games = await _client.getSingleplayerGames();
+      _games = await _cacheManager.getSingleplayerGames();
     }
   }
 
@@ -164,10 +161,12 @@ class GameProvider with ChangeNotifier {
     _leaderboard = getLeaderBoard();
 
     if (currentUser!.isAnonymous) {
+      //TODO blivit någon hård koppling mellan _localStorage.anongames och _games här?
+      //TODO det som stääler til det?
       await _localStorage.storeAnonGame(game);
     } else {
-      //TODO lägg också till i localstorage för cachningsyfte..
       await _client.createGame(game);
+      await _localStorage.storeSingleplayerGames(_games);
     }
     notifyListeners();
   }

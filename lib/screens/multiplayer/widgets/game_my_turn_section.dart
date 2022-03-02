@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:ordel/models/language_model.dart';
 import 'package:ordel/models/multiplayer_game_model.dart';
 import 'package:ordel/models/user_model.dart';
 import 'package:ordel/screens/multiplayer/widgets/multiplayer_game_standings.dart';
@@ -6,8 +8,10 @@ import 'package:ordel/screens/multiplayer/widgets/multiplayer_game_standings.dar
 class GameMyTurnSection extends StatelessWidget {
   final List<MultiplayerGame> games;
   final Function onOpenGame;
+  final Function onDeleteGame;
   final List<User> users;
   final User activeUser;
+  final List<Language> languages;
 
   const GameMyTurnSection({
     Key? key,
@@ -15,6 +19,8 @@ class GameMyTurnSection extends StatelessWidget {
     required this.onOpenGame,
     required this.users,
     required this.activeUser,
+    required this.languages,
+    required this.onDeleteGame,
   }) : super(key: key);
 
 //TODO denna och activeSection så man kunna expandera och se progress. två kolumner en för varje spelare med 5 rader, en för varje omgång.
@@ -32,55 +38,60 @@ class GameMyTurnSection extends StatelessWidget {
           "My turn",
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
-        ...games
-            .map(
-              (g) => ExpansionTile(
-                // key: Key(PlayKeys.gameListItemForid(g.id)),
-                title:
-                    Text(g.id, style: TextStyle(color: Colors.grey.shade100)),
-                subtitle: Row(
-                  children: g.playerUids.map((p) {
-                    User user = users.firstWhere(
-                      (u) => u.uid == p,
-                      orElse: () => User.empty(),
-                    );
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 5.0),
-                      child: Text(user.displayname,
-                          style: TextStyle(color: Colors.grey.shade100)),
-                    );
-                  }).toList(),
-                ),
-                trailing: IconButton(
-                  // key: Key(PlayKeys.OPEN_GAME_BUTTON),
-                  onPressed: () => onOpenGame(g),
-                  icon: Icon(
-                    Icons.chevron_right,
-                    color: Colors.white,
-                  ),
-                ),
-                children: [
-                  ListView(
-                    shrinkWrap: true,
-                    children: [
-                      MultiplayerGameStandings(
-                        game: g,
-                        activeUser: activeUser,
-                        otherUser: users.firstWhere((u) =>
-                            u.uid ==
-                            g.playerUids
-                                .firstWhere((id) => id != activeUser.uid)),
-                        size: Size(
-                          mq.size.width,
-                          mq.size.height - mq.padding.top,
-                        ),
-                      )
-                    ],
-                  )
-                ],
+        ...games.map(
+          (g) {
+            User opponent = users.firstWhere(
+              (u) => u.uid != g.currentPlayerUid,
+              orElse: () => User.empty(),
+            );
+            Language language = languages.firstWhere(
+                (l) => l.code == g.language,
+                orElse: () => Language("", ""));
+            return ExpansionTile(
+              // key: Key(PlayKeys.gameListItemForid(g.id)),
+              title: Text(
+                kReleaseMode ? "${language.name} duel" : g.id,
+                style: TextStyle(color: Colors.grey.shade100),
               ),
-            )
-            .toList(),
+              subtitle: Text("Opponent: ${opponent.displayname}",
+                  style: TextStyle(color: Colors.grey.shade100)),
+              trailing: IconButton(
+                // key: Key(PlayKeys.OPEN_GAME_BUTTON),
+                onPressed: () => onOpenGame(g),
+                icon: Icon(
+                  Icons.chevron_right,
+                  color: Colors.white,
+                ),
+              ),
+              children: [
+                ListView(
+                  shrinkWrap: true,
+                  children: [
+                    MultiplayerGameStandings(
+                      game: g,
+                      activeUser: activeUser,
+                      otherUser: users.firstWhere((u) =>
+                          u.uid ==
+                          g.playerUids
+                              .firstWhere((id) => id != activeUser.uid)),
+                      size: Size(
+                        mq.size.width,
+                        mq.size.height - mq.padding.top,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => onDeleteGame(g),
+                      icon: Icon(
+                        Icons.delete,
+                        color: Colors.grey.shade100,
+                      ),
+                    )
+                  ],
+                )
+              ],
+            );
+          },
+        ).toList(),
         Divider(),
         SizedBox(
           height: 20,

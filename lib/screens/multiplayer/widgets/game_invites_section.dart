@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:ordel/models/language_model.dart';
 import 'package:ordel/models/multiplayer_game_model.dart';
 import 'package:ordel/models/user_model.dart';
 import 'package:ordel/widgets/user_tile.dart';
@@ -9,15 +11,17 @@ class GameInvitesSection extends StatelessWidget {
   final User me;
   final Function onAcceptInvite;
   final Function onDeclineInvite;
+  final List<Language> languages;
 
-  const GameInvitesSection(
-      {Key? key,
-      required this.games,
-      required this.users,
-      required this.me,
-      required this.onAcceptInvite,
-      required this.onDeclineInvite})
-      : super(key: key);
+  const GameInvitesSection({
+    Key? key,
+    required this.games,
+    required this.users,
+    required this.me,
+    required this.onAcceptInvite,
+    required this.onDeclineInvite,
+    required this.languages,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +41,17 @@ class GameInvitesSection extends StatelessWidget {
               (u) => u.uid == g.host,
               orElse: () => User.empty(),
             );
+            Language language = languages.firstWhere(
+                (l) => l.code == g.language,
+                orElse: () => Language("", ""));
             return ExpansionTile(
               // key: Key(PlayKeys.gameListItemForid(g.id)),
-              title: Text(g.id, style: TextStyle(color: Colors.grey.shade100)),
+              title: Text(
+                kReleaseMode
+                    ? "${language.name} duel"
+                    : "${language.name} duel",
+                style: TextStyle(color: Colors.grey.shade100),
+              ),
               subtitle: Text("Invited by ${host.displayname}",
                   style: TextStyle(color: Colors.grey.shade100)),
               trailing: Row(

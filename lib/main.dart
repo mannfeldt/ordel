@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutterfire_ui/auth.dart';
 import 'package:native_updater/native_updater.dart';
+import 'package:ordel/services/game_provider.dart';
 import 'package:ordel/services/providers.dart';
 import 'package:ordel/services/session_provider.dart';
 import 'package:ordel/navigation/app_router.dart';
@@ -131,6 +132,8 @@ class _AppRootState extends State<AppRoot> {
                         await FirebaseAuth.instance.signInAnonymously();
 
                         await userProvider.initUser();
+                        await Provider.of<GameProvider>(context, listen: false)
+                            .loadGames();
                       },
                       child: const Text("Anonym"),
                     ),
@@ -138,8 +141,10 @@ class _AppRootState extends State<AppRoot> {
                   ],
                 ),
                 actions: [
-                  AuthStateChangeAction<SignedIn>((context, state) {
-                    userProvider.initUser();
+                  AuthStateChangeAction<SignedIn>((context, state) async {
+                    await userProvider.initUser();
+                    await Provider.of<GameProvider>(context, listen: false)
+                        .loadGames();
                   }),
                 ],
               ),

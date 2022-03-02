@@ -1,5 +1,7 @@
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:ordel/models/language_model.dart';
 import 'package:ordel/models/multiplayer_game_model.dart';
 import 'package:ordel/models/user_model.dart';
 import 'package:ordel/screens/multiplayer/widgets/game_finished_section.dart';
@@ -53,7 +55,14 @@ class MyGamesList extends StatelessWidget {
 
     List<MultiplayerGame> gamesFinished =
         games.where((g) => g.isFinished).toList();
-//TODO design till dessa lite mer. ta bort id och sätt bättre info. kanske ta med start datum?
+
+    List<Language> supportedLanguages = RemoteConfig.instance
+        .getString("supported_languages")
+        .split(",")
+        .toList()
+        .map((l) => Language(l.split(":").first, l.split(":").last))
+        .toList();
+
     return ListView(
       // key: Key(PlayKeys.MY_GAMES_LIST),
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 30),
@@ -65,6 +74,7 @@ class MyGamesList extends StatelessWidget {
             me: me,
             onAcceptInvite: onAcceptInvite,
             onDeclineInvite: onDeclineInvite,
+            languages: supportedLanguages,
           ),
         if (gamesMyTurn.isNotEmpty)
           GameMyTurnSection(
@@ -72,6 +82,13 @@ class MyGamesList extends StatelessWidget {
             games: gamesMyTurn,
             activeUser: me,
             onOpenGame: onOpenGame,
+            //TODO skulle kunna förbättre delete pågånede game till abandonGame
+            //TODO och hantera det sngygare som att man bara tar bort sig själv och ändrar status/sätter abandonedUid:
+            //TODO alltså ta bort användaren direkt från game.playerUids men spara undan uid så andra anvädnaren kan se och ta bort gamet helt
+            //TODO kanske även med en notis att "blabla have abandoned the game.."
+            //TODO så användare2 kan se gamet under finishedGames t.ex. och ta bort det på riktigt där då.
+            onDeleteGame: onDeleteGame,
+            languages: supportedLanguages,
           ),
         if (gamesPlaying.isNotEmpty)
           GamePlayingSection(
@@ -79,6 +96,8 @@ class MyGamesList extends StatelessWidget {
             users: users,
             activeUser: me,
             onOpenGame: onOpenGame,
+            onDeleteGame: onDeleteGame,
+            languages: supportedLanguages,
           ),
         if (gamesPending.isNotEmpty)
           GamePendingSection(
@@ -86,6 +105,7 @@ class MyGamesList extends StatelessWidget {
             users: users,
             onDeleteGame: onDeleteGame,
             me: me,
+            languages: supportedLanguages,
           ),
         if (gamesFinished.isNotEmpty)
           GameFinishedSection(

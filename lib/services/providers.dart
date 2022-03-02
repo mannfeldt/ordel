@@ -26,8 +26,8 @@ Future<List<SingleChildWidget>> bootstrap() async {
   FirebaseOptions options = inst.options;
 
   final firebaseClient = FirebaseClient(analyticsObserver, localStorage);
-  await firebaseClient.init();
   await localStorage.init();
+  await firebaseClient.init(localStorage.activeUser);
 
   RemoteConfig remoteConfig = RemoteConfig.instance;
   await remoteConfig.setConfigSettings(
@@ -42,6 +42,7 @@ Future<List<SingleChildWidget>> bootstrap() async {
     "answers_sv": "BJÖRK,AKTIE",
     "supported_languages": "en:English,sv:Svenska",
     "users_cache_seconds": 30,
+    "singleplayer_games_cache_seconds": 30,
   });
   await remoteConfig.fetchAndActivate();
 
@@ -92,12 +93,20 @@ List<SingleChildWidget> buildModelProviders(
           client: client,
           localStorage: localStorage,
           observer: analyticsObserver,
+          cacheManager: cacheManager,
         );
+        if (client.user != null) {
+          provider.loadGames();
+        }
         return provider;
       },
       create: (context) {
         return GameProvider(
-            client: client, localStorage: storage, observer: observer);
+          client: client,
+          localStorage: storage,
+          observer: observer,
+          cacheManager: cacheManager,
+        );
       },
     ),
     ChangeNotifierProxyProvider3<FirebaseClient, FirebaseAnalyticsObserver,
@@ -125,7 +134,6 @@ List<SingleChildWidget> buildModelProviders(
           observer: analyticsObserver,
           cacheManager: cacheManager,
         );
-        provider.setActiveUser(localStorage.activeUser);
 
         return provider;
       },

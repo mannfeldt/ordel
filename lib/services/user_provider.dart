@@ -15,7 +15,6 @@ class UserProvider with ChangeNotifier {
 
   List<User>? _users;
   List<User>? _followers;
-  User? _activeUser;
 
   UserProvider(
       {required FirebaseClient client,
@@ -29,12 +28,11 @@ class UserProvider with ChangeNotifier {
 
   List<User>? get users => _users;
   List<User>? get followers => _followers;
-  User? get activeUser => _activeUser;
-  bool get isLoggedIn => _activeUser != null;
+  User? get activeUser => _client.user;
+  bool get isLoggedIn => activeUser != null;
   bool get asdf => _client.user != null;
 
   Future<void> signOut() async {
-    _activeUser = null;
     _localStorage.clearActiveUser();
     await _client.clear();
 
@@ -43,16 +41,16 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void setActiveUser(User? user) {
-    //TODO här kommer vi in om det fanns användare sparat i minnet så vi loggas in direkt.
-    //TODO men sätts _client.activeuser då? det är viktigt va?
-    if (user != null) {
-      _activeUser = user;
-      _localStorage.storeActiveUser(user);
-      _client.setActiveUser(user);
-    }
-    notifyListeners();
-  }
+  // void setActiveUser(User? user) {
+  //   //TODO här kommer vi in om det fanns användare sparat i minnet så vi loggas in direkt.
+  //   //TODO men sätts _client.activeuser då? det är viktigt va?
+  //   if (user != null) {
+  //     _activeUser = user;
+  //     _localStorage.storeActiveUser(user);
+  //     _client.setActiveUser(user);
+  //   }
+  //   notifyListeners();
+  // }
 
   Future<List<User>> getUsers() async {
     //TODO cacha båda dessa likt F1. med duration från remote config
@@ -108,16 +106,24 @@ class UserProvider with ChangeNotifier {
 
   Future<void> updateProfile(
       String displayName, String color, bool notification) async {
-    bool newName = displayName != _activeUser!.displayname;
-    bool newColor = color != _activeUser!.colorString;
+    bool newName = displayName != activeUser!.displayname;
+    bool newColor = color != activeUser!.colorString;
     bool newNotification = notification != hasActivePushNotifications;
     // bool newNotification = false;
     if (newName || newColor || newNotification) {
-      _activeUser!.colorString = color;
-      _activeUser!.displayname = displayName;
-      _activeUser!.fcm = notification ? _client.fcmToken : "fail";
-      await _client.updateUserProfile(
-          _activeUser!, newName, newColor, notification);
+      User newUser = User(
+          colorString: color,
+          displayname: displayName,
+          fcm: notification ? _client.fcmToken : "fail",
+          image: activeUser!.image,
+          uid: activeUser!.uid,
+          username: activeUser!.username,
+          friendsUids: activeUser!.friendsUids,
+          isAnonymous: activeUser!.isAnonymous);
+      // _activeUser!.colorString = color;
+      // _activeUser!.displayname = displayName;
+      // _activeUser!.fcm = notification ? _client.fcmToken : "fail";
+      await _client.updateUserProfile(newUser, newName, newColor, notification);
       notifyListeners();
     }
   }
@@ -127,15 +133,15 @@ class UserProvider with ChangeNotifier {
 //TODO problem med att nya användare inte skapas heller? körs inte alltid createUser??
 //TODO eller den skapas men med annat displayname/kod...
 // behöver helt enkelt debugga lite kring vad som händer här...
-    _activeUser = await _client.init();
+    await _client.init(null);
     // _activeUser = await _client.getUser();
     // _activeUser ??= await _client.createUser();
-    _localStorage.storeActiveUser(_activeUser!);
+    _localStorage.storeActiveUser(activeUser!);
     notifyListeners();
   }
 
   bool get hasActivePushNotifications =>
-      _activeUser?.fcm != null && _activeUser!.fcm == _client.fcmToken;
+      activeUser?.fcm != null && activeUser!.fcm == _client.fcmToken;
 
   Future<void> resetUsers() async {
     _users = null;

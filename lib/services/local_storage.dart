@@ -25,7 +25,7 @@ class LocalStorage {
 
   User? get activeUser => _activeUser;
   String? get languageCode => _languageCode;
-  List<SingleplayerGameRound>? get anonGames => _anonGames;
+  List<SingleplayerGameRound> get anonGames => _anonGames;
 
   bool get isPossibleInfiniteLoop {
     _callsTimeStamps.add(DateTime.now());
@@ -132,21 +132,20 @@ class LocalStorage {
     if (s == null) return null;
     dynamic jsonData = json.decode(s);
     int timestamp = jsonData['timestamp'];
-    List<dynamic> schedule =
+    List<dynamic> usersData =
         jsonData['value'].map((u) => User.fromJson(u)).toList();
 
     CachedValue<List<User>> cachedValue = CachedValue(
         Timestamp.fromMillisecondsSinceEpoch(timestamp),
-        schedule.cast<User>().toList());
+        usersData.cast<User>().toList());
     return cachedValue;
   }
 
   Future<void> storeAnonGame(SingleplayerGameRound game) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _anonGames.add(game);
+    // _anonGames.add(game);
     await prefs.setString(LocalStorageKeys.ANON_GAMES,
         json.encode(_anonGames.map((g) => g.toJson()).toList()));
-    _languageCode = languageCode;
   }
 
   Future<List<SingleplayerGameRound>> getAnonGames() async {
@@ -154,9 +153,8 @@ class LocalStorage {
     String? anonGamesPref = prefs.getString(LocalStorageKeys.ANON_GAMES);
     if (anonGamesPref == null) return [];
     List<dynamic> anonGamesData = json.decode(anonGamesPref);
-    _anonGames = anonGamesData
-        .map((d) => SingleplayerGameRound.fromJson(anonGamesData))
-        .toList();
+    _anonGames =
+        anonGamesData.map((d) => SingleplayerGameRound.fromJson(d)).toList();
     return _anonGames;
   }
 
@@ -164,6 +162,40 @@ class LocalStorage {
     SharedPreferences prefs = await getPref();
 
     await prefs.remove(LocalStorageKeys.ANON_GAMES);
+  }
+
+  Future<void> storeSingleplayerGames(List<SingleplayerGameRound> games) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString(
+        LocalStorageKeys.SINGLEPLAYER_GAMES,
+        json.encode({
+          "timestamp": Timestamp.now().millisecondsSinceEpoch,
+          "value": games.map((u) => u.toJson()).toList(),
+        }));
+  }
+
+  Future<CachedValue<List<SingleplayerGameRound>>?>
+      getSingleplayerGames() async {
+    SharedPreferences prefs = await getPref();
+    String? s = prefs.getString(LocalStorageKeys.SINGLEPLAYER_GAMES);
+    if (s == null) return null;
+    dynamic jsonData = json.decode(s);
+    int timestamp = jsonData['timestamp'];
+    List<dynamic> gamesData = jsonData['value']
+        .map((g) => SingleplayerGameRound.fromJson(g))
+        .toList();
+
+    CachedValue<List<SingleplayerGameRound>> cachedValue = CachedValue(
+        Timestamp.fromMillisecondsSinceEpoch(timestamp),
+        gamesData.cast<SingleplayerGameRound>().toList());
+    return cachedValue;
+  }
+
+  Future<void> clearSingleplayerGames() async {
+    SharedPreferences prefs = await getPref();
+
+    await prefs.remove(LocalStorageKeys.SINGLEPLAYER_GAMES);
   }
 
   Future<void> init() async {
