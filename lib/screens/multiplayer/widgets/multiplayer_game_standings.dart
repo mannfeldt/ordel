@@ -21,10 +21,6 @@ class MultiplayerGameStandings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //
-    //TODO en rad med två columner. namn överst ivarje kolumn sen en rad per omgång som multiplayer spelas i.
-    //TODO finns ingen på det indexet så visas bara svarata rutor utan någon bokstav, eller med frågetecken kanke.
-    //annars visas en WordRow med rätt färger och ev poäng för varje rad? total poäng visas upptill vid användarnamnet.
     List<GameRound> activeUserRounds =
         game.rounds.where((r) => r.user == activeUser.uid).toList();
     List<GameRound> otherUserRounds =

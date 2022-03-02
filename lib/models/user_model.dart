@@ -49,6 +49,7 @@ class User {
     String? image = json[IMAGE_FIELD];
     String displayname = json[DISPLAYNAME_FIELD];
     String color = json[COLOR_FIELD];
+    bool isAnon = json["anon"] != null;
 
     Map<String, dynamic>? friendsMap = json[FRIENDS_FIELD];
 
@@ -59,6 +60,7 @@ class User {
       image: image,
       displayname: displayname,
       colorString: color,
+      isAnonymous: isAnon,
     );
     if (friendsMap != null) {
       user.friendsUids = friendsMap.values.map((f) => f.toString()).toList();
@@ -99,6 +101,7 @@ class User {
       DISPLAYNAME_FIELD: displayname,
       COLOR_FIELD: colorString,
       if (image != null) IMAGE_FIELD: image,
+      if (isAnonymous) "anon": true
     };
   }
 

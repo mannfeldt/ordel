@@ -82,11 +82,11 @@ class MyGamesList extends StatelessWidget {
             games: gamesMyTurn,
             activeUser: me,
             onOpenGame: onOpenGame,
-            //TODO skulle kunna förbättre delete pågånede game till abandonGame
-            //TODO och hantera det sngygare som att man bara tar bort sig själv och ändrar status/sätter abandonedUid:
-            //TODO alltså ta bort användaren direkt från game.playerUids men spara undan uid så andra anvädnaren kan se och ta bort gamet helt
-            //TODO kanske även med en notis att "blabla have abandoned the game.."
-            //TODO så användare2 kan se gamet under finishedGames t.ex. och ta bort det på riktigt där då.
+            //! skulle kunna förbättre delete pågånede game till abandonGame
+            // och hantera det sngygare som att man bara tar bort sig själv och ändrar status/sätter abandonedUid:
+            // alltså ta bort användaren direkt från game.playerUids men spara undan uid så andra anvädnaren kan se och ta bort gamet helt
+            // kanske även med en notis att "blabla have abandoned the game.."
+            // så användare2 kan se gamet under finishedGames t.ex. och ta bort det på riktigt där då.
             onDeleteGame: onDeleteGame,
             languages: supportedLanguages,
           ),

@@ -30,14 +30,6 @@ class GameProvider with ChangeNotifier {
 
   User? get currentUser => _client.user;
 
-//TODO hämta upp de det bästa man gjort. visa upp det visuellt kanske.
-//TODO snyggt med scrollbar lista där man kan se en avkortad variant av gameGrid för varje runda.
-//TODO Men börja med att bara visa upp siffra för rekord i dialog på stats.
-//TODO snyggast vore att mappa ihop omgångar så man kan se en trend över hur det går
-
-//TODO tvådemsnionell lista då. lista med listor av WordleGame. kan ha en linjediagram över trend
-//TODO se hur man förbättrar sig.
-//TODO retunera bara de som är minst 2 vinster i rad.
   List<List<SingleplayerGameRound>> get myStreaks {
     List<SingleplayerGameRound> games = myGames;
     List<List<SingleplayerGameRound>> streaks = [];
@@ -66,7 +58,6 @@ class GameProvider with ChangeNotifier {
     return _leaderboard.where((streak) => streak.first.user == userId).toList();
   }
 
-//TODO denna här kan vara väldigt tung. kanske ska göra den initalt. ha en laddad leaderboard variabel som kan hämtas..
   List<List<SingleplayerGameRound>> getLeaderBoard() {
     List<SingleplayerGameRound> games = List.from(allGames);
 
@@ -98,9 +89,9 @@ class GameProvider with ChangeNotifier {
     return streaks;
   }
 
-//TODO statiskt över top ord man klarar. ord man klarar minst.
+// statiskt över top ord man klarar. ord man klarar minst.
 
-//TODO räkna ut sin tank. eller en hel highscore kan det vara då.. men behöver skapa users collection då
+// räkna ut sin tank. eller en hel highscore kan det vara då.. men behöver skapa users collection då
 //Täkna ut sin bästa streak och jämför med alla andra användare se var man rankar.
   int get rank => 1;
 
@@ -129,13 +120,10 @@ class GameProvider with ChangeNotifier {
   }
 
   Future<void> getGames() async {
-    //TODO Fokusera på felet med att man bli inloggad som random nonanonym användare när man kör restart inloggad som anonym....
-    //TODO troligen för att client.init kallas på utan cacheUser?
-    //TODO borde ha en cachUser för anon kanske? om vi inte har det.. jämför med inloggad som användare så funkar det ju..
     if (currentUser?.isAnonymous ?? true) {
       _games = await _localStorage.getAnonGames();
     } else {
-      _games = await _cacheManager.getSingleplayerGames();
+      _games = await _cacheManager.getSingleplayerGames(currentUser!);
     }
   }
 
@@ -161,12 +149,10 @@ class GameProvider with ChangeNotifier {
     _leaderboard = getLeaderBoard();
 
     if (currentUser!.isAnonymous) {
-      //TODO blivit någon hård koppling mellan _localStorage.anongames och _games här?
-      //TODO det som stääler til det?
       await _localStorage.storeAnonGame(game);
     } else {
       await _client.createGame(game);
-      await _localStorage.storeSingleplayerGames(_games);
+      await _localStorage.storeSingleplayerGames(_games, currentUser!);
     }
     notifyListeners();
   }

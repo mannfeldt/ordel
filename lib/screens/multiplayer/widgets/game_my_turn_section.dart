@@ -13,6 +13,25 @@ class GameMyTurnSection extends StatelessWidget {
   final User activeUser;
   final List<Language> languages;
 
+  //TODO dialogen när sisa spelaren körs. med rematch val osv. Visa resultet där och om man vann/förlora.
+
+//TODO problem med notis när det är ens tur. händer inget när man klickarp åden. inte ens appen öppnas??
+//fixa minst till det att appen öppnas.. helst öppna dueltabben
+
+//TODO hur är det med poängen. blir bara 25 på allt? är det något fel på fold sammanställningen?
+
+//todo FIXA statspage? se taiga. direkt via knapp från singleplayer vyn. Leadrboardtabben kanske ersätts också av knapp inne i gamelist vyn?
+//todo något enkelt först. bara sitt egna best streak och % win, total games player,
+//todo lägg senare till rank/leaderboard: vilket kräver att vi sparar beststreak på user.
+
+  //TODO släpp detta som en ny release. uppdatera i play store med nya screenshoots på rätt färger nu.
+  //TODO också nytt namn så man inte ser ordel... och sätt namnet till det jag vill...
+//TODO nytt namn? see keep/events kalender: ordna, ordning++, ordas, ordat, orda
+//TODO. Skapa nytt bygge och pushnotis som förklarar mig lite.. och tackar.
+//TODO svara också på reviews.
+//TODO lägg upp en bättre beskrvining a features osv.
+//TODO -unlimited wordle in Swedish or English. -multiplayer duels with friends
+
   const GameMyTurnSection({
     Key? key,
     required this.games,
@@ -23,11 +42,6 @@ class GameMyTurnSection extends StatelessWidget {
     required this.onDeleteGame,
   }) : super(key: key);
 
-//TODO denna och activeSection så man kunna expandera och se progress. två kolumner en för varje spelare med 5 rader, en för varje omgång.
-//visa poängen för varje rad vad ordet var osv. snyggt. Visa det som grönt om man hade rätt. Visa det som blandadde färger efter finalGuess om man hade fel
-//TODO när man klickar play så kommer man direkt till gamePlay.dart med lite annorulnda header bara som visar vilken omgång man är på. kanske visar en mini variant av historiken för tidigare rundor (likt översiken i expenaderbara)
-//TODO när man spelat klart sin runda, onfinished. Så får man en dialog om att välja ett ord till motståndaren om det finns rundor kvar att spela.
-//TODO ANnars presenteras man med slutresultatet i en dialog och kan välja rematch eller "ok" för att komma tillbaka till gameList.
   @override
   Widget build(BuildContext context) {
     MediaQueryData mq = MediaQuery.of(context);

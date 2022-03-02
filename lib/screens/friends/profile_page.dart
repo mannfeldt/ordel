@@ -190,7 +190,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                     value, me.displayname),
                                 controller: displayNameController,
                                 maxLength: 32,
-                                maxLengthEnforced: true,
                                 decoration: InputDecoration(
                                   contentPadding: EdgeInsets.only(bottom: 0),
                                   border: UnderlineInputBorder(

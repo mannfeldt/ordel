@@ -1,6 +1,6 @@
 import 'package:ordel/models/game_round_model.dart';
 
-GameRound createGame({
+GameRound createGameFromGuesses({
   String answer = "answer",
   List<String> guesses = const [],
   Duration? duration,
@@ -10,6 +10,22 @@ GameRound createGame({
   return GameRound.fromGuesses(
     answer: answer,
     guesses: guesses.isEmpty && win ? [answer] : guesses,
+    duration: duration ?? const Duration(seconds: 30),
+    user: user,
+  );
+}
+
+GameRound createGame({
+  String answer = "answer",
+  String? finalGuess,
+  Duration? duration,
+  String user = "user1",
+  int winIndex = -1,
+}) {
+  return GameRound(
+    answer: answer,
+    finalGuess: finalGuess,
+    winIndex: winIndex,
     duration: duration ?? const Duration(seconds: 30),
     user: user,
   );

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:native_updater/native_updater.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:store_redirect/store_redirect.dart';
 
@@ -14,7 +13,6 @@ class VersionChecker {
     final RemoteConfig remoteConfig = RemoteConfig.instance;
 
     String minAppVersion = remoteConfig.getString("min_app_version");
-    String minAppVersion2 = remoteConfig.getString("changelog");
 
     // NativeUpdater.displayUpdateAlert(
     //   context,

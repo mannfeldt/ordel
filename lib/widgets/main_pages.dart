@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:native_updater/native_updater.dart';
 import 'package:ordel/screens/friends/friends_screen.dart';
 import 'package:ordel/screens/multiplayer/multiplayer_index.dart';
 import 'package:ordel/screens/singleplayer/singleplayer_index.dart';
@@ -26,7 +25,6 @@ class _MainPagesState extends State<MainPages> {
   late int _selectedPageIndex;
   final bool _disablePageScroll = false;
   late PageController pageController;
-  final bool _versionCheckerDialogIsOpen = false;
   @override
   void initState() {
     _selectedPageIndex = widget.initialPageIndex;
@@ -89,7 +87,7 @@ class _MainPagesState extends State<MainPages> {
           FriendsScreen(
             key: const Key(MainKeys.FRIEND_SCREEN),
           ),
-          //TODO tar bort leadboard tillsvidare. behöver lägga in cachning osv på den..
+          //! tar bort leadboard tillsvidare. behöver lägga in cachning osv på den..
           // LeaderboardScreen(
           //   key: const Key(MainKeys.LEADERBOARD_SCREEN),
           // ),

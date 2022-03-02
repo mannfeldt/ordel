@@ -97,7 +97,7 @@ class MultiplayerGame {
   GameRound get activeGameRound =>
       rounds.firstWhere((round) => !round.isPlayed, orElse: () => rounds.first);
 
-//TODO här definerar vi hur många rundor ett game är..
+//här definerar vi hur många rundor ett game är..
   bool get isFinished =>
       rounds.length == Constants.multiplayerRounds * 2 &&
       rounds.every((round) => round.isPlayed);

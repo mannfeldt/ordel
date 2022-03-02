@@ -50,7 +50,7 @@ class _MyFriendsListState extends State<MyFriendsList> {
               if (t is ScrollStartNotification) {
                 focusNode.unfocus();
               }
-              return true; //TODO vad är detta?
+              return true; // vad är detta?
             },
             child: ListView(
               children: [

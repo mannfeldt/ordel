@@ -52,12 +52,9 @@ class GameFinishedSection extends StatelessWidget {
                   color: Colors.white,
                 ),
               ),
-              trailing: IconButton(
-                onPressed: () => onOpenGame(g),
-                icon: Icon(
-                  Icons.chevron_right,
-                  color: Colors.white,
-                ),
+              trailing: Icon(
+                Icons.arrow_downward,
+                color: Colors.white,
               ),
               children: [
                 ListView(

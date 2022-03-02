@@ -164,21 +164,22 @@ class LocalStorage {
     await prefs.remove(LocalStorageKeys.ANON_GAMES);
   }
 
-  Future<void> storeSingleplayerGames(List<SingleplayerGameRound> games) async {
+  Future<void> storeSingleplayerGames(
+      List<SingleplayerGameRound> games, User user) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     await prefs.setString(
-        LocalStorageKeys.SINGLEPLAYER_GAMES,
+        LocalStorageKeys.SINGLEPLAYER_GAMES + user.uid,
         json.encode({
           "timestamp": Timestamp.now().millisecondsSinceEpoch,
           "value": games.map((u) => u.toJson()).toList(),
         }));
   }
 
-  Future<CachedValue<List<SingleplayerGameRound>>?>
-      getSingleplayerGames() async {
+  Future<CachedValue<List<SingleplayerGameRound>>?> getSingleplayerGames(
+      User user) async {
     SharedPreferences prefs = await getPref();
-    String? s = prefs.getString(LocalStorageKeys.SINGLEPLAYER_GAMES);
+    String? s = prefs.getString(LocalStorageKeys.SINGLEPLAYER_GAMES + user.uid);
     if (s == null) return null;
     dynamic jsonData = json.decode(s);
     int timestamp = jsonData['timestamp'];
@@ -203,9 +204,14 @@ class LocalStorage {
     final PackageInfo info = await PackageInfo.fromPlatform();
     if (lastLoggedInVersion == null || lastLoggedInVersion != info.version) {
       //app has updated
-      clearActiveUser();
-      clearLastLoggedInVersion();
-      clearLanguage();
+      // clearActiveUser();
+      // clearLastLoggedInVersion();
+      // clearLanguage();
+      // clearAnonGames();
+      // clearSingleplayerGames();
+      // clearUsers();
+      SharedPreferences prefs = await getPref();
+      prefs.clear();
     } else {
       _activeUser = await getActiveUser();
       _languageCode = await getLanguage();

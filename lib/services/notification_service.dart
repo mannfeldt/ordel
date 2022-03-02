@@ -16,6 +16,7 @@ class PushNotificationsManager {
   static final PushNotificationsManager _instance =
       PushNotificationsManager._();
 
+  // ignore: unused_field
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   bool _initialized = false;
 
@@ -65,8 +66,10 @@ class PushNotificationsManager {
         var gameId = data['game'];
         Provider.of<MultiplayerProvider>(context, listen: false)
             .handleGameUpdated(gameId);
-        AppRouter.navigateTo(context, AppRouter.pathForGame(gameId),
-            replace: true);
+        // AppRouter.navigateTo(context, AppRouter.pathForGame(gameId),
+        //     replace: true);
+        AppRouter.navigateTo(context, AppRouter.MULTIPLAYER_TAB, replace: true);
+
         break;
       case CloudFunctionName.GAME_INVITE:
         var gameId = data['game'];
@@ -116,8 +119,9 @@ class PushNotificationsManager {
         var gameId = data['game'];
         Provider.of<MultiplayerProvider>(context, listen: false)
             .handleGameUpdated(gameId);
-        //TODO kan jag skippa att visa denna notis om jag redan är inne på /gameplay?
-        //TODO om gameid är en annan än gameProvider.activeGame så visa "din tur i annat game" etc
+        // kan jag skippa att visa denna notis om jag redan är inne på /gameplay?
+        // om gameid är en annan än gameProvider.activeGame så visa "din tur i annat game" etc
+
         //PROBLEM: kan inte lita på AppRouter.currentPath då den kan blir fel efter en pop()
 
 // vi har ju 4 lägen en spelare kan vara i typ.

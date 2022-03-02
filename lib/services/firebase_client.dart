@@ -223,12 +223,14 @@ class FirebaseClient {
     return users;
   }
 
-  Future<List<SingleplayerGameRound>> getSingleplayerGames() async {
+  Future<List<SingleplayerGameRound>> getSingleplayerGames(User user) async {
     if (isPossibleInfiniteLoop) throw "POSSIBLE INFINITE LOOP";
     print("------------------firebase_client getGames---------------------");
-    CollectionReference gamesCollection = _firestore.collection('games');
 
-    QuerySnapshot snapshot = await gamesCollection.get();
+    QuerySnapshot? snapshot = await _firestore
+        .collection('games')
+        .where('uid', isEqualTo: user.uid)
+        .get();
 
     List<SingleplayerGameRound> games = snapshot.docs
         .map((x) => SingleplayerGameRound.fromJson(x.data()))

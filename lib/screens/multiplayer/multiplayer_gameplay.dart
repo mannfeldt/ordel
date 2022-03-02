@@ -55,8 +55,6 @@ class MultiplayerGameplay extends StatefulWidget {
   final MultiplayerGame game;
   final User activeUser;
   final User otherUser;
-  //TODO används för att visa lite ställnign osv i headern.. skapa en getter som hämtar activeRound och släng in det i gameplay..
-  //Språk hämtar vi härifrån också
 
   const MultiplayerGameplay({
     Key? key,
@@ -154,22 +152,24 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
       barrierDismissible: false,
       context: context,
       pageBuilder: (context, animation, secondaryAnimation) {
-        MediaQueryData mq = MediaQuery.of(context);
-        double size = ((mq.size.width - 120) / 5);
         return AlertDialog(
           backgroundColor: Colors.grey.shade900,
-          title: Text("Game finished"),
+          title: Text(
+            "Game finished",
+            style: TextStyle(color: Colors.white),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
+              MultiplayerGameStandings(
+                game: widget.game,
+                activeUser: widget.activeUser,
+                otherUser: widget.otherUser,
+                size: Size(_gamePlaySize.width - 40, _gamePlaySize.height),
+              ),
               TextButton(
                 onPressed: () async {
-                  // forstätt här... bygg apk debug och installera på en emulator och sen debuga på en annan och testa hela flödet.
-                  //TODO testa hela flödet nu finns säkert problem längst vägen... installera appen på en mobil som jag kan köra mot sen sitt på andra och debugga
-//TODO testa spela hela rundor. rematch, new game. ok osv.
-                  //TODO challenger är fel. ska ta inte ta motsatt host för det kan vara vem som helst. ska ta motsatt current/activeUser.
-                  //TODO TESTA OM DETTA FUNKAR
-                  // Navigator.pop(context); //TODO behövs?
+                  // Navigator.pop(context); //behövs?
                   AppRouter.navigateTo(
                     context,
                     "${AppRouter.SETUP_WORD_SCREEN}?language=${widget.game.language}&invite=${widget.game.playerUids.firstWhere((p) => p != currentUser.uid)}",
@@ -191,7 +191,7 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
                     context,
                     AppRouter.SETUP_LANGUAGE_SCREEN,
                     replace: true,
-                    // clearStack: true, //TODO clearstack replace?
+                    // clearStack: true, //! clearstack replace?
                     transition: TransitionType.inFromBottom,
                   );
                 },
@@ -343,8 +343,6 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  //TODO visa detta direkt, en mindre variant eller scrollbar variant då? eller bara visa detta i en dialog?
-                  //TODO eller så minskat jag bara wordgrid minska lite.
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: MultiplayerGameStandings(

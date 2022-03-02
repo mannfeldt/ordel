@@ -127,7 +127,7 @@ List<SingleChildWidget> buildModelProviders(
     ChangeNotifierProxyProvider3<FirebaseClient, FirebaseAnalyticsObserver,
         LocalStorage, UserProvider>(
       update: (context, client, analyticsObserver, localStorage, provider) {
-        //TODO ska cachemanager vara del av ChangeNotifierProxyProvider3? som i F1?
+        // ska cachemanager vara del av ChangeNotifierProxyProvider3? som i F1?
         var provider = UserProvider(
           client: client,
           localStorage: localStorage,

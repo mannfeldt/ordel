@@ -11,6 +11,7 @@ import 'package:ordel/services/local_storage.dart';
 
 class MultiplayerProvider with ChangeNotifier {
   final FirebaseClient _client;
+  // ignore: unused_field
   final LocalStorage _localStorage;
   // ignore: unused_field
   final FirebaseAnalyticsObserver _observer;
@@ -88,42 +89,16 @@ class MultiplayerProvider with ChangeNotifier {
 
     _activeGame!.activeGameRound.winIndex =
         guesses.indexOf(_activeGame!.activeGameRound.answer);
-    //TODO index blir fel här....
 
-    // forsätt härtyp
-    //1. när man spelat sin runda så ser ligger den fortfarande under "my turn" innan man kör pull to refresh?
-    // behöver vi synka _activegames till _games? saveRound följs av startNewRound som updaterar game
-
-    // TODO alltså typ göra de här ändringarna på _games[activegame] istället?
-    //TODO eller båda?
-    //TODO när detta funkar så test sepla lite men två riktiga mobiler. kolla att pushnotiser osv fungerar..
-    //TODO släpp detta som en ny release. uppdatera i play store med nya screenshoots på rätt färger nu.
-    //TODO också nytt namn så man inte ser ordel... och sätt namnet till det jag vill...
-//TODO nytt namn? see keep/events kalender: ordna, ordning++, ordas, ordat, orda
-//TODO. Skapa nytt bygge och pushnotis som förklarar mig lite.. och tackar.
-//TODO svara också på reviews.
-    // problemet jag ska ta tag i är här att när man spelat klart sin runda står den fortfarande under "my turn"
-    // troligen synkas det inte tillräckligt bra..
-
-    //2. just nu kan man öppna "active game" när det är någon annans tur.
-    // ta bort den möjligheten eller anpassa multiplayer_gameplay för om det inte är min tur.
-    //enklaste att byta ikon till arrow down etc och lås så man inte kan öppna.
-    //3. testa kör hela flödet igen, bytt till mobil och spela mot en fysisk mobil.
     notifyListeners();
   }
 
   Future<void> startNewRound(String newAnswer) async {
-    //TODO nytt game från fyfisk mobil. när jag spelat rundan på debug så
-    //TODO går den vidare rätt men listan updateras inte utan en pulltorefresh?
-
-//TODO blir ingen notis om myturn och mygames updateras inte utan pull to refresh..
     _activeGame!.rounds.add(GameRound(
         answer: newAnswer,
         user:
             _activeGame!.playerUids.firstWhere((p) => p != _client.user!.uid)));
     await updateGame();
-    // notifyListeners();
-    //TODO det är kanske denna som gör att det krävs pull to refresh? kör ju ladrig notifylistener..
   }
 
   Future<void> finishGame() async {
@@ -216,7 +191,6 @@ class MultiplayerProvider with ChangeNotifier {
             user: invite.uid,
           )
         ],
-        //TODO detta kan förenklas för duel när det alltid är 1v1 med att bara ha host och invitee som två strängar istället för invitees playerUids etc
         host: host.uid);
 
     MultiplayerGame neweGame =

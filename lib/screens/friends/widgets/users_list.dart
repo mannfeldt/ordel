@@ -49,7 +49,7 @@ class _UsersListState extends State<UsersList> {
         if (t is ScrollStartNotification) {
           focusNode.unfocus();
         }
-        return true; //TODO ??
+        return true;
       },
       child: ListView(
         children: [

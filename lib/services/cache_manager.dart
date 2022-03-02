@@ -29,21 +29,26 @@ class CacheManager {
     return users;
   }
 
-  Future<List<SingleplayerGameRound>> getSingleplayerGames() async {
-    int cacheSeconds =
-        RemoteConfig.instance.getInt("singleplayer_games_cache_seconds");
-    DateTime now = DateTime.now().toUtc();
+  Future<List<SingleplayerGameRound>> getSingleplayerGames(User user) async {
+    // int cacheSeconds =
+    //     RemoteConfig.instance.getInt("singleplayer_games_cache_seconds");
+    // DateTime now = DateTime.now().toUtc();
     CachedValue<List<SingleplayerGameRound>>? cache =
-        await _localStorage.getSingleplayerGames();
-    if (cache != null &&
-        cache.timestamp.millisecondsSinceEpoch + cacheSeconds * 1000 >
-            now.millisecondsSinceEpoch) {
+        await _localStorage.getSingleplayerGames(user);
+    //timestamp kanske är onöidgt när det bara är ens egna?
+    //ska alltid läsa från cache om det finns..
+
+    // &&
+    // cache.timestamp.millisecondsSinceEpoch + cacheSeconds * 1000 >
+    //   now.millisecondsSinceEpoch
+    if (cache != null) {
       print("return cache singleplayer games");
       return cache.value;
     }
     print("fetch api single player games");
-    List<SingleplayerGameRound> games = await _client.getSingleplayerGames();
-    unawaited(_localStorage.storeSingleplayerGames(games));
+    List<SingleplayerGameRound> games =
+        await _client.getSingleplayerGames(user);
+    unawaited(_localStorage.storeSingleplayerGames(games, user));
     return games;
   }
 

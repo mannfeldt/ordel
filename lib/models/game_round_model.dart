@@ -45,8 +45,6 @@ class SingleplayerGameRound extends GameRound {
     int dur = json['dur'];
     Duration duration = Duration(milliseconds: dur);
     String? finalGuess = json['guess'];
-    //TODO winIndex går att förenkla, det är ingen sträng?
-    //TODO problem med att guess saknas??
     // dynamic winIndexData = json['win'];
     // int winIndex = int.tryParse(winIndexData) ?? -1;
     int winIndex = json['win'];
@@ -102,7 +100,7 @@ class GameRound {
     int points = 0;
     for (int i = 0; i < answer.length; i++) {
       LetterBoxState state =
-          getLetterBoxState(0, guess: finalGuess!, answer: answer);
+          getLetterBoxState(i, guess: finalGuess!, answer: answer);
       if (state == LetterBoxState.correct) {
         points += 5;
       } else if (state == LetterBoxState.included) {

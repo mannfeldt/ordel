@@ -42,8 +42,6 @@ class UserProvider with ChangeNotifier {
   }
 
   // void setActiveUser(User? user) {
-  //   //TODO här kommer vi in om det fanns användare sparat i minnet så vi loggas in direkt.
-  //   //TODO men sätts _client.activeuser då? det är viktigt va?
   //   if (user != null) {
   //     _activeUser = user;
   //     _localStorage.storeActiveUser(user);
@@ -53,7 +51,6 @@ class UserProvider with ChangeNotifier {
   // }
 
   Future<List<User>> getUsers() async {
-    //TODO cacha båda dessa likt F1. med duration från remote config
     _users = await _cacheManager.getUsers();
     _followers = await _client.getFollowers();
     notifyListeners();
@@ -61,7 +58,6 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> refreshUsers() async {
-    //TODO cacha båda dessa likt F1. med duration från remote config
     _users = await _client.getUsers();
     _followers = await _client.getFollowers();
     notifyListeners();
@@ -129,10 +125,6 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> initUser() async {
-    //TODO! direkt när man loggar in så blir man anonym? måste starta om appen?
-//TODO problem med att nya användare inte skapas heller? körs inte alltid createUser??
-//TODO eller den skapas men med annat displayname/kod...
-// behöver helt enkelt debugga lite kring vad som händer här...
     await _client.init(null);
     // _activeUser = await _client.getUser();
     // _activeUser ??= await _client.createUser();

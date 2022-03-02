@@ -121,17 +121,6 @@ class _GameplayState extends State<Gameplay> {
   }
 
 //flutter build apk --target-platform android-arm,android-arm64,android-x64
-  //visa total stats kring vilken rank man har. bästa rundan osv.
-  //! när detta är på plats finns det lite att spela för och då är vi redo för att releasea version till play store.
-  //TODO vidare: lägg till stöd för flera språk. Ett språk har en KeyboardConfig som definerar vilka bokstäver som är på vilken rad
-  //TODO inkl var enter och delete är? Språket styr också vilken remoteconfig paramter vi hämtar upp för answers.
-  //TODO vi sprar språk till roundHistory också.
-  //TODO också en referens till en sråkfil. en json/property fil likt vi använder i pelabs. translations.dart kopiera rakt av typ.
-  //Tror jag kör allt på engelska tillsvidare dock.
-
-  //skapa en Provider och klient för detta. Flytta upp _currentHistorik och _allHistorik dit
-  //när man är klar med en runda så läggs det till i provider.currentHistorik osv.
-  //Kolla lite på Bloc Clean architecture etc. använd det?
 
   Future<void> endGame() async {
     await toggleAll();
@@ -201,7 +190,7 @@ class _GameplayState extends State<Gameplay> {
 
   Future<void> displayWinToast() async {
     await Fluttertoast.showToast(
-        msg: "You Won!",
+        msg: "Correct answer!",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,
@@ -337,7 +326,7 @@ class _GameplayState extends State<Gameplay> {
             },
             icon: const Icon(
               Icons.send,
-              color: Colors.white,
+              color: Colors.green,
             ),
           ),
         ),
@@ -404,17 +393,6 @@ class _GameplayState extends State<Gameplay> {
           ],
         ),
         if (widget.extraKeys.length > 4) actionButtons,
-        //TODO navbaren kan döljas under spelet? en liten knapp nere i något hörn för att få upp den
-        //den döljs när man går till en viss tabb?
-        //TODO denna HOME.dart måste förenklas. bryta ut den i hålbara widgets.
-        //som kan återanvändas i multiplayer gameround.
-        //1. ta bort allt i headern typ. det får bli unikt för single/multiplayer helt.
-        //2. så det är bara spelbrädet och tangentbordet som ska paketeras
-        //   de ska ta language som input. så i singleplayer kan man enkelt ändra fortfarande då.
-        //skapa multiplayer.dart som just nu är en enkel gameBoard med en annan header bara.
-        //men den ska ersättas med en lista av games likt patchfeud.
-        //TODO lägg till profilsettings på friendsskärmen. kolla hur det ser ut på patchfeud. sno profilesidan
-        //man kommer till profilesidan genom en ikon/klicka på sitt namn inne på friendstabben
         SizedBox(height: keySize * (widget.extraKeys.length > 4 ? 0 : 0.5)),
       ],
     );

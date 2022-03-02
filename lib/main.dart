@@ -8,13 +8,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutterfire_ui/auth.dart';
-import 'package:native_updater/native_updater.dart';
 import 'package:ordel/services/game_provider.dart';
 import 'package:ordel/services/providers.dart';
 import 'package:ordel/services/session_provider.dart';
 import 'package:ordel/navigation/app_router.dart';
 import 'package:ordel/services/user_provider.dart';
-import 'package:ordel/utils/version_checker.dart';
 import 'package:ordel/widgets/main_pages.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
@@ -36,7 +34,6 @@ Future<void> main() async {
   unawaited(runZoned<Future<Null>>(() async {
     await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     final providers = await bootstrap();
-//TODO kolla mot pelabs depricated?
     runApp(App(providers));
     // ignore: deprecated_member_use
   }, onError: (error, stackTrace) async {
@@ -114,7 +111,6 @@ class _AppRootState extends State<AppRoot> {
         // initialRoute:
         //     FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/home',
         onGenerateRoute: AppRouter.router?.generator,
-        //TODO userProvider nollställs vid hotreload???
         home: userProvider.isLoggedIn
             ? sessionProvider.isProd
                 ? const MainPages()

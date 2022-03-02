@@ -32,14 +32,11 @@ class _GameListState extends State<GameList> {
   }
 
   Future<void> _onAcceptInvite(MultiplayerGame game, User me) async {
-    //TODO onacceptInvite ska starta spelet direkt och "me" ska få köra min runda.
-    //TODO så kör acceptGameInvite och startgame ihop till ett här.
     try {
       User? gameHost = widget.userProvider.users?.firstWhere(
         (u) => u.uid == game.host,
         orElse: () => User.empty(),
       );
-      //TODO game eller returnen från acceptGameinvite? samma sak?
       await widget.multiplayerProvider.acceptGameInvite(game, me, gameHost);
 
       _onOpenGame(game);
