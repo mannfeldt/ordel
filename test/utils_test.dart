@@ -294,44 +294,44 @@ void main() {
     expect(getWinStreak([]), 0);
     expect(
       getWinStreak([
-        createGame(answer: "a", guesses: ["a"])
+        createGameFromGuesses(answer: "a", guesses: ["a"])
       ]),
       1,
     );
     expect(
       getWinStreak([
-        createGame(answer: "a", guesses: ["a"]),
-        createGame(answer: "a", guesses: ["b"])
+        createGameFromGuesses(answer: "a", guesses: ["a"]),
+        createGameFromGuesses(answer: "a", guesses: ["b"])
       ]),
       0,
     );
     expect(
       getWinStreak([
-        createGame(answer: "a", guesses: ["b"]),
-        createGame(answer: "a", guesses: ["a"])
+        createGameFromGuesses(answer: "a", guesses: ["b"]),
+        createGameFromGuesses(answer: "a", guesses: ["a"])
       ]),
       1,
     );
     expect(
       getWinStreak([
-        createGame(answer: "a", guesses: ["a"]),
-        createGame(answer: "a", guesses: ["a"])
+        createGameFromGuesses(answer: "a", guesses: ["a"]),
+        createGameFromGuesses(answer: "a", guesses: ["a"])
       ]),
       2,
     );
     expect(
       getWinStreak([
-        createGame(answer: "a", guesses: ["b"]),
-        createGame(answer: "a", guesses: ["a"]),
-        createGame(answer: "a", guesses: ["b"]),
+        createGameFromGuesses(answer: "a", guesses: ["b"]),
+        createGameFromGuesses(answer: "a", guesses: ["a"]),
+        createGameFromGuesses(answer: "a", guesses: ["b"]),
       ]),
       0,
     );
     expect(
       getWinStreak([
-        createGame(answer: "a", guesses: ["a"]),
-        createGame(answer: "a", guesses: ["a"]),
-        createGame(answer: "a", guesses: ["a"]),
+        createGameFromGuesses(answer: "a", guesses: ["a"]),
+        createGameFromGuesses(answer: "a", guesses: ["a"]),
+        createGameFromGuesses(answer: "a", guesses: ["a"]),
       ]),
       3,
     );

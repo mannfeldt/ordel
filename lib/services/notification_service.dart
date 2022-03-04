@@ -61,7 +61,6 @@ class PushNotificationsManager {
   void _handleExternalNotification(
       Map<String, dynamic> data, String pushFunction, BuildContext context) {
     switch (pushFunction) {
-      //TODO har en bugg att detta inte funkar. händer inget när man klickar på notisen?
       case CloudFunctionName.NEXT_TURN:
         var gameId = data['game'];
         Provider.of<MultiplayerProvider>(context, listen: false)

@@ -165,7 +165,7 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
                 game: widget.game,
                 activeUser: widget.activeUser,
                 otherUser: widget.otherUser,
-                size: Size(_gamePlaySize.width - 40, _gamePlaySize.height),
+                size: Size(_gamePlaySize.width - 80, _gamePlaySize.height),
               ),
               TextButton(
                 onPressed: () async {
@@ -178,11 +178,16 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
                     transition: TransitionType.inFromBottom,
                   );
                 },
-                child: Text(
-                  "Rematch",
-                  style: TextStyle(
-                    color: Colors.grey.shade100,
+                child: Container(
+                  child: Text(
+                    "Rematch",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
+                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 12),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(3.0),
+                      border: Border.all(color: Colors.white, width: 2.0)),
                 ),
               ),
               TextButton(
@@ -195,11 +200,16 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
                     transition: TransitionType.inFromBottom,
                   );
                 },
-                child: Text(
-                  "New game",
-                  style: TextStyle(
-                    color: Colors.grey.shade100,
+                child: Container(
+                  child: Text(
+                    "New Game",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
+                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 12),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(3.0),
+                      border: Border.all(color: Colors.white, width: 2.0)),
                 ),
               ),
               TextButton(
@@ -211,11 +221,16 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
                     // clearStack: true,
                   );
                 },
-                child: Text(
-                  "Ok",
-                  style: TextStyle(
-                    color: Colors.grey.shade100,
+                child: Container(
+                  child: Text(
+                    "Close",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
+                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 12),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(3.0),
+                      border: Border.all(color: Colors.white, width: 2.0)),
                 ),
               ),
             ],

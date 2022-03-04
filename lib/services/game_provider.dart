@@ -149,7 +149,7 @@ class GameProvider with ChangeNotifier {
     _leaderboard = getLeaderBoard();
 
     if (currentUser!.isAnonymous) {
-      await _localStorage.storeAnonGame(game);
+      await _localStorage.storeAnonGame(); //(game)
     } else {
       await _client.createGame(game);
       await _localStorage.storeSingleplayerGames(_games, currentUser!);

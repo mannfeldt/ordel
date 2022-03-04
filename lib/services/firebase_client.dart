@@ -72,6 +72,7 @@ class FirebaseClient {
         await _firestore.collection('users').doc(user!.uid).set(user!.toJson());
       }
     }
+    print(user?.fcm);
     return user!;
   }
 

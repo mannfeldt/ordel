@@ -83,13 +83,10 @@ class MultiplayerProvider with ChangeNotifier {
   }
 
   void saveRound(List<String> guesses, Duration duration) {
-    _activeGame!.activeGameRound.duration = duration;
-    _activeGame!.activeGameRound.finalGuess =
-        guesses.lastWhere((g) => g.isNotEmpty);
-
-    _activeGame!.activeGameRound.winIndex =
-        guesses.indexOf(_activeGame!.activeGameRound.answer);
-
+    GameRound round = _activeGame!.activeGameRound;
+    round.duration = duration;
+    round.finalGuess = guesses.lastWhere((g) => g.isNotEmpty);
+    round.winIndex = guesses.indexOf(round.answer);
     notifyListeners();
   }
 

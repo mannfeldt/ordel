@@ -13,12 +13,11 @@ class GameMyTurnSection extends StatelessWidget {
   final User activeUser;
   final List<Language> languages;
 
-  //TODO dialogen när sisa spelaren körs. med rematch val osv. Visa resultet där och om man vann/förlora.
-
-//TODO problem med notis när det är ens tur. händer inget när man klickarp åden. inte ens appen öppnas??
-//fixa minst till det att appen öppnas.. helst öppna dueltabben
+  // forstätt här...debuga med ena mobilen ikopplad de tre första problemen här
 
 //TODO hur är det med poängen. blir bara 25 på allt? är det något fel på fold sammanställningen?
+
+  //TODO visa slutresultat i dialogen när spelet är klart. får den plats nu?
 
 //todo FIXA statspage? se taiga. direkt via knapp från singleplayer vyn. Leadrboardtabben kanske ersätts också av knapp inne i gamelist vyn?
 //todo något enkelt först. bara sitt egna best streak och % win, total games player,
@@ -28,6 +27,9 @@ class GameMyTurnSection extends StatelessWidget {
   //TODO också nytt namn så man inte ser ordel... och sätt namnet till det jag vill...
 //TODO nytt namn? see keep/events kalender: ordna, ordning++, ordas, ordat, orda
 //TODO. Skapa nytt bygge och pushnotis som förklarar mig lite.. och tackar.
+//TODO meddela att ny version finns tillgänglig där multiplayer fungerar och allt är fixat.
+//TODO rensa alla users och games i prod. Förklara det i pushnotisen också. eller separat pushnotis.
+//eller ta bara bort alla anonyma konton? de som saknar
 //TODO svara också på reviews.
 //TODO lägg upp en bättre beskrvining a features osv.
 //TODO -unlimited wordle in Swedish or English. -multiplayer duels with friends
@@ -69,12 +71,19 @@ class GameMyTurnSection extends StatelessWidget {
               ),
               subtitle: Text("Opponent: ${opponent.displayname}",
                   style: TextStyle(color: Colors.grey.shade100)),
-              trailing: IconButton(
+              trailing: TextButton(
                 // key: Key(PlayKeys.OPEN_GAME_BUTTON),
                 onPressed: () => onOpenGame(g),
-                icon: Icon(
-                  Icons.chevron_right,
-                  color: Colors.white,
+                child: Container(
+                  child: Text(
+                    "Play",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 12),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(3.0),
+                      border: Border.all(color: Colors.white, width: 2.0)),
                 ),
               ),
               children: [

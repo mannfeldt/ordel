@@ -37,6 +37,8 @@ class MultiplayerGameStandings extends StatelessWidget {
   }
 
   Widget _buildUserStanding(List<GameRound> rounds, User user) {
+    int p1 = rounds.fold(
+        0, (int previousValue, element) => previousValue + element.points);
     int points = rounds.fold(
         0, (int previousValue, element) => previousValue + element.points);
     return Column(

@@ -1,4 +1,5 @@
 import 'package:ordel/models/game_round_model.dart';
+import 'package:ordel/models/multiplayer_game_model.dart';
 
 GameRound createGameFromGuesses({
   String answer = "answer",
@@ -28,6 +29,28 @@ GameRound createGame({
     winIndex: winIndex,
     duration: duration ?? const Duration(seconds: 30),
     user: user,
+  );
+}
+
+MultiplayerGame createMultiplayerGame({
+  String host = "host",
+  String id = "id1",
+  String language = "sv",
+  DateTime? startTime,
+  GameState state = GameState.Playing,
+  List<String> invitees = const [],
+  List<String>? playerUids,
+  List<GameRound>? rounds,
+}) {
+  return MultiplayerGame(
+    host: host,
+    id: id,
+    language: language,
+    startTime: startTime ?? DateTime(2022, 1, 1),
+    state: state,
+    invitees: invitees,
+    playerUids: playerUids ?? [host, ...invitees],
+    rounds: rounds ?? [],
   );
 }
 

@@ -59,4 +59,28 @@ void main() {
       20,
     );
   });
+
+  test('getPointsByUser', () {
+    expect(
+        createMultiplayerGame(
+          playerUids: ["2", "3"],
+          rounds: [createGame(winIndex: 0, user: "1")],
+        ).getPointsByUser("1"),
+        0);
+    expect(
+        createMultiplayerGame(
+          playerUids: ["1", "3"],
+          rounds: [createGame(winIndex: 0, user: "1")],
+        ).getPointsByUser("1"),
+        100);
+    expect(
+        createMultiplayerGame(
+          playerUids: ["1", "3"],
+          rounds: [
+            createGame(winIndex: 0, user: "1"),
+            createGame(winIndex: 0, user: "2")
+          ],
+        ).getPointsByUser("1"),
+        100);
+  });
 }

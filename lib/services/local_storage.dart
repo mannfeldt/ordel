@@ -141,9 +141,9 @@ class LocalStorage {
     return cachedValue;
   }
 
-  Future<void> storeAnonGame(SingleplayerGameRound game) async {
+  Future<void> storeAnonGame() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    // _anonGames.add(game);
+    // _anonGames.add(game); SingleplayerGameRound game hade detta om input innan. men behövs inte??
     await prefs.setString(LocalStorageKeys.ANON_GAMES,
         json.encode(_anonGames.map((g) => g.toJson()).toList()));
   }
@@ -210,8 +210,12 @@ class LocalStorage {
       // clearAnonGames();
       // clearSingleplayerGames();
       // clearUsers();
+      _anonGames = await getAnonGames();
+
+      //TODO vill vi verkligen rensa anongames? kan ju vara bra att ha? försvinner för alltid annars vid varje uppdatering :(
       SharedPreferences prefs = await getPref();
       prefs.clear();
+      await storeAnonGame();
     } else {
       _activeUser = await getActiveUser();
       _languageCode = await getLanguage();
