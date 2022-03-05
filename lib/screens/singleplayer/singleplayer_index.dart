@@ -87,15 +87,7 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
     super.initState();
   }
 
-//flutter build apk --target-platform android-arm,android-arm64,android-x64
-
-  //skapa en Provider och klient för detta. Flytta upp _currentHistorik och _allHistorik dit
-  //när man är klar med en runda så läggs det till i provider.currentHistorik osv.
-  //Kolla lite på Bloc Clean architecture etc. använd det?
-
   Future<void> _onRoundFinished(List<String> guesses, Duration duration) async {
-    //_language.code blir fel. måste ha en currentRoundLanguage också?
-    //så man inte kan ändra mitt i gamet..
     await Provider.of<GameProvider>(context, listen: false).createGame(
         answer: _answer,
         guesses: guesses,
@@ -168,7 +160,6 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
                     ),
                   ),
                   Gameplay(
-                    language: _currentRoundLanguage,
                     answer: _answer,
                     extraKeys: _extraCharacters,
                     onFinished: _onRoundFinished,
@@ -196,8 +187,6 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
                     setState(() {
                       _language = newValue!;
                     });
-
-                    initLanguages();
                   },
                   itemBuilder: (BuildContext context) {
                     return _supportedLanguages.map((Language choice) {
@@ -242,8 +231,14 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
   showStatsDialog(List<SingleplayerGameRound> games) async {
     //skapa en map med groupby language... för att dela upp games.
 
-    Map<String, List<SingleplayerGameRound>> languageGameMap =
-        groupBy(games, (SingleplayerGameRound game) => game.language);
+    Map<String, List<SingleplayerGameRound>> languageGameMap = groupBy(
+        games,
+        (SingleplayerGameRound game) => _supportedLanguages
+            .firstWhere((l) => l.code == game.language,
+                orElse: () => _supportedLanguages.first)
+            .name);
+    languageGameMap.putIfAbsent("All", () => games);
+
     //TODO grupperingen fungerar men det blir något fel..
     //TODO när man byter språk så sparas den pågående omgången med språket man byter till... fast än ordet man spelar just nu är andra språket
     //TODO fixa den buggen.
@@ -280,7 +275,7 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   //TODO skapa en till första rad här som visar global RANK. den baseras på alla users topstreak.
-                  BasicStats(games: games),
+                  BasicStats(gameMap: languageGameMap),
 
                   Text(
                     "Guess distribution",
@@ -328,8 +323,8 @@ class WinStreakText extends StatelessWidget {
 }
 
 class BasicStats extends StatefulWidget {
-  List<SingleplayerGameRound> games;
-  BasicStats({Key? key, required this.games}) : super(key: key);
+  Map<String, List<SingleplayerGameRound>> gameMap;
+  BasicStats({Key? key, required this.gameMap}) : super(key: key);
 
   @override
   State<BasicStats> createState() => _BasicStatsState();
@@ -337,8 +332,8 @@ class BasicStats extends StatefulWidget {
 
 class _BasicStatsState extends State<BasicStats> {
   bool _autoPlay = true;
-  Widget _buildStatsRow(
-      {String? label, required List<SingleplayerGameRound> games}) {
+  Widget _buildStatsRow({String? label, List<SingleplayerGameRound>? games}) {
+    if (games == null) return SizedBox();
     return Column(
       children: [
         if (label != null)
@@ -361,9 +356,15 @@ class _BasicStatsState extends State<BasicStats> {
             //! även ev en till höger till om det finns gåon språk till. Så kanske inte en karusell om det är svårt.
             //! eller en akrusell om det är enkelt så har vi vänster och höger pilar alltid...
             //! !!!!pageView, kolla vad som är enklast. helst en karusell med alla spelade språk. inkl små knappar vänster höger.
-            _buildStatsLabel("33", "Played"),
-            _buildStatsLabel("33%", "Succes"),
-            _buildStatsLabel("233", "Top Streak"),
+            _buildStatsLabel("${games.length}", "Played"),
+            _buildStatsLabel(
+                "${(games.where((g) => g.isWin).length / games.length) * 100}%",
+                "Succes"),
+                TODO lägg till flaggen i label kanske bara ha flaggan till o med.
+            _buildStatsLabel("233",
+                "Top Streak"), //denna är lite svår... per språk ju.. eller nej skit samma det är ju treak på det språket.
+            //se getleaderboard i gameprovider? räkna ut längst följden av isWin.
+
             // kolla på pageview för flera RowWidgets, en per språk.
             //  räkna ut dynamisk gruppering games per språk. och skapa en sån här rad i en pageview per sån grupp
           ],
@@ -411,10 +412,11 @@ class _BasicStatsState extends State<BasicStats> {
         viewportFraction: 1.0,
         autoPlay: _autoPlay,
       ),
-      items: [1, 2, 3].map((i) {
+      items: widget.gameMap.keys.map((String language) {
         return Builder(
           builder: (BuildContext context) {
-            return _buildStatsRow(label: "språk $i", games: widget.games);
+            return _buildStatsRow(
+                label: language, games: widget.gameMap[language]);
           },
         );
       }).toList(),

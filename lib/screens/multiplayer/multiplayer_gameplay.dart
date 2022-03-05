@@ -368,7 +368,6 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
                     ),
                   ),
                   Gameplay(
-                    language: _language,
                     answer: activeRound.answer,
                     extraKeys: _extraCharacters,
                     onFinished: (List<String> guesses, Duration duration) =>

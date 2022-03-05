@@ -4,7 +4,6 @@ import 'package:flip_card/flip_card_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:ordel/models/language_model.dart';
 import 'package:ordel/services/game_provider.dart';
 import 'package:ordel/utils/constants.dart';
 import 'package:ordel/utils/utils.dart';
@@ -13,14 +12,12 @@ import 'package:ordel/widgets/word_grid.dart';
 import 'package:provider/provider.dart';
 
 class Gameplay extends StatefulWidget {
-  final Language language;
   final String answer;
   final List<String> extraKeys;
   final Function onFinished;
   final Size? size;
   const Gameplay({
     Key? key,
-    required this.language,
     required this.answer,
     required this.extraKeys,
     required this.onFinished,
