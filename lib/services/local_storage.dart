@@ -212,7 +212,7 @@ class LocalStorage {
       // clearUsers();
       _anonGames = await getAnonGames();
 
-      //TODO vill vi verkligen rensa anongames? kan ju vara bra att ha? försvinner för alltid annars vid varje uppdatering :(
+      // vill vi verkligen rensa anongames? kan ju vara bra att ha? försvinner för alltid annars vid varje uppdatering :(
       SharedPreferences prefs = await getPref();
       prefs.clear();
       await storeAnonGame();
