@@ -13,17 +13,12 @@ class GameMyTurnSection extends StatelessWidget {
   final User activeUser;
   final List<Language> languages;
 
-  // forstätt här...debuga med ena mobilen ikopplad de tre första problemen här
-
-//todo FIXA statspage? se taiga. direkt via knapp från singleplayer vyn. Leadrboardtabben kanske ersätts också av knapp inne i gamelist vyn?
-//todo något enkelt först. bara sitt egna best streak och % win, total games player,
-//todo lägg senare till rank/leaderboard: vilket kräver att vi sparar beststreak på user.
-
 //TODO lägg till attribution. i playstore lägnst nser under credits/attributiion lägger jag länkarna.
 //TODO <a href="https://www.flaticon.com/free-icons/germany" title="germany icons">Germany icons created by Freepik - Flaticon</a>
 //TODO <a href="https://www.flaticon.com/free-icons/sweden" title="sweden icons">Sweden icons created by Freepik - Flaticon</a>
 //TODO <a href="https://www.flaticon.com/free-icons/uk" title="uk icons">Uk icons created by Freepik - Flaticon</a>
 //TODO <a href="https://www.flaticon.com/free-icons/world" title="world icons">World icons created by turkkub - Flaticon</a>
+//TODO <a href="https://www.flaticon.com/free-icons/swear" title="swear icons">Swear icons created by Darius Dan - Flaticon</a>
 //TODO funkar det lägga in länken såhär i google play? kan man skapa länkar? annars skriv bara ut den i klartext.
 
   //TODO släpp detta som en ny release. uppdatera i play store med nya screenshoots på rätt färger nu.

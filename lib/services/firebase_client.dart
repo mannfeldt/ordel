@@ -104,6 +104,12 @@ class FirebaseClient {
   //   return user!;
   // }
 
+  Future<void> updateUserStreak(User user, int streak) async {
+    await _firestore.collection('users').doc(user.uid).update({
+      User.STREAK_FIELD: streak,
+    });
+  }
+
   Future<void> updateUserProfile(
       User user, bool newName, bool newColor, bool newNotification) async {
     _activeUser = user;

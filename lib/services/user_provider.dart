@@ -41,6 +41,12 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateTopStreak(int streak) async {
+    activeUser!.topStreak = streak;
+    notifyListeners();
+    _client.updateUserStreak(activeUser!, streak);
+  }
+
   // void setActiveUser(User? user) {
   //   if (user != null) {
   //     _activeUser = user;
@@ -51,6 +57,7 @@ class UserProvider with ChangeNotifier {
   // }
 
   Future<List<User>> getUsers() async {
+    await Future.delayed(Duration(seconds: 2));
     _users = await _cacheManager.getUsers();
     _followers = await _client.getFollowers();
     notifyListeners();
@@ -61,6 +68,13 @@ class UserProvider with ChangeNotifier {
     _users = await _client.getUsers();
     _followers = await _client.getFollowers();
     notifyListeners();
+  }
+
+  int getRank() {
+    if (users == null) return 0;
+    List<User> sortedByRank = users!;
+    sortedByRank.sort((a, b) => a.topStreak - b.topStreak);
+    return sortedByRank.indexWhere((u) => u.uid == activeUser!.uid);
   }
 
   User? getUserById(String uid) =>

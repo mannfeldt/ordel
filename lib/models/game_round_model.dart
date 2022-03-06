@@ -45,9 +45,8 @@ class SingleplayerGameRound extends GameRound {
     int dur = json['dur'];
     Duration duration = Duration(milliseconds: dur);
     String? finalGuess = json['guess'];
-    // dynamic winIndexData = json['win'];
-    // int winIndex = int.tryParse(winIndexData) ?? -1;
-    int winIndex = json['win'];
+    dynamic winIndexData = json['win'];
+    int winIndex = int.tryParse(winIndexData.toString()) ?? -1;
     int millisecondsSinceEpoch = json["date"];
 
     SingleplayerGameRound game = SingleplayerGameRound(

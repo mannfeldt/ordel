@@ -70,6 +70,9 @@ List<int> getStreaks(List<GameRound> games) {
       currentStreak++;
     }
   }
+  if (currentStreak > 0) {
+    streaks.add(currentStreak);
+  }
   streaks.sort();
   return streaks;
 }
@@ -87,6 +90,9 @@ int getTopStreak(List<GameRound> games) {
     } else {
       currentStreak++;
     }
+  }
+  if (currentStreak > topStreak) {
+    topStreak = currentStreak;
   }
   return topStreak;
 }

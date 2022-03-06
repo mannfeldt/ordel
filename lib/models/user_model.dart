@@ -13,6 +13,7 @@ class User {
   final String? image;
   List<String> friendsUids;
   final bool isAnonymous;
+  int topStreak;
 
   User({
     required this.uid,
@@ -23,6 +24,7 @@ class User {
     required this.displayname,
     required this.colorString,
     this.isAnonymous = false,
+    this.topStreak = 0,
   }) : friendsUids = friendsUids ?? <String>[];
 
   User.empty({
@@ -33,6 +35,7 @@ class User {
     friendsUids,
     displayname,
     colorString,
+    topStreak,
     this.isAnonymous = false,
   })  : friendsUids = friendsUids ?? <String>[],
         uid = uid ?? "",
@@ -40,6 +43,7 @@ class User {
         username = username ?? "",
         image = image ?? "",
         colorString = colorString ?? "",
+        topStreak = topStreak ?? 0,
         displayname = displayname ?? "";
 
   factory User.fromJson(dynamic json) {
@@ -50,6 +54,7 @@ class User {
     String displayname = json[DISPLAYNAME_FIELD];
     String color = json[COLOR_FIELD];
     bool isAnon = json["anon"] != null;
+    int topStreak = json[STREAK_FIELD] ?? 0;
 
     Map<String, dynamic>? friendsMap = json[FRIENDS_FIELD];
 
@@ -61,6 +66,7 @@ class User {
       displayname: displayname,
       colorString: color,
       isAnonymous: isAnon,
+      topStreak: topStreak,
     );
     if (friendsMap != null) {
       user.friendsUids = friendsMap.values.map((f) => f.toString()).toList();
@@ -88,6 +94,7 @@ class User {
       colorString: ColorHelpers.toHexString(
           Colors.primaries[Random().nextInt(Colors.primaries.length - 1)]),
       isAnonymous: isAnonymous,
+      topStreak: 0,
     );
   }
 
@@ -101,7 +108,8 @@ class User {
       DISPLAYNAME_FIELD: displayname,
       COLOR_FIELD: colorString,
       if (image != null) IMAGE_FIELD: image,
-      if (isAnonymous) "anon": true
+      if (isAnonymous) "anon": true,
+      STREAK_FIELD: topStreak,
     };
   }
 
@@ -114,6 +122,7 @@ class User {
       COLOR_FIELD: colorString,
       if (image != null) IMAGE_FIELD: image,
       FRIENDS_FIELD: friendsUids,
+      STREAK_FIELD: topStreak,
     };
   }
 
@@ -125,4 +134,5 @@ class User {
   static const String PIECE_FIELD = 'piece';
   static const String IMAGE_FIELD = 'img';
   static const String FRIENDS_FIELD = 'friends';
+  static const String STREAK_FIELD = 'streak';
 }

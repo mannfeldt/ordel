@@ -6,15 +6,21 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:ordel/models/game_round_model.dart';
 import 'package:ordel/models/language_model.dart';
+import 'package:ordel/models/user_model.dart';
 import 'package:ordel/navigation/app_router.dart';
+import 'package:ordel/screens/singleplayer/rank_load_controller.dart';
 import 'package:ordel/services/game_provider.dart';
 import 'package:ordel/services/session_provider.dart';
+import 'package:ordel/services/user_provider.dart';
 import 'package:ordel/utils/constants.dart';
 import 'package:ordel/utils/utils.dart';
 import 'package:ordel/widgets/gameplay.dart';
+import 'package:ordel/widgets/loader.dart';
 import 'package:provider/provider.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 class SingleplayerScreen extends StatefulWidget {
   final String sessionLanguageCode;
@@ -36,7 +42,7 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
   List<String> _extraCharacters = [];
   // List<String> _excludedCharacters = [];
   late Size _gamePlaySize;
-
+  int _currentWinStreak = 0;
   final sleepEndDuration = const Duration(seconds: 2);
   String _answer = "";
 
@@ -84,6 +90,8 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
     MediaQueryData mq =
         MediaQueryData.fromWindow(WidgetsBinding.instance!.window);
     _gamePlaySize = Size(mq.size.width, mq.size.height - mq.padding.top);
+    _currentWinStreak =
+        getWinStreak(Provider.of<GameProvider>(context, listen: false).myGames);
     super.initState();
   }
 
@@ -96,8 +104,16 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
     initLanguages();
 
     setState(() {
+      _currentWinStreak = getWinStreak(
+          Provider.of<GameProvider>(context, listen: false).myGames);
       _answer = _wordList[Random().nextInt(_wordList.length)];
     });
+    UserProvider userProvider =
+        Provider.of<UserProvider>(context, listen: false);
+    User? user = userProvider.activeUser;
+    if (user != null && _currentWinStreak > user.topStreak) {
+      userProvider.updateTopStreak(_currentWinStreak);
+    }
   }
 
   Widget _buildLanguageIcon(Language? lang) {
@@ -217,7 +233,8 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
                     color: Colors.white,
                   ),
                   onPressed: () {
-                    showStatsDialog(gameProvider.myGames);
+                    showStatsDialog(
+                        gameProvider.myGames, gameProvider.currentUser);
                   },
                 ),
               ),
@@ -228,20 +245,13 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
     );
   }
 
-  showStatsDialog(List<SingleplayerGameRound> games) async {
-    //skapa en map med groupby language... för att dela upp games.
-
+  showStatsDialog(List<SingleplayerGameRound> games, User? currentUser) async {
     Map<Language, List<SingleplayerGameRound>> languageGameMap = groupBy(
         games,
         (SingleplayerGameRound game) => _supportedLanguages.firstWhere(
             (l) => l.code == game.language,
             orElse: () => _supportedLanguages.first));
     languageGameMap.putIfAbsent(Language("global", "Total"), () => games);
-
-    //TODO grupperingen fungerar men det blir något fel..
-    //TODO när man byter språk så sparas den pågående omgången med språket man byter till... fast än ordet man spelar just nu är andra språket
-    //TODO fixa den buggen.
-    //TODO 2. sen skicka in denna map till BasicStats och använd för att skapa upp pages.
 
     await showGeneralDialog(
       barrierDismissible: true,
@@ -273,26 +283,30 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  //TODO skapa en till första rad här som visar global RANK. den baseras på alla users topstreak.
+                  if (currentUser != null && !currentUser.isAnonymous)
+                    Consumer<UserProvider>(
+                      builder: (context, userProvider, child) => Loader(
+                        controller: RankLoadController(userProvider),
+                        waiting: Container(
+                          alignment: Alignment.center,
+                          height: 45,
+                          child: DefaultWaitingWidget(),
+                        ),
+                        result: Container(
+                          alignment: Alignment.center,
+                          height: 45,
+                          child: StatsValueLabel(
+                            label: "Global Rank",
+                            value: userProvider.getRank().toString(),
+                          ),
+                        ),
+                      ),
+                    ),
+                  SizedBox(height: 15),
                   BasicStats(gameMap: languageGameMap),
-
-                  Text(
-                    "Guess distribution",
-                    style: TextStyle(color: Colors.grey.shade100),
-                  ),
-                  Column(
-                    children: [
-                      //TODO ta in en horizontel barchart här... räkna ut disribution utifrån alla games..
-                      //TODO väldig enkel data. se screnshot taiga. barsen heter 1,2,3,4,5,6.
-                    ],
-                  ),
-                  //TODO skapa också kanske en linjegraf över tid baserat på points.
-                  //TODO behöver inte skriva ut points eller något. det är bara en trend
-                  //En linje per språk kanske. kräver minst x antal games för att få vara med i grafen.
-                  Text(
-                    "Performance Trend",
-                    style: TextStyle(color: Colors.grey.shade100),
-                  ),
+                  SizedBox(height: 15),
+                  if (games.length > 9)
+                    StatsTrendChart(languageGameMap: languageGameMap),
                 ],
               ),
             ],
@@ -302,6 +316,136 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
     );
   }
 }
+
+class StatsTrendChart extends StatelessWidget {
+  final Map<Language, List<SingleplayerGameRound>> languageGameMap;
+  const StatsTrendChart({Key? key, required this.languageGameMap})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    Map<Language, List<SingleplayerGameRound>> _getChartData() {
+      Map<Language, List<SingleplayerGameRound>> data = {};
+      List<Language> keys = languageGameMap.keys.toList().reversed.toList();
+      int totalGames = 20;
+      for (Language lang in keys) {
+        List<SingleplayerGameRound> rounds = languageGameMap[lang]!;
+        if (rounds.length > 1 && lang.code != "global") {
+          rounds.sort((a, b) => a.date.compareTo(b.date));
+          rounds = rounds.sublist(max(0, rounds.length - totalGames));
+
+          data.putIfAbsent(lang, () => rounds);
+        }
+      }
+      return data;
+    }
+
+    Map<Language, List<SingleplayerGameRound>> data = _getChartData();
+    return SizedBox(
+      height: 180,
+      width: 1000,
+      child: SfCartesianChart(
+        plotAreaBorderWidth: 0,
+        title: ChartTitle(
+          text: 'Performance Trend',
+          textStyle: TextStyle(color: Colors.grey.shade100),
+        ),
+        primaryYAxis: NumericAxis(
+            maximum: 102,
+            isVisible: false,
+            axisLabelFormatter: (AxisLabelRenderDetails details) =>
+                ChartAxisLabel(
+                  details.value > 0 ? "Max" : "min",
+                  TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+            maximumLabels: 2,
+            majorGridLines: const MajorGridLines(width: 0)),
+        legend: Legend(
+            isVisible: true,
+            textStyle: TextStyle(color: Colors.grey.shade400),
+            overflowMode: LegendItemOverflowMode.wrap,
+            position: LegendPosition.bottom),
+        primaryXAxis: NumericAxis(
+            edgeLabelPlacement: EdgeLabelPlacement.shift,
+            interval: 2,
+            isVisible: false,
+            majorGridLines: const MajorGridLines(width: 0)),
+        series: <SplineSeries<SingleplayerGameRound, num>>[
+          ...data.keys.toList().reversed.map((Language lang) {
+            int index = data.keys.toList().indexOf(lang);
+            List<SingleplayerGameRound> rounds = data[lang]!;
+            return SplineSeries<SingleplayerGameRound, num>(
+                animationDuration: 2500,
+                dataSource: rounds,
+                color: [
+                  Colors.blue,
+                  Colors.orange,
+                  Colors.green,
+                  Colors.purple,
+                  Colors.yellow,
+                  Colors.red,
+                ][index],
+                xValueMapper: (SingleplayerGameRound data, _) =>
+                    rounds.indexOf(data),
+                yValueMapper: (SingleplayerGameRound data, _) => data.points,
+                width: 2,
+                splineType: SplineType.monotonic,
+                enableTooltip: false,
+                xAxisName: "points",
+                name: lang.name,
+                markerSettings: const MarkerSettings(isVisible: false));
+          }),
+        ],
+        tooltipBehavior: TooltipBehavior(enable: true),
+      ),
+    );
+  }
+}
+
+// class StatsGuessesChart extends StatelessWidget {
+//   final List<SingleplayerGameRound> games;
+//   const StatsGuessesChart({Key? key, required this.games}) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     Map<int, int> guessesCounter = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+//     for (SingleplayerGameRound game in games) {
+//       if (game.isWin) {
+//         guessesCounter[game.winIndex] = guessesCounter[game.winIndex]! + 1;
+//       }
+//     }
+//     return Container(
+//       height: 150,
+//       width: 1000,
+//       child: SfCartesianChart(
+//         plotAreaBorderWidth: 0,
+//         title: ChartTitle(text: 'Tourism - Number of arrivals'),
+//         legend: Legend(isVisible: false),
+//         primaryXAxis: CategoryAxis(
+//           majorGridLines: const MajorGridLines(width: 0),
+//         ),
+//         primaryYAxis: NumericAxis(
+//             isVisible: true,
+//             majorGridLines: const MajorGridLines(width: 0),
+//             numberFormat: NumberFormat.compact()),
+//         series: [
+//           BarSeries<int, int>(
+//               dataSource: guessesCounter.keys.toList(),
+//               xValueMapper: (int data, _) => guessesCounter[data],
+//               yValueMapper: (int data, _) => data,
+//               dataLabelMapper: ((int a, int b) => "as"),
+
+//               dataLabelSettings: DataLabelSettings(
+//                   color: Colors.red, alignment: ChartAlignment.center),
+//               name: '2015')
+//         ],
+//         tooltipBehavior: TooltipBehavior(enable: true),
+//       ),
+//     );
+//   }
+// }
 
 class WinStreakText extends StatelessWidget {
   final int streak;
@@ -322,8 +466,8 @@ class WinStreakText extends StatelessWidget {
 }
 
 class BasicStats extends StatefulWidget {
-  Map<Language, List<SingleplayerGameRound>> gameMap;
-  BasicStats({Key? key, required this.gameMap}) : super(key: key);
+  final Map<Language, List<SingleplayerGameRound>> gameMap;
+  const BasicStats({Key? key, required this.gameMap}) : super(key: key);
 
   @override
   State<BasicStats> createState() => _BasicStatsState();
@@ -335,72 +479,44 @@ class _BasicStatsState extends State<BasicStats> {
       {required Language language, List<SingleplayerGameRound>? games}) {
     if (games == null) return SizedBox();
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (language.code == "global")
-          Text(
-            language.name,
-            style: TextStyle(color: Colors.grey.shade100),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Text(
+              language.name,
+              style: TextStyle(
+                color: Colors.grey.shade100,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           )
         else
-          Image.asset(
-            "assets/img/${language.code}.png",
-            height: 20,
-            errorBuilder: (context, error, stackTrace) => Text(
-              language.name,
-              style: TextStyle(color: Colors.grey.shade100),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Image.asset(
+              "assets/img/${language.code}.png",
+              height: 20,
+              errorBuilder: (context, error, stackTrace) => Text(
+                language.name,
+                style: TextStyle(color: Colors.grey.shade100),
+              ),
             ),
           ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            //TODO detta blir totala för alla games. skapa också en sån här rad med alla tre värdena per specifikt språk som finns spelat.
-            //Räcker om det finns bara en spelad runda på språket..
-            // hur visar vi upp de raderna? bara lägga dem rakt under kanske så får man scrolla. alt lägga de språkspecifka längst ned.
-            //alt så kan man swipea horizontelt på raden för att swappa mellan total, en, sv etc..karusell.
-            //man ser vilken man är på genom att texten i först byts bara? "Total played" "English played" "swedish played"
-            //! jag tror på en lösning med toggle/swipe för att ändra på raden. inte flera rader.
-            //! swipe karusell är ju snyggt men hur visar vi med UX att man kan swipea. en pil höger/vänster kanske om det går att swipea.
-            //! som då också är klickbara för att trigga en swipe. så i början är vi på total. med en pil höger längst u till höger.
-            //! om man klickar på den så kommer man till index 1 och kan då få en vänsterpil för att komma tillbaka på samma sätt.
-            //! även ev en till höger till om det finns gåon språk till. Så kanske inte en karusell om det är svårt.
-            //! eller en akrusell om det är enkelt så har vi vänster och höger pilar alltid...
-            //! !!!!pageView, kolla vad som är enklast. helst en karusell med alla spelade språk. inkl små knappar vänster höger.
-            _buildStatsLabel("${games.length}", "Played"),
-            _buildStatsLabel(
-                "${(games.where((g) => g.isWin).length / games.length) * 100}%",
-                "Succes"),
-            // TODO lägg till flaggen i label kanske bara ha flaggan till o med.
-            _buildStatsLabel("${getTopStreak(games)}",
-                "Top Streak"), //denna är lite svår... per språk ju.. eller nej skit samma det är ju treak på det språket.
-            //se getleaderboard i gameprovider? räkna ut längst följden av isWin.
-
-            // kolla på pageview för flera RowWidgets, en per språk.
-            //  räkna ut dynamisk gruppering games per språk. och skapa en sån här rad i en pageview per sån grupp
+            StatsValueLabel(value: "${games.length}", label: "Played"),
+            StatsValueLabel(
+                value: games.isNotEmpty
+                    ? NumberFormat.percentPattern("en").format(
+                        games.where((g) => g.isWin).length / games.length)
+                    : "-",
+                label: "Success Rate"),
+            StatsValueLabel(
+                value: "${getTopStreak(games)}", label: "Top Streak"),
           ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatsLabel(String value, String label) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 24,
-            letterSpacing: 1.125,
-            color: Colors.grey.shade100,
-          ),
-        ),
-        SizedBox(height: 3),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade300,
-          ),
         ),
       ],
     );
@@ -419,7 +535,7 @@ class _BasicStatsState extends State<BasicStats> {
               });
             }
           },
-          height: 70.0,
+          height: 80.0,
           viewportFraction: 1.0,
           initialPage: widget.gameMap.length - 1,
           autoPlay: _autoPlay,
@@ -433,6 +549,41 @@ class _BasicStatsState extends State<BasicStats> {
           );
         }).toList(),
       ),
+    );
+  }
+}
+
+class StatsValueLabel extends StatelessWidget {
+  final String value;
+  final String label;
+  const StatsValueLabel({
+    Key? key,
+    required this.value,
+    required this.label,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 24,
+            letterSpacing: 1.125,
+            color: Colors.grey.shade100,
+          ),
+        ),
+        SizedBox(height: 3),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade400,
+          ),
+        ),
+      ],
     );
   }
 }
