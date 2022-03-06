@@ -55,3 +55,38 @@ int getWinStreak(List<GameRound> history) {
   }
   return wins;
 }
+
+List<int> getStreaks(List<GameRound> games) {
+  int currentStreak = 0;
+  List<int> streaks = [];
+  //behöver sorteras av datum. nej?
+  for (GameRound game in games) {
+    if (!game.isWin) {
+      if (currentStreak > 0) {
+        streaks.add(currentStreak);
+      }
+      currentStreak = 0;
+    } else {
+      currentStreak++;
+    }
+  }
+  streaks.sort();
+  return streaks;
+}
+
+int getTopStreak(List<GameRound> games) {
+  int topStreak = 0;
+  int currentStreak = 0;
+  //behöver sorteras av datum. nej?
+  for (GameRound game in games) {
+    if (!game.isWin) {
+      if (currentStreak > topStreak) {
+        topStreak = currentStreak;
+      }
+      currentStreak = 0;
+    } else {
+      currentStreak++;
+    }
+  }
+  return topStreak;
+}

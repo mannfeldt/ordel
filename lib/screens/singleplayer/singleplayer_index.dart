@@ -231,13 +231,12 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
   showStatsDialog(List<SingleplayerGameRound> games) async {
     //skapa en map med groupby language... för att dela upp games.
 
-    Map<String, List<SingleplayerGameRound>> languageGameMap = groupBy(
+    Map<Language, List<SingleplayerGameRound>> languageGameMap = groupBy(
         games,
-        (SingleplayerGameRound game) => _supportedLanguages
-            .firstWhere((l) => l.code == game.language,
-                orElse: () => _supportedLanguages.first)
-            .name);
-    languageGameMap.putIfAbsent("All", () => games);
+        (SingleplayerGameRound game) => _supportedLanguages.firstWhere(
+            (l) => l.code == game.language,
+            orElse: () => _supportedLanguages.first));
+    languageGameMap.putIfAbsent(Language("global", "Total"), () => games);
 
     //TODO grupperingen fungerar men det blir något fel..
     //TODO när man byter språk så sparas den pågående omgången med språket man byter till... fast än ordet man spelar just nu är andra språket
@@ -323,7 +322,7 @@ class WinStreakText extends StatelessWidget {
 }
 
 class BasicStats extends StatefulWidget {
-  Map<String, List<SingleplayerGameRound>> gameMap;
+  Map<Language, List<SingleplayerGameRound>> gameMap;
   BasicStats({Key? key, required this.gameMap}) : super(key: key);
 
   @override
@@ -332,14 +331,24 @@ class BasicStats extends StatefulWidget {
 
 class _BasicStatsState extends State<BasicStats> {
   bool _autoPlay = true;
-  Widget _buildStatsRow({String? label, List<SingleplayerGameRound>? games}) {
+  Widget _buildStatsRow(
+      {required Language language, List<SingleplayerGameRound>? games}) {
     if (games == null) return SizedBox();
     return Column(
       children: [
-        if (label != null)
+        if (language.code == "global")
           Text(
-            label,
+            language.name,
             style: TextStyle(color: Colors.grey.shade100),
+          )
+        else
+          Image.asset(
+            "assets/img/${language.code}.png",
+            height: 20,
+            errorBuilder: (context, error, stackTrace) => Text(
+              language.name,
+              style: TextStyle(color: Colors.grey.shade100),
+            ),
           ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -360,8 +369,8 @@ class _BasicStatsState extends State<BasicStats> {
             _buildStatsLabel(
                 "${(games.where((g) => g.isWin).length / games.length) * 100}%",
                 "Succes"),
-                TODO lägg till flaggen i label kanske bara ha flaggan till o med.
-            _buildStatsLabel("233",
+            // TODO lägg till flaggen i label kanske bara ha flaggan till o med.
+            _buildStatsLabel("${getTopStreak(games)}",
                 "Top Streak"), //denna är lite svår... per språk ju.. eller nej skit samma det är ju treak på det språket.
             //se getleaderboard i gameprovider? räkna ut längst följden av isWin.
 
@@ -399,27 +408,31 @@ class _BasicStatsState extends State<BasicStats> {
 
   @override
   Widget build(BuildContext context) {
-    return CarouselSlider(
-      options: CarouselOptions(
-        onPageChanged: (int page, CarouselPageChangedReason reason) {
-          if (reason == CarouselPageChangedReason.manual) {
-            setState(() {
-              _autoPlay = false;
-            });
-          }
-        },
-        height: 70.0,
-        viewportFraction: 1.0,
-        autoPlay: _autoPlay,
-      ),
-      items: widget.gameMap.keys.map((String language) {
-        return Builder(
-          builder: (BuildContext context) {
-            return _buildStatsRow(
-                label: language, games: widget.gameMap[language]);
+    return SizedBox(
+      width: double.maxFinite,
+      child: CarouselSlider(
+        options: CarouselOptions(
+          onPageChanged: (int page, CarouselPageChangedReason reason) {
+            if (reason == CarouselPageChangedReason.manual) {
+              setState(() {
+                _autoPlay = false;
+              });
+            }
           },
-        );
-      }).toList(),
+          height: 70.0,
+          viewportFraction: 1.0,
+          initialPage: widget.gameMap.length - 1,
+          autoPlay: _autoPlay,
+        ),
+        items: widget.gameMap.keys.map((Language language) {
+          return Builder(
+            builder: (BuildContext context) {
+              return _buildStatsRow(
+                  language: language, games: widget.gameMap[language]);
+            },
+          );
+        }).toList(),
+      ),
     );
   }
 }
