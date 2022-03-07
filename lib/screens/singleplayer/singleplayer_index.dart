@@ -19,6 +19,7 @@ import 'package:ordel/utils/constants.dart';
 import 'package:ordel/utils/utils.dart';
 import 'package:ordel/widgets/gameplay.dart';
 import 'package:ordel/widgets/loader.dart';
+import 'package:ordel/widgets/word_grid.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -141,37 +142,21 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: Constants.horizontalPadding / 2),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Column(
                       children: [
-                        SizedBox(
-                          width: 40,
-                          child: IconButton(
-                            onPressed: () {},
-                            icon: const Icon(
-                              Icons.help,
-                              color: Colors.white,
-                            ),
+                        Text(
+                          kReleaseMode ? "Word streak" : _answer,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: 20,
                           ),
                         ),
-                        Column(
-                          children: [
-                            Text(
-                              kReleaseMode ? "Word streak" : _answer,
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.9),
-                                fontSize: 20,
-                              ),
-                            ),
-                            WinStreakText(
-                              getWinStreak(Provider.of<GameProvider>(context,
-                                      listen: false)
+                        WinStreakText(
+                          getWinStreak(
+                              Provider.of<GameProvider>(context, listen: false)
                                   .myGames),
-                              size: 20,
-                            ),
-                          ],
+                          size: 20,
                         ),
-                        SizedBox(width: 40),
                       ],
                     ),
                   ),
@@ -185,44 +170,57 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
               ),
               Container(
                 padding: EdgeInsets.only(left: 10),
-                child: PopupMenuButton<Language>(
-                  icon: _buildLanguageIcon(_language),
-                  onSelected: (Language? newValue) {
-                    if (_language != newValue) {
-                      Fluttertoast.showToast(
-                          msg: "Next word will be ${newValue?.name}",
-                          toastLength: Toast.LENGTH_LONG,
-                          gravity: ToastGravity.CENTER,
-                          timeInSecForIosWeb: 1,
-                          backgroundColor: Colors.black87,
-                          textColor: Colors.white,
-                          fontSize: 30);
-                      Provider.of<SessionProvider>(context, listen: false)
-                          .setLanguage(newValue);
-                    }
-                    setState(() {
-                      _language = newValue!;
-                    });
-                  },
-                  itemBuilder: (BuildContext context) {
-                    return _supportedLanguages.map((Language choice) {
-                      return PopupMenuItem<Language>(
-                        value: choice,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(choice.name),
-                            Container(
-                              padding: const EdgeInsets.only(left: 10),
-                              width: 28,
-                              child: _buildLanguageIcon(choice),
+                child: Column(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.help,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        showHelpDialog();
+                      },
+                    ),
+                    PopupMenuButton<Language>(
+                      icon: _buildLanguageIcon(_language),
+                      onSelected: (Language? newValue) {
+                        if (_language != newValue) {
+                          Fluttertoast.showToast(
+                              msg: "Next word will be ${newValue?.name}",
+                              toastLength: Toast.LENGTH_LONG,
+                              gravity: ToastGravity.CENTER,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.black87,
+                              textColor: Colors.white,
+                              fontSize: 30);
+                          Provider.of<SessionProvider>(context, listen: false)
+                              .setLanguage(newValue);
+                        }
+                        setState(() {
+                          _language = newValue!;
+                        });
+                      },
+                      itemBuilder: (BuildContext context) {
+                        return _supportedLanguages.map((Language choice) {
+                          return PopupMenuItem<Language>(
+                            value: choice,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(choice.name),
+                                Container(
+                                  padding: const EdgeInsets.only(left: 10),
+                                  width: 28,
+                                  child: _buildLanguageIcon(choice),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      );
-                    }).toList();
-                  },
+                          );
+                        }).toList();
+                      },
+                    ),
+                  ],
                 ),
               ),
               Positioned(
@@ -242,6 +240,133 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> showHelpDialog() async {
+    await showGeneralDialog(
+      barrierDismissible: true,
+      barrierLabel: "help",
+      context: context,
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return AlertDialog(
+          titlePadding: EdgeInsets.only(left: 20),
+          backgroundColor: Colors.grey.shade900,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "How to play",
+                style: TextStyle(color: Colors.grey.shade100),
+              ),
+              IconButton(
+                onPressed: () => Navigator.of(context).pop(),
+                icon: Icon(
+                  Icons.close,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+          scrollable: true,
+          content: Stack(
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Guess the correct word in six tries.",
+                    style: TextStyle(
+                      color: Colors.grey.shade100,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    "After each guess you will get clues.",
+                    style: TextStyle(
+                      color: Colors.grey.shade100,
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  Text(
+                    "Example",
+                    style: TextStyle(
+                      color: Colors.grey.shade100,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  WordRow(
+                    boxSize: (_gamePlaySize.width - 180) / 5,
+                    answer: "XOVXX",
+                    defaultFlipped: true,
+                    state: RowState.done,
+                    guess: "SOLVE",
+                  ),
+                  SizedBox(height: 5),
+                  RichText(
+                    text: TextSpan(
+                      style: TextStyle(
+                        color: Colors.grey.shade100,
+                        fontSize: 16,
+                      ),
+                      children: const [
+                        TextSpan(
+                          text: "The letter",
+                        ),
+                        TextSpan(
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                          text: " O ",
+                        ),
+                        TextSpan(
+                          text: "is in the word and in the correct spot.",
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  RichText(
+                    text: TextSpan(
+                      style: TextStyle(
+                        color: Colors.grey.shade100,
+                        fontSize: 16,
+                      ),
+                      children: const [
+                        TextSpan(
+                          text: "The letter",
+                        ),
+                        TextSpan(
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
+                          ),
+                          text: " V ",
+                        ),
+                        TextSpan(
+                          text: "is in the word but in the wrong spot.",
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    "The remaining letters is not in the word.",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey.shade100,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -337,6 +462,7 @@ class StatsTrendChart extends StatelessWidget {
           data.putIfAbsent(lang, () => rounds);
         }
       }
+
       return data;
     }
 
@@ -352,6 +478,7 @@ class StatsTrendChart extends StatelessWidget {
         ),
         primaryYAxis: NumericAxis(
             maximum: 102,
+            minimum: -2,
             isVisible: false,
             axisLabelFormatter: (AxisLabelRenderDetails details) =>
                 ChartAxisLabel(

@@ -119,27 +119,6 @@ class _MultiplayerGameplayState extends State<MultiplayerGameplay> {
     _gamePlaySize = Size(mq.size.width, mq.size.height - mq.padding.top);
     super.initState();
   }
-  //hur startar jag. blir en post med bara bilder och en lång beskrivning i ordning:
-  //I recently experienced the ongoing american inflation, callories inflation that is.
-  //??recenlty indulged in fine american guisne: fast food chains. I experienced the american inflation, inflation of callorices.??
-  //As im working on reactive measures to handle the caloories heres my review of all the fast food chains I consumed.
-  //utan inböres ordning, disclaimer hade högre eller lägre förväntningar och hunger som kan påverka betygen
-  //dela upp en post för burgare och en för övrigt.
-  //inout, 8.6
-  //chickfila 7.2 dipparna var det bästa (var proppmätt från tacos precis innan)
-  //fiveguys 8.9(testade denna vid två olika tillfällen då första gången så tog jag med den hem kall och deconsruct värma och reconstruct, toasta bröden osv.. fusk)
-  //fatburger (testade denna två gånger, mest bara för att den var nära och @plotnick s första val på besök i downtown..)
-  //shakeshack east coast best coast. hade allt jag gillar. potato bun, tun patty, fräsha grönsaker, smakrik sås, bra mängd ost. 9.4/10.
-  //åt här två gånger för att vara rättvis då jag var väldigt hunrig första gången. Andra gången var lika bra!
-  //jack in box. knasig och spännande surdetsburgare: 8.5
-  //whitecastle 0.0/10 vet inte hur man kan försämra den.. I would rather eat apirplane meatballs for the rest of my life than eating here again sober.
-  //chipotle 8.1
-  //tacobell 9.1 go-to drunk food.
-  //panda orange chicken 10/10 resten minns jag inte.
-  //apple stick 10/10 genious.
-  //hotpocket. inte så het 3.1/10
-  //jolliebees. kortmaskin trasig men inredningen incl mascot gets 10/10
-  //trader joes.
 
 //flutter build apk --target-platform android-arm,android-arm64,android-x64
 

@@ -199,23 +199,18 @@ class LocalStorage {
     await prefs.remove(LocalStorageKeys.SINGLEPLAYER_GAMES);
   }
 
+  Future<void> clearAll() async {
+    _anonGames = await getAnonGames();
+    SharedPreferences prefs = await getPref();
+    prefs.clear();
+    await storeAnonGame();
+  }
+
   Future<void> init() async {
     String? lastLoggedInVersion = await getLastLoggedInVersion();
     final PackageInfo info = await PackageInfo.fromPlatform();
     if (lastLoggedInVersion == null || lastLoggedInVersion != info.version) {
-      //app has updated
-      // clearActiveUser();
-      // clearLastLoggedInVersion();
-      // clearLanguage();
-      // clearAnonGames();
-      // clearSingleplayerGames();
-      // clearUsers();
-      _anonGames = await getAnonGames();
-
-      // vill vi verkligen rensa anongames? kan ju vara bra att ha? försvinner för alltid annars vid varje uppdatering :(
-      SharedPreferences prefs = await getPref();
-      prefs.clear();
-      await storeAnonGame();
+      await clearAll();
     } else {
       _activeUser = await getActiveUser();
       _languageCode = await getLanguage();

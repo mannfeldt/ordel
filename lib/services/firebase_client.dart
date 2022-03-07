@@ -236,7 +236,7 @@ class FirebaseClient {
 
     QuerySnapshot? snapshot = await _firestore
         .collection('games')
-        .where('uid', isEqualTo: user.uid)
+        .where('user', isEqualTo: user.uid)
         .get();
 
     List<SingleplayerGameRound> games = snapshot.docs

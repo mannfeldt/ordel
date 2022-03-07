@@ -106,10 +106,12 @@ class _GameplayState extends State<Gameplay> {
             (Constants.boxMargin * 10)) /
         5;
 
-    keySize = (size.width -
+    bool tablet = size.height > 1300 && size.width > 800;
+    keySize = (min(1000, tablet ? size.width - 30 : size.width) -
             (Constants.horizontalPadding / 2) -
             (Constants.keyMargin * 22)) /
         11;
+
     double minKeyBoardHeight = keySize * 12;
     double maxLetterBoxSize =
         (size.height - minKeyBoardHeight - (Constants.boxMargin * 10)) / 6;

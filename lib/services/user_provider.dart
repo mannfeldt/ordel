@@ -57,7 +57,6 @@ class UserProvider with ChangeNotifier {
   // }
 
   Future<List<User>> getUsers() async {
-    await Future.delayed(Duration(seconds: 2));
     _users = await _cacheManager.getUsers();
     _followers = await _client.getFollowers();
     notifyListeners();
@@ -108,10 +107,7 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> clearLocalStorage() async {
-    await _localStorage.clearActiveUser();
-    await _localStorage.clearLastLoggedInVersion();
-    await _localStorage.clearUsers();
-    await _localStorage.clearAnonGames();
+    await _localStorage.clearAll();
   }
 
   Future<void> updateProfile(

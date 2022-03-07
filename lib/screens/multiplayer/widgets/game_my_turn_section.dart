@@ -24,7 +24,11 @@ class GameMyTurnSection extends StatelessWidget {
   //TODO släpp detta som en ny release. uppdatera i play store med nya screenshoots på rätt färger nu.
   //TODO också nytt namn så man inte ser ordel... och sätt namnet till det jag vill...
 //TODO nytt namn? see keep/events kalender: ordna, ordning++, ordas, ordat, orda
-//TODO. Skapa nytt bygge och pushnotis som förklarar mig lite.. och tackar.
+
+// Ändra adance settings i plays tore cnosole: publish
+//när det är i prod nu testa själv lite. och kolla store precense. sen fixa pusnotis osv. nedan.
+
+//TODO. Skapa pushnotis som förklarar mig lite.. och tackar.
 //TODO meddela att ny version finns tillgänglig som fungerar mycket bättre och där multiplayer är fixat.
 //TODO skicka ut notisen på två språk.
 //TODO rensa alla users och games i prod. Förklara det i pushnotisen också. eller separat pushnotis.
