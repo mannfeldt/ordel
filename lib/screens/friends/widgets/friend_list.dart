@@ -81,7 +81,9 @@ class _FriendListState extends State<FriendList>
         .where((u) => u.uid != widget.userProvider.activeUser!.uid)
         .toList();
     followers = widget.userProvider.users!
-        .where((u) => widget.userProvider.followers!.any((f) => f.uid == u.uid))
+        .where((u) =>
+            widget.userProvider.followers != null &&
+            widget.userProvider.followers!.any((f) => f.uid == u.uid))
         .toList();
     return DefaultTabController(
       length: _tabController.length,

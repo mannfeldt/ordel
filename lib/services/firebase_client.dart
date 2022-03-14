@@ -29,7 +29,22 @@ class FirebaseClient {
         "------------------${_callsTimeStamps.length} calls in last minute firebase---------------------");
     //kanske behöver göra exception för när vi kör mot eemulator/mock här. kan vi kolla på _firestore för att avgöra det?
     //om mock/emulator så tillåt ett högre antal?
-    return _callsTimeStamps.length > 100;
+här
+    //TODO 1: lägg en limit på hur långt ett displayname får vara. och anpassa widgeten som visar spelresultatet lite. autosizetext?
+    //TODO 2: fixa så man kan byta språk direkt om man inte börjat spela någon gissning.
+              // sätter ny svar och updaterar tangenbord etc direkt då.
+              //skapa en .isStarted
+    //TODO 3: ändra pubspc till ORDNA så den visar rätt... search/replace
+    //TODO kan jag framkalla problemet med blinkande gameplay?
+    //TODO det är multiplayer när jag öppnar ett game
+    //TODO har fått det medan en pushnotis visas ingame slump?
+    //TODO testa foraca fram detp å något vis. BYT TILL DEV ENV.
+    if (_callsTimeStamps.length > 100) return true;
+    List<DateTime> temp = _callsTimeStamps
+        .where((t) =>
+            t.isAfter(DateTime.now().subtract(const Duration(seconds: 3))))
+        .toList();
+    return temp.length > 20;
   }
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -144,7 +159,10 @@ class FirebaseClient {
     List<User> followers = [];
     for (DocumentSnapshot doc in snapshot.docs) {
       DocumentSnapshot follower = await doc.reference.parent.parent!.get();
-      followers.add(User.fromJson(follower.data()));
+      User user = User.fromJson(follower.data());
+      if (user.uid.isNotEmpty) {
+        followers.add(user);
+      }
     }
 
     return followers;
@@ -159,6 +177,7 @@ class FirebaseClient {
 
     if (doc.exists) {
       User user = User.fromJson(doc.data());
+      if (user.uid.isEmpty) return null;
       QuerySnapshot friendsSnapshot = await _firestore
           .collection('users')
           .doc(user.uid)
@@ -224,8 +243,10 @@ class FirebaseClient {
 
     QuerySnapshot snapshot = await gamesCollection.get();
 
-    List<User> users =
-        snapshot.docs.map((x) => User.fromJson(x.data())).toList();
+    List<User> users = snapshot.docs
+        .map((x) => User.fromJson(x.data()))
+        .where((u) => u.uid.isNotEmpty)
+        .toList();
 
     return users;
   }

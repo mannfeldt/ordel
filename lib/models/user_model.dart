@@ -47,31 +47,35 @@ class User {
         displayname = displayname ?? "";
 
   factory User.fromJson(dynamic json) {
-    String uid = json[UID_FIELD];
-    String fcm = json[FCM_FIELD];
-    String username = json[USERNAME_FIELD];
-    String? image = json[IMAGE_FIELD];
-    String displayname = json[DISPLAYNAME_FIELD];
-    String color = json[COLOR_FIELD];
-    bool isAnon = json["anon"] != null;
-    int topStreak = json[STREAK_FIELD] ?? 0;
+    try {
+      String uid = json[UID_FIELD];
+      String fcm = json[FCM_FIELD];
+      String username = json[USERNAME_FIELD];
+      String? image = json[IMAGE_FIELD];
+      String displayname = json[DISPLAYNAME_FIELD];
+      String color = json[COLOR_FIELD];
+      bool isAnon = json["anon"] != null;
+      int topStreak = json[STREAK_FIELD] ?? 0;
 
-    Map<String, dynamic>? friendsMap = json[FRIENDS_FIELD];
+      Map<String, dynamic>? friendsMap = json[FRIENDS_FIELD];
 
-    User user = User(
-      uid: uid,
-      fcm: fcm,
-      username: username,
-      image: image,
-      displayname: displayname,
-      colorString: color,
-      isAnonymous: isAnon,
-      topStreak: topStreak,
-    );
-    if (friendsMap != null) {
-      user.friendsUids = friendsMap.values.map((f) => f.toString()).toList();
+      User user = User(
+        uid: uid,
+        fcm: fcm,
+        username: username,
+        image: image,
+        displayname: displayname,
+        colorString: color,
+        isAnonymous: isAnon,
+        topStreak: topStreak,
+      );
+      if (friendsMap != null) {
+        user.friendsUids = friendsMap.values.map((f) => f.toString()).toList();
+      }
+      return user;
+    } catch (e) {
+      return User.empty();
     }
-    return user;
   }
 
   factory User.generateUser(
