@@ -16,11 +16,13 @@ class Gameplay extends StatefulWidget {
   final List<String> extraKeys;
   final Function onFinished;
   final Size? size;
+  final Function(String)? onGuess;
   const Gameplay({
     Key? key,
     required this.answer,
     required this.extraKeys,
     required this.onFinished,
+    this.onGuess,
     this.size,
   }) : super(key: key);
 
@@ -239,6 +241,10 @@ class _GameplayState extends State<Gameplay> {
     if (!isValidWord(_currentGuess)) {
       shakeRow();
       return;
+    }
+
+    if (widget.onGuess != null) {
+      widget.onGuess!(_currentGuess);
     }
 
     if (_currentGuess == widget.answer) {

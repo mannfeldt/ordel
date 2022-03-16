@@ -46,6 +46,7 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
   int _currentWinStreak = 0;
   final sleepEndDuration = const Duration(seconds: 2);
   String _answer = "";
+  bool _hasGuessed = false;
 
   void initLanguages() {
     setState(() {
@@ -96,25 +97,63 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
     super.initState();
   }
 
+  void _startNewRound() {
+    initLanguages();
+
+    setState(() {
+      _hasGuessed = false;
+      _currentWinStreak = getWinStreak(
+          Provider.of<GameProvider>(context, listen: false).myGames);
+      _answer = _wordList[Random().nextInt(_wordList.length)];
+    });
+  }
+
   Future<void> _onRoundFinished(List<String> guesses, Duration duration) async {
     await Provider.of<GameProvider>(context, listen: false).createGame(
         answer: _answer,
         guesses: guesses,
         duration: duration,
         language: _currentRoundLanguage.code);
-    initLanguages();
 
-    setState(() {
-      _currentWinStreak = getWinStreak(
-          Provider.of<GameProvider>(context, listen: false).myGames);
-      _answer = _wordList[Random().nextInt(_wordList.length)];
-    });
+    _startNewRound();
+
     UserProvider userProvider =
         Provider.of<UserProvider>(context, listen: false);
     User? user = userProvider.activeUser;
     if (user != null && _currentWinStreak > user.topStreak) {
       userProvider.updateTopStreak(_currentWinStreak);
     }
+  }
+
+  void _onGuess(String guess) {
+    setState(() {
+      _hasGuessed = true;
+    });
+  }
+
+  void _languageChanged(Language? language) {
+    if (_language != language) {
+      Provider.of<SessionProvider>(context, listen: false)
+          .setLanguage(language);
+      if (_hasGuessed) {
+        Fluttertoast.showToast(
+            msg: "Next word will be ${language?.name}",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.black87,
+            textColor: Colors.white,
+            fontSize: 30);
+      } else {
+        setState(() {
+          _language = language!;
+        });
+        _startNewRound();
+      }
+    }
+    setState(() {
+      _language = language!;
+    });
   }
 
   Widget _buildLanguageIcon(Language? lang) {
@@ -161,6 +200,7 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
                     ),
                   ),
                   Gameplay(
+                    onGuess: _onGuess,
                     answer: _answer,
                     extraKeys: _extraCharacters,
                     onFinished: _onRoundFinished,
@@ -183,23 +223,7 @@ class _SingleplayerScreenState extends State<SingleplayerScreen> {
                     ),
                     PopupMenuButton<Language>(
                       icon: _buildLanguageIcon(_language),
-                      onSelected: (Language? newValue) {
-                        if (_language != newValue) {
-                          Fluttertoast.showToast(
-                              msg: "Next word will be ${newValue?.name}",
-                              toastLength: Toast.LENGTH_LONG,
-                              gravity: ToastGravity.CENTER,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Colors.black87,
-                              textColor: Colors.white,
-                              fontSize: 30);
-                          Provider.of<SessionProvider>(context, listen: false)
-                              .setLanguage(newValue);
-                        }
-                        setState(() {
-                          _language = newValue!;
-                        });
-                      },
+                      onSelected: _languageChanged,
                       itemBuilder: (BuildContext context) {
                         return _supportedLanguages.map((Language choice) {
                           return PopupMenuItem<Language>(

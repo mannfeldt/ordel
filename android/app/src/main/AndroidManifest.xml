@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="mannfeldt.ordel">
    <application
-        android:label="ordel"
+        android:label="Ordna"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity

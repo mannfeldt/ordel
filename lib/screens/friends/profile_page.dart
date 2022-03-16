@@ -189,7 +189,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 onSubmitted: (value) => _onDisplayNameChanged(
                                     value, me.displayname),
                                 controller: displayNameController,
-                                maxLength: 32,
+                                maxLength: 20,
                                 decoration: InputDecoration(
                                   contentPadding: EdgeInsets.only(bottom: 0),
                                   border: UnderlineInputBorder(

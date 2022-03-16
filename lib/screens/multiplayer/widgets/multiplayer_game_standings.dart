@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:ordel/models/game_round_model.dart';
 import 'package:ordel/models/multiplayer_game_model.dart';
@@ -41,25 +42,31 @@ class MultiplayerGameStandings extends StatelessWidget {
         0, (int previousValue, element) => previousValue + element.points);
     return Column(
       children: [
-        Row(
-          children: [
-            Text(
-              user.displayname,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+        SizedBox(
+          width: (size.width - 80) / 2,
+          child: Row(
+            children: [
+              Expanded(
+                child: AutoSizeText(
+                  user.displayname,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                  maxLines: 1,
+                ),
               ),
-            ),
-            Text(
-              "($points)",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-                color: Colors.green,
-              ),
-            )
-          ],
+              Text(
+                "($points)",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.green,
+                ),
+              )
+            ],
+          ),
         ),
         for (int i = 0; i < Constants.multiplayerRounds; i++)
           _buildStandingRow(
