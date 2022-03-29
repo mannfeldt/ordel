@@ -22,17 +22,6 @@ To delete your user data go to the friends tab in app > Settings > delete accoun
 <div class="page">
 <div class="header">
 <div class="container">
-<p class="title">Privacy Policy for Ordna</p>
-</div>
-</div>
-
-<div class="translations-list-container">
-<div class="container">
-<ul class="translations-list">
-<li class="en translations-list-item">
-<a class="tab-link active" href="#en">English</a>
-</li>
-</ul>
 </div>
 </div>
 
