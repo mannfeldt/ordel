@@ -44,7 +44,7 @@ class UserProvider with ChangeNotifier {
   void updateTopStreak(int streak) async {
     activeUser!.topStreak = streak;
     notifyListeners();
-    _client.updateUserStreak(activeUser!, streak);
+    if (!activeUser!.isAnonymous) _client.updateUserStreak(activeUser!, streak);
   }
 
   // void setActiveUser(User? user) {
